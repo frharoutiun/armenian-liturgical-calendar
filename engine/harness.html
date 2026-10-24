@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calendar engine test harness</title>
+<style>
+ body{font:15px/1.5 "Noto Sans Armenian",system-ui,sans-serif;max-width:60rem;margin:1.5rem auto;padding:0 1rem}
+ h1{font-size:1.2rem} .hy{font-size:1.1rem} code{background:#eee;padding:0 .25em}
+ .badge{font-size:.75rem;padding:.05rem .4rem;border-radius:.6rem;border:1px solid #888;margin-left:.4rem}
+ .warn{color:#8a4b00} table{border-collapse:collapse;width:100%} td,th{border:1px solid #ccc;padding:.25rem .4rem;text-align:left;vertical-align:top}
+ details{margin:.6rem 0} summary{cursor:pointer;font-weight:600}
+</style></head><body>
+<h1>Calendar engine test harness <span class="badge">prototype</span></h1>
+<p>Type any date (1583&ndash;9999). Served over http (for example <code>python3 -m http.server 4191</code> in the site folder, then open <code>/engine/harness.html</code>).</p>
+<form id="f"><input id="d" value="2027-03-28" size="12" aria-label="Date YYYY-MM-DD"> <button>Resolve</button>
+ <button type="button" id="prev">&larr;</button> <button type="button" id="next">&rarr;</button> <span id="msg"></span></form>
+<div id="out"></div>
+<script type="module">
+import { createCalendar, parseCivilDate } from './calendar.mjs';
+const out = document.getElementById('out'), msg = document.getElementById('msg'), inp = document.getElementById('d');
+let cal;
+const esc = (s) => String(s ?? '').replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+function addDays(iso, n) { const p = parseCivilDate(iso); const t = new Date(Date.UTC(p.y, p.m - 1, p.d + n)); return t.toISOString().slice(0, 10); }
+function render(r) {
+  if (r.error) { out.innerHTML = `<p class="warn">${esc(r.error)}</p>`; return; }
+  let h = `<h2>${esc(r.date)} &middot; ${esc(r.weekday)} <span class="badge">${r.status}</span>${r.provisional ? '<span class="badge warn">provisional</span>' : ''}</h2>`;
+  h += `<p>Mode of the day: <b class="hy">${esc(r.mode.armenian)}</b> &nbsp; Easter ${esc(r.easter)} (${r.easterOffset >= 0 ? '+' : ''}${r.easterOffset} days)</p>`;
+  h += '<h3>Commemoration</h3>' + r.commemorations.map((c) => `<p><span class="hy">${esc(c.armenian)}</span><br>${esc(c.english || '(no English name)')} <span class="badge">${esc(c.englishStatus || 'none')}</span> <small>${esc(c.englishProvenance)} &middot; rule ${esc(c.rule)} (${esc(c.ruleStatus)})</small></p>`).join('');
+  h += `<h3>Fasting</h3><p>${esc(r.fasting.label)}${r.fasting.provisional ? ' <span class="badge warn">provisional</span>' : ''} <small>${esc(r.fasting.rule || '')}</small></p>` + (r.fasting.openQuestions || []).map((q) => `<p class="warn">${esc(q)}</p>`).join('');
+  h += `<h3>Readings (${r.readings.length})</h3><table><tr><th>Armenian (Hador 1)</th><th>Passage</th><th>Service</th><th>Jashots</th></tr>` + r.readings.map((x) => `<tr><td class="hy">${esc(x.verbatimArmenian)}</td><td>${esc(x.citationEn || x.citationKey || '')}${x.needsPageCheck ? ' <span class="badge warn">check page</span>' : ''}</td><td>${esc(x.service.label)}${x.service.confident ? '' : ' <span class="badge warn">uncertain</span>'}</td><td>${x.jashots ? esc(x.jashots.chains.map((c) => c.chain_id + ' p.' + (c.pdf_pages || []).join('-')).join('; ')) : '&mdash;'}</td></tr>`).join('') + '</table>';
+  h += `<h3>Hymns (${r.hymns.length})</h3><table><tr><th>Incipit</th><th>Mode</th><th>Link</th></tr>` + r.hymns.map((x) => `<tr><td class="hy">${esc(x.incipit)}</td><td class="hy">${esc(x.mode)}</td><td>${esc(x.status)}${x.links[0] ? ' &rarr; ' + esc(x.links[0].hymnId) + ' p.' + esc((x.links[0].pages || []).join('-')) : ''}</td></tr>`).join('') + '</table>';
+  if (r.canons.length) h += '<h3>Linked canons</h3><ul>' + r.canons.map((c) => `<li class="hy">${esc(c.canonTitle)} <small>(${c.mapped ? 'sections ' + esc(c.sectionIds.join(', ')) : 'not mapped to a section'}; ${esc(c.reviewStatus)})</small></li>`).join('') + '</ul>';
+  if (r.unresolved.length) h += `<details><summary>Unresolved (${r.unresolved.length})</summary><ul>` + r.unresolved.map((u) => `<li><b>${esc(u.field)}</b>: ${esc(u.reason)}</li>`).join('') + '</ul></details>';
+  h += `<details><summary>Raw record</summary><pre>${esc(JSON.stringify(r, null, 1))}</pre></details>`;
+  out.innerHTML = h;
+}
+async function go(v) { if (!cal) { msg.textContent = 'loading the engine...'; cal = await createCalendar(); msg.textContent = ''; } inp.value = v; render(cal.resolveDay(v)); history.replaceState(null, '', '#' + v); }
+document.getElementById('f').addEventListener('submit', (e) => { e.preventDefault(); go(inp.value.trim()); });
+document.getElementById('prev').onclick = () => { const p = parseCivilDate(inp.value.trim()); if (!p.error) go(addDays(p.iso, -1)); };
+document.getElementById('next').onclick = () => { const p = parseCivilDate(inp.value.trim()); if (!p.error) go(addDays(p.iso, 1)); };
+go(location.hash.slice(1) || inp.value);
+</script></body></html>

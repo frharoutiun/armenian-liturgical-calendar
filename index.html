@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("sharaganTheme") || "system";
+        var systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var effective = saved === "dark" || (saved === "system" && systemDark) ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", saved);
+        document.documentElement.setAttribute("data-effective-theme", effective);
+      } catch (error) {
+        document.documentElement.setAttribute("data-theme", "system");
+        document.documentElement.setAttribute("data-effective-theme", "light");
+      }
+    }());
+  </script>
+  <title>Armenian Liturgical Calendar &amp; Sharagnots</title>
+  <link rel="stylesheet" href="sharagan.css">
+  <link rel="stylesheet" href="site-ext.css">
+</head>
+<body>
+  <main class="app">
+    <header class="hymnal-header">
+      <div class="ornament">֍</div>
+      <h1 class="hymnal-title">Շարակնոց<span class="badge-dev">In development</span></h1>
+      <p class="hymnal-subtitle">The Armenian liturgical calendar and the Hymnal of the Armenian Church, for reading, browsing, and search.</p>
+      <nav class="site-tabs" aria-label="Sections">
+        <button type="button" class="site-tab active" id="tabHymnal" data-tab="hymnal">Hymnal</button>
+        <button type="button" class="site-tab" id="tabCalendar" data-tab="calendar">Calendar</button>
+        <a class="site-tab" href="status.html" style="text-decoration:none">About &amp; status</a>
+      </nav>
+      <div class="header-controls">
+        <label class="translit-toggle">
+          <input type="checkbox" id="translitToggle">
+          Transliteration
+        </label>
+        <label class="translit-toggle">
+          <input type="checkbox" id="phraseLinkToggle">
+          Link matching phrases
+        </label>
+        <label class="translit-toggle">
+          <input type="checkbox" id="studyModeToggle">
+          Scripture reference
+        </label>
+        <div class="theme-select-wrap">
+          <select id="themeSelect" aria-label="Choose color theme">
+            <option value="system">System</option>
+            <option value="light">Day</option>
+            <option value="dark">Night</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <div id="calendarRoot" hidden>
+      <section class="panel" aria-labelledby="cal-heading">
+        <h2 id="cal-heading">Calendar</h2>
+        <form id="calForm" class="cal-form" autocomplete="off">
+          <label for="calDate" class="cal-label">Date</label>
+          <input type="date" id="calDate" min="1583-01-01" max="9999-12-31" aria-label="Date">
+          <input type="text" id="calDateText" inputmode="numeric" placeholder="or type YYYY-MM-DD or M/D/YYYY" aria-label="Type a date">
+          <button type="submit" class="nav-btn">Show day</button>
+          <button type="button" class="nav-btn" id="calPrev" aria-label="Previous day">&larr;</button>
+          <button type="button" class="nav-btn" id="calToday">Today</button>
+          <button type="button" class="nav-btn" id="calNext" aria-label="Next day">&rarr;</button>
+        </form>
+        <p class="search-hint">Any date from 1583 to 9999. The commemoration, mode, fasting and readings are computed from the rules of the Tonatsoyts (Hador 1 and Hador 2); calendar rules that are not yet demonstrated are labelled provisional.</p>
+      </section>
+      <section class="panel" style="padding-top:14px;"><div id="calResult" aria-live="polite"></div></section>
+    </div>
+
+    <div id="hymnalRoot">
+    <button id="searchToggle" class="search-reveal" hidden>Search &amp; browse the corpus</button>
+
+    <section class="panel" id="searchPanel" aria-labelledby="search-heading">
+      <h2 id="search-heading">Search the Corpus</h2>
+      <div class="search-row">
+        <input type="search" id="searchInput" placeholder="An Armenian word (any declension of its root, with or without the inserted ը) or an English word&hellip;" aria-label="Search the corpus">
+      </div>
+      <p class="search-hint">
+        Armenian search matches every case/number ending of a word's dictionary root, not just the exact spelling
+        typed, and also finds the 1888-print spelling that inserts a syllable-marking ը. English search covers the
+        translations, including the AI translations (clearly labelled).
+      </p>
+      <div id="facetRow"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="results-heading" style="padding-top:14px;">
+      <h2 id="results-heading" style="position:absolute;left:-9999px;">Results</h2>
+      <div id="resultsArea"></div>
+    </section>
+    </div>
+
+    <p class="footer-note">
+      <strong>About this text.</strong> The Krapar (Classical Armenian) text of the verified sections is the Sharagnots of
+      the Armenian Church itself, not a translation, in the corrected-spelling form of the Krapar corpus with the English
+      translations of the
+      <a href="https://frharoutiun.github.io/Armenian-Church-Tools/sharagan/" target="_blank" rel="noopener">Krapar Sharagnots</a>
+      (the hymnal and concordance on which this page is built). Hymns not yet in that corpus appear in the
+      <em>Scan supplement</em> category: their Armenian is the Unicode-anchored reading of the 1888 Etchmiadzin Sharagnots, and every
+      hymn has a button that opens the page of the scan, which is the source of truth.
+    </p>
+    <p class="footer-note">
+      <strong>English.</strong> Translations marked <span class="ai-label">AI translation (Claude)</span> were produced by a
+      machine and have not been reviewed by a person. Scripture passages are quoted from the Revised Standard Version
+      (RSV) with attribution; readings are the Jashots lectionary readings.
+    </p>
+    <p class="footer-note">
+      <strong>About this site.</strong> "Ganon" and other transliterations follow the parish's Maroon Book convention (via
+      <a href="https://frharoutiun.github.io/TR/" target="_blank" rel="noopener">TR</a>). Root/declension search is
+      powered by <a href="https://pypi.org/project/uniparser-classical-armenian" target="_blank" rel="noopener">uniparser-classical-armenian</a>.
+      Hymn-type genres follow Fr. Daniel Findikyan's "Armenian Hymnography" (St. Nersess Armenian Seminary, LS323).
+      Questions or corrections: frharoutiun@gmail.com.
+    </p>
+  </main>
+
+  <div id="scanOverlay" class="scan-overlay" hidden>
+    <div class="scan-dialog" role="dialog" aria-modal="true" aria-label="Sharagnots scan page">
+      <div class="scan-bar">
+        <button type="button" id="scanPrev" aria-label="Previous page">&larr;</button>
+        <label>Page <input type="number" id="scanNum" min="1" max="513" aria-label="Scan page number"></label>
+        <button type="button" id="scanNext" aria-label="Next page">&rarr;</button>
+        <button type="button" id="scanZoomOut" aria-label="Zoom out">&minus;</button>
+        <span id="scanZoomVal">100%</span>
+        <button type="button" id="scanZoomIn" aria-label="Zoom in">+</button>
+        <a id="scanFull" href="#" target="_blank" rel="noopener">Open image</a>
+        <button type="button" id="scanClose" aria-label="Close">&times;</button>
+      </div>
+      <p class="scan-note" id="scanNote"></p>
+      <div class="scan-view" id="scanView"></div>
+    </div>
+  </div>
+
+  <script src="maroon-translit.js"></script>
+  <script src="sharagan.js"></script>
+  <script src="scan-viewer.js"></script>
+  <script type="module" src="day-extras.js"></script>
+  <script type="module" src="calendar.js"></script>
+</body>
+</html>

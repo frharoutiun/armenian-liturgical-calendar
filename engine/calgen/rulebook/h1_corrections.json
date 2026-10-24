@@ -1,0 +1,812 @@
+{
+ "corrections": [
+  {
+   "id": "H1C-004-GAL-LUKE",
+   "ordinal": 4,
+   "set": {
+    "readings": [
+     {
+      "reading_verbatim": "Յովհաննէս Ա. 1-17",
+      "citations": [
+       {
+        "book": "John",
+        "ch1": 1,
+        "v1": 1,
+        "ch2": 1,
+        "v2": 17,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Ճաշու. Առաքեալն Գաղ. Դ. 1-7",
+      "citations": [
+       {
+        "book": "Galatians",
+        "ch1": 4,
+        "v1": 1,
+        "ch2": 4,
+        "v2": 7,
+        "method": "page_correction"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Աւետարան Ղուկ. Ա. 26-38",
+      "citations": [
+       {
+        "book": "Luke",
+        "ch1": 1,
+        "v1": 26,
+        "ch2": 1,
+        "v2": 38,
+        "method": "page_correction"
+       }
+      ]
+     }
+    ]
+   },
+   "evidence": "pdf p.7 (book p.455), top of the left column, just before the heading of the 5th day: Psalm 89 (ՁԹ), Apostle 'Գաղ. Դ. 1. Զայս ասեմ ... վ. 7. եւ ժառանգ Աստուծոյ', Alleluia, Gospel 'Ղուկ. Ա. 26. Եւ յամսեանն ... վ. 38. եւ գնաց ՚ի նմանէ հրեշտակն'. These close the 4th day (the day whose hymn is 'Այսօր Գաբրիէլ'). Added after the existing John 1:1-17.",
+   "pdf_page": 7,
+   "status": "page_confirmed",
+   "defect": "Record had only John 1:1-17; the Apostle (Gal 4:1-7) and Gospel (Luke 1:26-38) printed at the top of pdf p.7 were dropped at the page break."
+  },
+  {
+   "id": "H1C-069-ISA-42",
+   "ordinal": 69,
+   "set": {
+    "readings": [
+     {
+      "reading_verbatim": "Գիրք Երկրորդ Օրինաց. Ը. 11 - Թ. 10",
+      "citations": [
+       {
+        "book": "Deuteronomy",
+        "ch1": 8,
+        "v1": 11,
+        "ch2": 9,
+        "v2": 10,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Գիրք Յոբայ. ԺԲ. 1 - ԺԳ. 6",
+      "citations": [
+       {
+        "book": "Job",
+        "ch1": 12,
+        "v1": 1,
+        "ch2": 13,
+        "v2": 6,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Մարգարէ Եսայ. ԽԲ. 1-8",
+      "citations": [
+       {
+        "book": "Isaiah",
+        "ch1": 42,
+        "v1": 1,
+        "ch2": 42,
+        "v2": 8,
+        "method": "page_correction"
+       }
+      ]
+     }
+    ]
+   },
+   "evidence": "pdf p.16 (book p.464), right column, Friday: 'Մարգարէ Եսայ. ԽԲ. 1. Յակոբ ծառայ իմ ... վ. 8. եւ ոչ զգօրութիւնս իմ'. The chapter is ԽԲ (42); the incipit 'Յակոբ ծառայ իմ' is the opening words of Isaiah 42:1 in the Armenian text.",
+   "pdf_page": 16,
+   "status": "page_confirmed",
+   "defect": "Chapter numeral Բ misread as Ը: extraction had Isaiah 48.1-8."
+  },
+  {
+   "id": "H1C-085-MATT-1624",
+   "ordinal": 85,
+   "set": {
+    "readings": [
+     {
+      "reading_verbatim": "Իմաստութիւն Ա. 15-Բ. 22",
+      "citations": [
+       {
+        "book": "Wisdom",
+        "ch1": 1,
+        "v1": 15,
+        "ch2": 2,
+        "v2": 22,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Միքիայ Է. 7-10",
+      "citations": [
+       {
+        "book": "Micah",
+        "ch1": 7,
+        "v1": 7,
+        "ch2": 7,
+        "v2": 10,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Փիլիպպեցիս Ա. 12-21",
+      "citations": [
+       {
+        "book": "Philippians",
+        "ch1": 1,
+        "v1": 12,
+        "ch2": 1,
+        "v2": 21,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Մատթէոսի ԺԶ. 24-28",
+      "citations": [
+       {
+        "book": "Matthew",
+        "ch1": 16,
+        "v1": 24,
+        "ch2": 16,
+        "v2": 28,
+        "method": "page_correction"
+       }
+      ]
+     }
+    ]
+   },
+   "evidence": "pdf p.18 (book p.466), left column, Saturday of the Illuminator: 'Աւետարան Մատթ. ԺԶ. 24. Յայնժամ յիսուս ասէ ... վ. 28. արքայութեամբ իւրով'. Start verse printed 24 (incipit 'Յայնժամ Յիսուս ասէ' = Matt 16:24).",
+   "pdf_page": 18,
+   "status": "page_confirmed",
+   "defect": "Start verse extracted as 21 (Matthew 16.21-28); page prints 24."
+  },
+  {
+   "id": "H1C-094-MATT-2029",
+   "ordinal": 94,
+   "set": {
+    "readings": [
+     {
+      "reading_verbatim": "Երգ երգոց Բ. 8 - Զ. 11",
+      "citations": [
+       {
+        "book": "Song of Solomon",
+        "ch1": 2,
+        "v1": 8,
+        "ch2": 6,
+        "v2": 11,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Եսայի ԿԲ. 11-12",
+      "citations": [
+       {
+        "book": "Isaiah",
+        "ch1": 62,
+        "v1": 11,
+        "ch2": 62,
+        "v2": 12,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Եփեսացիս Ա. 3-10",
+      "citations": [
+       {
+        "book": "Ephesians",
+        "ch1": 1,
+        "v1": 3,
+        "ch2": 1,
+        "v2": 10,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Աւետարան ըստ Մարկոսի Ժ. 46 - ԺԱ. 11",
+      "citations": [
+       {
+        "book": "Mark",
+        "ch1": 10,
+        "v1": 46,
+        "ch2": 11,
+        "v2": 11,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Աւետարան ըստ Յովհաննու ԺԱ. 1-46",
+      "citations": [
+       {
+        "book": "John",
+        "ch1": 11,
+        "v1": 1,
+        "ch2": 11,
+        "v2": 46,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Երգ երգոց Ա. 1 - Բ. 3",
+      "citations": [
+       {
+        "book": "Song of Solomon",
+        "ch1": 1,
+        "v1": 1,
+        "ch2": 2,
+        "v2": 3,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Զաքարիայ Թ. 9-15",
+      "citations": [
+       {
+        "book": "Zechariah",
+        "ch1": 9,
+        "v1": 9,
+        "ch2": 9,
+        "v2": 15,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Փիլիպպեցիս Դ. 4-7",
+      "citations": [
+       {
+        "book": "Philippians",
+        "ch1": 4,
+        "v1": 4,
+        "ch2": 4,
+        "v2": 7,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Աւետարան ըստ Մատթէոսի Ի. 29 - ԻԱ. 47",
+      "citations": [
+       {
+        "book": "Matthew",
+        "ch1": 20,
+        "v1": 29,
+        "ch2": 21,
+        "v2": 47,
+        "method": "page_correction"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Առակաց Ը. 22-31",
+      "citations": [
+       {
+        "book": "Proverbs",
+        "ch1": 8,
+        "v1": 22,
+        "ch2": 8,
+        "v2": 31,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Երեմիայ Բարուք Դ. 36 - Ե. 4",
+      "citations": [
+       {
+        "book": "Jeremiah",
+        "ch1": 4,
+        "v1": 36,
+        "ch2": 5,
+        "v2": 4,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Ա. Պետրոս Ա. 3-9",
+      "citations": [
+       {
+        "book": "I Peter",
+        "ch1": 1,
+        "v1": 3,
+        "ch2": 1,
+        "v2": 9,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Աւետարան ըստ Ղուկասու ԺԹ. 29-48",
+      "citations": [
+       {
+        "book": "Luke",
+        "ch1": 19,
+        "v1": 29,
+        "ch2": 19,
+        "v2": 48,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Աւետարան ըստ Մատթէոսի ԻԱ. 1-10",
+      "citations": [
+       {
+        "book": "Matthew",
+        "ch1": 21,
+        "v1": 1,
+        "ch2": 21,
+        "v2": 10,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Աւետարան ըստ Մարկոսի ԺԱ. 1-10",
+      "citations": [
+       {
+        "book": "Mark",
+        "ch1": 11,
+        "v1": 1,
+        "ch2": 11,
+        "v2": 10,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Աւետարան ըստ Ղուկասու ԺԸ. 31 - ԺԹ. 28",
+      "citations": [
+       {
+        "book": "Luke",
+        "ch1": 18,
+        "v1": 31,
+        "ch2": 19,
+        "v2": 28,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Աւետարան ըստ Յովհաննու ԺԲ. 12-23",
+      "citations": [
+       {
+        "book": "John",
+        "ch1": 12,
+        "v1": 12,
+        "ch2": 12,
+        "v2": 23,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Աւետարան ըստ Մատթէոսի ԻԴ. 27-35",
+      "citations": [
+       {
+        "book": "Matthew",
+        "ch1": 24,
+        "v1": 27,
+        "ch2": 24,
+        "v2": 35,
+        "method": "armenian_numeral"
+       }
+      ]
+     }
+    ]
+   },
+   "evidence": "pdf p.20 (book p.468), top of the left column: 'Աւետարան Մատթ. Ի. 29. Եւ յելանելն նոցա. վ. ԻԱ. 47. եւ անդ պաշեաց' (zoomed: the end chapter is ԻԱ = 21 and the printed verse number is 47). Matthew has no verse 21:47 and the closing words ('and lodged there') are Matt 21:17, so 47 is probably a misprint in the book for 17. The book's printed number is kept; only the chapter (Խ->ԻԱ) is corrected.",
+   "pdf_page": 20,
+   "status": "page_confirmed",
+   "defect": "Chapter misread: extraction had Matthew 20.29-40.47; page prints Ի. 29 - ԻԱ. 47.",
+   "note": "Book misprint suspected (47 for 17); listed in review file h1_corrections.json (H1C-Q-094)."
+  },
+  {
+   "id": "H1C-122-MARK-213",
+   "ordinal": 122,
+   "set": {
+    "readings": [
+     {
+      "reading_verbatim": "Առաւօտու Աւետարան՝ Ղուկ. Ե. 27-39",
+      "citations": [
+       {
+        "book": "Luke",
+        "ch1": 5,
+        "v1": 27,
+        "ch2": 5,
+        "v2": 39,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Ճաշու Գործք. Ը. 26-40",
+      "citations": [
+       {
+        "book": "Acts",
+        "ch1": 8,
+        "v1": 26,
+        "ch2": 8,
+        "v2": 40,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Կաթ. Ա. Պետրոսի Ա. 1-12",
+      "citations": [
+       {
+        "book": "I Peter",
+        "ch1": 1,
+        "v1": 1,
+        "ch2": 1,
+        "v2": 12,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Աւետարան՝ Յովհ. Բ. 1-11",
+      "citations": [
+       {
+        "book": "John",
+        "ch1": 2,
+        "v1": 1,
+        "ch2": 2,
+        "v2": 11,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Յերեկոյին առաջին Աւետարան՝ Մատթ. Զ. 22-34",
+      "citations": [
+       {
+        "book": "Matthew",
+        "ch1": 6,
+        "v1": 22,
+        "ch2": 6,
+        "v2": 34,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Արձակման աւետարան Մարկ. Բ. 13-22",
+      "citations": [
+       {
+        "book": "Mark",
+        "ch1": 2,
+        "v1": 13,
+        "ch2": 2,
+        "v2": 22,
+        "method": "page_correction"
+       }
+      ]
+     }
+    ]
+   },
+   "evidence": "pdf p.37 (book p.485), first line of the left column: 'Մարկ. Բ. 13. Եւ ել դարձեալ. վ. 22. արկանելի է' - the end of 'Արձակման աւետարան' that begins at the foot of pdf p.36 (book p.484) in the Friday entry (Luke 5:27-39; Acts 8:26-40; 1 Pet 1:1-12; John 2:1-11; Matt 6:22-34).",
+   "pdf_page": 37,
+   "status": "page_confirmed",
+   "defect": "Dismissal gospel at the top of the next page dropped."
+  },
+  {
+   "id": "H1C-126-MARK-320",
+   "ordinal": 126,
+   "set": {
+    "readings": [
+     {
+      "reading_verbatim": "Առաւօտու աւետարան Ղուկ. Է. 11-35",
+      "citations": [
+       {
+        "book": "Luke",
+        "ch1": 7,
+        "v1": 11,
+        "ch2": 7,
+        "v2": 35,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Գործք. Ժ. 1-23",
+      "citations": [
+       {
+        "book": "Acts",
+        "ch1": 10,
+        "v1": 1,
+        "ch2": 10,
+        "v2": 23,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Կաթ. ա. Պետ. Բ. 18-25",
+      "citations": [
+       {
+        "book": "I Peter",
+        "ch1": 2,
+        "v1": 18,
+        "ch2": 2,
+        "v2": 25,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Աւետարան Յովհ. Գ. 22-36",
+      "citations": [
+       {
+        "book": "John",
+        "ch1": 3,
+        "v1": 22,
+        "ch2": 3,
+        "v2": 36,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Յերեկոյին առաջին աւետարան Մատթ. Թ. 18-26",
+      "citations": [
+       {
+        "book": "Matthew",
+        "ch1": 9,
+        "v1": 18,
+        "ch2": 9,
+        "v2": 26,
+        "method": "armenian_numeral"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Արձակման աւետարան Մարկ. Գ. 20-30",
+      "citations": [
+       {
+        "book": "Mark",
+        "ch1": 3,
+        "v1": 20,
+        "ch2": 3,
+        "v2": 30,
+        "method": "page_correction"
+       }
+      ]
+     }
+    ]
+   },
+   "evidence": "pdf p.38 (book p.486), top of the left column: 'Արձակման աւետարան Մարկ. Գ. 20. Գոն ՚ի տուն. վ. 30. գոյ ՚ի նմա'. The printed incipit 'Գոն ՚ի տուն' is Mark 3:20 and 'գոյ ՚ի նմա' is the end of 3:30 (the numeral glyph itself is hard to tell Գ from Դ at this print size; the incipit and explicit decide).",
+   "pdf_page": 38,
+   "status": "page_confirmed",
+   "defect": "Chapter numeral misread Գ->Դ: extraction had Mark 4.20-30."
+  },
+  {
+   "id": "H1C-169-READINGS",
+   "ordinal": 169,
+   "set": {
+    "readings": [
+     {
+      "reading_verbatim": "Ճաշու. Առակ. ԼԱ. 29. Բազում դստերք - վ. 31. յաւիտենից",
+      "citations": [
+       {
+        "book": "Proverbs",
+        "ch1": 31,
+        "v1": 29,
+        "ch2": 31,
+        "v2": 31,
+        "method": "page_correction"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Մարգարէ Եսայ. ԿԱ. 10. Ցնծասցէ անձն իմ - ԿԲ. 3. Աստուծոյ քո",
+      "citations": [
+       {
+        "book": "Isaiah",
+        "ch1": 61,
+        "v1": 10,
+        "ch2": 62,
+        "v2": 3,
+        "method": "page_correction"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Առաքեալն Հռոմ. ԺԵ. 30. Աղաչեմ զձեզ - ԺԶ. 2. իսկ գլխովին",
+      "citations": [
+       {
+        "book": "Romans",
+        "ch1": 15,
+        "v1": 30,
+        "ch2": 16,
+        "v2": 2,
+        "method": "page_correction"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Աւետարան Մատթ. Ժ. 26. Զի ոչ ինչ է - վ. 33. որ յերկինս է",
+      "citations": [
+       {
+        "book": "Matthew",
+        "ch1": 10,
+        "v1": 26,
+        "ch2": 10,
+        "v2": 33,
+        "method": "page_correction"
+       }
+      ]
+     }
+    ]
+   },
+   "evidence": "Record 169 (Monday, Holy Virgins Hripsimeants) starts at the foot of pdf p.54 (book p.502, right column). Its Mass readings are printed at the top of pdf p.55 (book p.503, left column) before the next heading (Tuesday, Holy Virgins): Psalm 44; 'Առակ. ԼԱ. 29. Բազում դստերք. վ. 31. յաւիտենից'; 'Մարգարէ Եսայ. ԿԱ. 10. Ցնծասցէ անձն իմ. վ. ԿԲ. 3. Աստուծոյ քո'; 'Առաքեալն Հռոմ. ԺԵ. 30. Աղաչեմ զձեզ. վ. ԺԶ. 2. իսկ գլխովին'; 'Աւետարան Մատթ. Ժ. 26. Զի ոչ ինչ է. վ. 33. որ յերկինս է'.",
+   "pdf_page": 55,
+   "status": "page_confirmed",
+   "defect": "Record had no readings (page-break loss)."
+  },
+  {
+   "id": "H1C-321-READINGS",
+   "ordinal": 321,
+   "set": {
+    "readings": [
+     {
+      "reading_verbatim": "Առակ. Ը. 12. Ես իմաստութիւն - վ. 21. համարելոք են",
+      "citations": [
+       {
+        "book": "Proverbs",
+        "ch1": 8,
+        "v1": 12,
+        "ch2": 8,
+        "v2": 21,
+        "method": "page_correction"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Մարգարէ Նաւում Բ. 1. Զօրացիր զօրութեամբ - վ. 7. յայսնեցան",
+      "citations": [
+       {
+        "book": "Nahum",
+        "ch1": 2,
+        "v1": 1,
+        "ch2": 2,
+        "v2": 7,
+        "method": "page_correction"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Առաքեալն ա. Տիմ. Ե. 17. Որ բարւոք - վ. 21. մտահաճութեան",
+      "citations": [
+       {
+        "book": "I Timothy",
+        "ch1": 5,
+        "v1": 17,
+        "ch2": 5,
+        "v2": 21,
+        "method": "page_correction"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Աւետարան Ղուկ. Թ. 23. Եւ ասէր առ ամենեսին - վ. 27. զարքայութիւն Աստուծոյ",
+      "citations": [
+       {
+        "book": "Luke",
+        "ch1": 9,
+        "v1": 23,
+        "ch2": 9,
+        "v2": 27,
+        "method": "page_correction"
+       }
+      ]
+     }
+    ]
+   },
+   "evidence": "Record 321 (Tuesday, Akipsimeay, Joseph, Aithalas, Plato) begins at the foot of pdf p.88 (book p.536, right column). Its readings are at the top of pdf p.89 (book p.537, left column): Psalm 141; 'Առակ. Ը. 12. Ես իմաստութիւն ... վ. 21. համարելոք են'; 'Մարգարէ Նաւում Բ. 1. Զօրացիր զօրութեամբ ... վ. 7. յայսնեցան'; 'Առաքեալն ա. Տիմ. Ե. 17. Որ բարւոք ... վ. 21. մտահաճութեան'; 'Աւետարան Ղուկ. Թ. 23. Եւ ասէր առ ամենեսին ... վ. 27. զարքայութիւն Աստուծոյ'. (Plain 'Առակ.' with no 'Իմաստ.', so Proverbs.)",
+   "pdf_page": 89,
+   "status": "page_confirmed",
+   "defect": "Record had no readings (page-break loss)."
+  },
+  {
+   "id": "H1C-150-WEEKDAY",
+   "ordinal": 150,
+   "set": {
+    "weekday": "Thu",
+    "date_armenian": "Հինգշաբաթ"
+   },
+   "evidence": "pdf p.45 (book p.493), heading of the canon of the Ascension: 'ՀԻՆԳՇԱԲԹ, ՏՕՆ ՀԱՄԲԱՐՁՄԱՆ ՔՐԻՍՏՈՍԻ ՚Ի ԵՐԿԻՆՍ, ՈՐ Է ՔԱՌԱՍՆԵՐՈՐԴ ՕՐ ՚Ի ԶԱՏԿԷՆ'. Thursday, the 40th day.",
+   "pdf_page": 45,
+   "status": "page_confirmed",
+   "defect": "Extractor tagged weekday Sat and date 'Ինգշաբաթ'."
+  },
+  {
+   "id": "H1C-247-WEEKDAY",
+   "ordinal": 247,
+   "set": {
+    "weekday": "Sun"
+   },
+   "evidence": "pdf p.73 (book p.521), right column bottom: 'Երրորդ կիւրակէ զկնի սուրբ Աստուածածնին. Տօն գիւտի Գօտւոյ ...' - the heading is a Sunday (third Sunday after the Assumption).",
+   "pdf_page": 73,
+   "status": "page_confirmed",
+   "defect": "Extractor tagged weekday Fri."
+  },
+  {
+   "id": "H1C-254-READINGS",
+   "ordinal": 254,
+   "set": {
+    "weekday": "Sun",
+    "readings": [
+     {
+      "reading_verbatim": "Մարգարէ Եսայ. Ժ. 12. Եւ եղիցի - վ. 19. գրեսցէ զնոսա",
+      "citations": [
+       {
+        "book": "Isaiah",
+        "ch1": 10,
+        "v1": 12,
+        "ch2": 10,
+        "v2": 19,
+        "method": "page_correction"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Առաքեալն բ. Կորն. Բ. 12. Այլ իբրեւ հասի - վ. Գ. 3. մարմնեղէնս",
+      "citations": [
+       {
+        "book": "II Corinthians",
+        "ch1": 2,
+        "v1": 12,
+        "ch2": 3,
+        "v2": 3,
+        "method": "page_correction"
+       }
+      ]
+     },
+     {
+      "reading_verbatim": "Աւետարան Մարկ. Զ. 30. Ժողովեցան առաքեալքն - վ. 44. հինգ հազարք",
+      "citations": [
+       {
+        "book": "Mark",
+        "ch1": 6,
+        "v1": 30,
+        "ch2": 6,
+        "v2": 44,
+        "method": "page_correction"
+       }
+      ]
+     }
+    ]
+   },
+   "evidence": "Record 254 (Fourth Sunday after the Assumption) begins at the foot of pdf p.74 (book p.522, right column; psalm 64 'Քեզ վայել է'). Its readings are at the top of pdf p.75 (book p.523, left column): 'Մարգարէ Եսայ. Ժ. 12. Եւ եղիցի. վ. 19. գրեսցէ զնոսա'; 'Առաքեալն բ. Կորն. Բ. 12. Այլ իբրեւ հասի. վ. Գ. 3. մարմնեղէնս'; 'Աւետարան Մարկ. Զ. 30. Ժողովեցան առաքեալքն. վ. 44. հինգ հազարք'. The heading reads 'Չորրորդ կիւրակէ' (Sunday), not Friday.",
+   "pdf_page": 75,
+   "status": "page_confirmed",
+   "defect": "Record had no readings (page-break loss) and weekday tag Fri."
+  },
+  {
+   "id": "H1C-093-CONTINUATION",
+   "ordinal": 93,
+   "set": {
+    "kind": "continuation",
+    "continues_feast_id": "TF-b0215777bee2"
+   },
+   "evidence": "pdf p.18 [466], foot of the right column: the only heading is 'Շաբաթ. Յիշատակ է յարութեանն Ղազարու. Այսօր սկսիր ասել զՀանգստեան շարական ՚ի պաշտաման աւետարանին...'. The text continues without any new heading at the top of pdf p.19 [467] (Առաւօտու երգ՝ Տէր հաներ ... readings) up to the next heading 'Կանոն Գալստեան Քրիստոսի ... յաւանակաւ յԵրուսաղէմ' (Palm Sunday). So record 93 is the second half of record 92 (one Saturday, one heading); the extractor split it and gave the second half a heading of its own.",
+   "pdf_page": 19,
+   "status": "page_confirmed",
+   "defect": "Extractor split one Saturday entry into two records with two headings (92 and 93); the book has one heading (p.466)."
+  }
+ ]
+}

@@ -1,0 +1,1249 @@
+/* Krapar Sharagnots Search & Browse — a standalone hymnal-book design.
+   Deliberately NOT sharing the plain utility-tool look of the homepage/TR
+   app (../styles-v4.css is not loaded here at all) — this page has its own
+   full design language: parchment, wine, gold-leaf, illuminated capitals. */
+
+@font-face {
+  font-family: "GHEA Avandakan";
+  src: url("fonts/GHEA-Avandakan-BoldItalic.otf") format("opentype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "GHEA Mariam";
+  src: url("fonts/GHEA-Mariam-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "GHEA Mariam";
+  src: url("fonts/GHEA-Mariam-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "GHEA Mariam";
+  src: url("fonts/GHEA-Mariam-Italic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Self-hosted (not Google Fonts CDN) so the page renders correctly with no
+   external network dependency - variable fonts, so one file each covers the
+   whole regular/medium/bold (and italic) weight range. OFL-licensed;
+   license text kept alongside in fonts/EBGaramond-OFL.txt. */
+@font-face {
+  font-family: "EB Garamond";
+  src: url("fonts/EBGaramond-Variable.woff2") format("woff2-variations"),
+       url("fonts/EBGaramond-Variable.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "EB Garamond";
+  src: url("fonts/EBGaramond-Italic-Variable.woff2") format("woff2-variations"),
+       url("fonts/EBGaramond-Italic-Variable.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --paper: #f4ead2;
+  --paper-deep: #fbf6e8;
+  --paper-line: #d9c69a;
+  --ink: #2a1c12;
+  --muted: #7a6a51;
+  --wine: #742331;
+  --wine-rgb: 116, 35, 49;
+  --wine-deep: #4f1620;
+  --gold: #a3792f;
+  --gold-bright: #c9971f;
+  --shadow: rgba(42, 28, 18, 0.16);
+  color-scheme: light;
+
+  /* --- type scale ----------------------------------------------------
+     One deliberate ladder of sizes, reused everywhere, instead of each
+     element picking its own one-off value (the site previously had ~25
+     distinct font-sizes within a few px of each other, which is what made
+     the whole page feel hard to visually scan/navigate). Every font-size
+     declaration below references one of these; nothing else. */
+  --fs-2xs: 12px;  /* tiniest labels: pill badges, tiny caption text */
+  --fs-xs: 13px;   /* buttons, chips, nav links, footer, hints */
+  --fs-sm: 14px;   /* secondary/meta text: summaries, toggle labels */
+  --fs-md: 16px;   /* compact reading text: subtitle, secondary translations */
+  --fs-base: 17px; /* body base: search input, category label */
+  --fs-lg: 19px;   /* prominent secondary text: titles, list headings */
+  --fs-xl: 21px;   /* compact/mobile heading tier, genre badge */
+  --fs-2xl: 25px;  /* the hymn text itself (Armenian + English), desktop */
+  --fs-3xl: 27px;  /* secondary reading heading */
+  --fs-4xl: 36px;  /* main reading heading */
+  --fs-5xl: 44px;  /* site title */
+}
+
+:root[data-effective-theme="dark"] {
+  --paper: #211712;
+  --paper-deep: #180f0b;
+  --paper-line: #4a382a;
+  --ink: #ecdfc4;
+  --muted: #b6a583;
+  --wine: #c96a7a;
+  --wine-rgb: 201, 106, 122;
+  --wine-deep: #e0899a;
+  --gold: #d9b45a;
+  --gold-bright: #f0cd7a;
+  --shadow: rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; overflow-x: hidden; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "GHEA Mariam", "EB Garamond", Georgia, serif;
+  font-size: var(--fs-base);
+  line-height: 1.6;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+.armenian {
+  font-family: "GHEA Mariam", serif;
+}
+.english {
+  font-family: "EB Garamond", Georgia, serif;
+}
+
+.app {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+/* --- ornamental divider --- */
+.ornament {
+  text-align: center;
+  color: var(--gold);
+  font-family: "GHEA Avandakan", serif;
+  font-size: var(--fs-3xl);
+  margin: 10px 0 18px;
+  letter-spacing: 0.4em;
+  opacity: 0.9;
+}
+
+/* --- header --- */
+.hymnal-header {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.hymnal-title {
+  font-family: "GHEA Avandakan", serif;
+  font-size: var(--fs-5xl);
+  color: var(--wine);
+  margin: 0;
+  line-height: 1.15;
+  /* The "In development" badge sits right after the title text - on a
+     narrow phone the two together can run past the viewport edge instead
+     of wrapping, since inline content doesn't break between an element and
+     the text before it the way separate block content would. Flex lets the
+     badge drop to its own line instead. */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px 10px;
+  max-width: 100%;
+}
+
+.badge-dev {
+  display: inline-block;
+  padding: 3px 10px;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold-bright);
+  background: var(--wine-deep);
+  border: 1px solid var(--gold);
+  border-radius: 3px;
+  vertical-align: middle;
+}
+
+.hymnal-subtitle {
+  font-family: "EB Garamond", Georgia, serif;
+  font-style: italic;
+  color: var(--muted);
+  font-size: var(--fs-md);
+  margin: 6px 0 0;
+}
+
+.header-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 16px 0 4px;
+  flex-wrap: wrap;
+}
+
+.translit-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--wine);
+}
+.translit-toggle input { width: 16px; height: 16px; accent-color: var(--wine); }
+
+.theme-select-wrap select {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--paper-deep);
+  border: 1px solid var(--paper-line);
+  border-radius: 3px;
+  padding: 4px 8px;
+}
+
+.search-reveal[hidden] { display: none; }
+.search-reveal {
+  display: block;
+  margin: 0 auto 18px;
+  padding: 8px 18px;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--wine);
+  background: var(--paper-deep);
+  border: 1px solid var(--paper-line);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.search-reveal:hover { border-color: var(--gold); }
+
+/* --- cards / panels --- */
+.panel {
+  background: var(--paper-deep);
+  border: 1px solid var(--paper-line);
+  border-radius: 4px;
+  box-shadow: 0 2px 10px var(--shadow);
+  padding: 18px 20px;
+  margin-bottom: 18px;
+}
+
+.panel h2 {
+  font-family: "EB Garamond", Georgia, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--wine);
+  margin: 0 0 10px;
+  border-bottom: 1px solid var(--paper-line);
+  padding-bottom: 6px;
+}
+
+/* --- search --- */
+.search-row input[type="search"] {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--paper-line);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-base);
+  border-radius: 3px;
+}
+.search-row input[type="search"]:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+
+.search-hint {
+  color: var(--muted);
+  font-size: var(--fs-xs);
+  font-style: italic;
+  margin: 8px 0 14px;
+}
+
+.facet-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.facet-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  border: 1px solid var(--paper-line);
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+}
+.facet-chip:hover { border-color: var(--gold); }
+.facet-chip.active {
+  background: var(--wine);
+  border-color: var(--wine);
+  color: var(--paper-deep);
+}
+.facet-chip .count { color: var(--muted); font-weight: 400; }
+.facet-chip.active .count { color: rgba(255, 255, 255, 0.75); }
+
+.facet-group-label {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  font-variant: small-caps;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin: 10px 0 4px;
+}
+
+.facet-more-toggle {
+  background: none;
+  border: none;
+  color: var(--wine);
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 5px 4px;
+}
+
+/* --- results summary / list --- */
+.results-summary {
+  font-family: "EB Garamond", Georgia, serif;
+  font-style: italic;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.concordance-group { margin-bottom: 6px; }
+.concordance-group-summary {
+  font-family: "EB Garamond", Georgia, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--wine);
+  cursor: pointer;
+  padding: 6px 2px;
+  border-bottom: 1px solid var(--paper-line);
+  margin-bottom: 8px;
+}
+.concordance-group-summary .count { color: var(--muted); font-variant: normal; letter-spacing: normal; }
+.concordance-group-summary::marker { color: var(--gold); }
+
+.result-item, .section-item {
+  border: 1px solid var(--paper-line);
+  background: var(--paper);
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.result-item:hover, .section-item:hover { border-color: var(--gold); }
+
+/* Marks the result you last opened, so coming back via the browser's back
+   button shows exactly this page again, with that one still indicated. */
+.result-item.opened {
+  border-color: var(--gold);
+  border-width: 2px;
+  box-shadow: 0 0 0 1px var(--gold);
+}
+
+/* The English title/name - given real weight (the same size as the
+   Armenian line right above it), not a barely-legible caption, since for
+   an English-first reader this line often carries more meaning than the
+   Armenian heading it sits under. */
+.result-loc-en, .section-heading-en {
+  font-family: "EB Garamond", Georgia, serif;
+  font-style: italic;
+  font-size: var(--fs-lg);
+  color: var(--muted);
+  margin: -2px 0 6px;
+  line-height: 1.35;
+}
+
+.result-loc, .section-cat {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+  color: var(--gold-bright);
+  background: var(--wine);
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 2px;
+  margin-bottom: 6px;
+}
+
+.result-text, .section-heading {
+  font-family: "GHEA Mariam", serif;
+  font-size: var(--fs-lg);
+  line-height: 1.55;
+  margin: 4px 0;
+  overflow-wrap: break-word;
+}
+
+/* The transliteration toggle swaps the script shown in place, rather than
+   adding a small caption line - the Latin transliteration is rendered with
+   the exact same class(es) as the Krapar text it replaces, so it always
+   matches its size/weight/color, just missing the Armenian-specific font
+   glyphs (which fall back to the surrounding serif stack automatically). */
+.script-translit { display: none; }
+body.show-translit .script-original { display: none; }
+body.show-translit .script-translit { display: block; }
+body.show-translit .result-loc.script-translit { display: inline-block; }
+
+.result-en {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-md);
+  color: var(--muted);
+  border-left: 2px solid var(--gold);
+  padding-left: 10px;
+  margin-top: 8px;
+}
+
+.jump-link {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--wine);
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 8px;
+}
+
+/* --- category tiles: the hymnal's "table of contents" landing page --- */
+.category-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.category-tile {
+  border: 1px solid var(--paper-line);
+  background: var(--paper);
+  padding: 18px 18px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+.category-tile:hover { border-color: var(--gold); box-shadow: 0 2px 10px var(--shadow); }
+
+.category-tile-name {
+  font-family: "EB Garamond", Georgia, serif;
+  font-weight: 700;
+  font-style: italic;
+  font-size: var(--fs-xl);
+  color: var(--wine);
+  margin-bottom: 6px;
+}
+
+.category-tile-count {
+  font-family: "EB Garamond", Georgia, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+  font-size: var(--fs-xs);
+  color: var(--muted);
+}
+
+.category-breadcrumb {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-sm);
+  margin-bottom: 10px;
+}
+.category-breadcrumb button {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--wine);
+  cursor: pointer;
+  padding: 2px 0;
+}
+.category-breadcrumb button:hover { color: var(--gold-bright); }
+.category-breadcrumb-current {
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-left: 4px;
+}
+
+.empty-state {
+  color: var(--muted);
+  font-style: italic;
+  font-family: "EB Garamond", Georgia, serif;
+  padding: 20px 4px;
+  text-align: center;
+}
+
+/* =========================================================================
+   Reading mode — one hymn (verse) at a time, the default when a section
+   (Ganon) is opened. Meant to feel like an open hymnal page, not a web app.
+   ========================================================================= */
+
+.reading-card {
+  background: var(--paper-deep);
+  border: 1px solid var(--paper-line);
+  border-radius: 6px;
+  box-shadow: 0 4px 18px var(--shadow);
+  padding: 30px 34px 26px;
+}
+
+.reading-topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.back-link, .view-mode-toggle {
+  background: none;
+  border: none;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--wine);
+  cursor: pointer;
+  padding: 4px 2px;
+}
+.back-link:hover, .view-mode-toggle:hover { color: var(--gold-bright); }
+
+.heading-eyebrow {
+  text-align: center;
+  font-family: "EB Garamond", Georgia, serif;
+  font-variant: small-caps;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  font-size: var(--fs-lg);
+  color: var(--gold);
+  margin: 2px 0;
+  overflow-wrap: break-word;
+}
+
+.reading-heading {
+  font-family: "GHEA Avandakan", serif;
+  color: var(--wine);
+  font-size: var(--fs-4xl);
+  text-align: center;
+  margin: 6px 0 2px;
+  line-height: 1.3;
+  overflow-wrap: break-word;
+}
+
+.reading-heading-sm {
+  font-family: "GHEA Avandakan", serif;
+  color: var(--wine);
+  font-size: var(--fs-3xl);
+  text-align: center;
+  margin: 4px 0 2px;
+  line-height: 1.3;
+  overflow-wrap: break-word;
+}
+
+/* GHEA Avandakan's own Latin glyphs (used above for the real Armenian
+   heading) don't suit transliterated English text - use the site's actual
+   English display face there instead, same size/color/weight. */
+.reading-heading.script-translit,
+.reading-heading-sm.script-translit {
+  font-family: "EB Garamond", Georgia, serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+/* The English title - deliberately close in size to the eyebrow/heading
+   above it (not a whispered caption), since it's often the more legible
+   line for an English-first reader. */
+.reading-heading-en {
+  text-align: center;
+  font-family: "EB Garamond", Georgia, serif;
+  font-style: italic;
+  color: var(--muted);
+  font-size: var(--fs-xl);
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+.reading-category {
+  text-align: center;
+  font-family: "EB Garamond", Georgia, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.05em;
+  font-size: var(--fs-base);
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.genre-badge {
+  text-align: center;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-xl);
+  font-style: italic;
+  color: var(--muted);
+  margin-bottom: 22px;
+}
+.genre-badge .genre-name {
+  font-family: "GHEA Mariam", serif;
+  color: var(--wine);
+  font-weight: 700;
+  font-style: normal;
+}
+
+.mode-badge {
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-md);
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.mode-badge .mode-code {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 3px 12px;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  color: var(--wine);
+  font-family: "GHEA Mariam", serif;
+  font-weight: 700;
+  font-variant: normal;
+  letter-spacing: 0.02em;
+  font-size: var(--fs-md);
+}
+
+.verse-progress {
+  text-align: center;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+
+.sharagan-verse {
+  padding: 18px 0;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  transition: background 0.6s ease;
+}
+/* The gold star inside a verse marks the Krapar/English split within it;
+   this line marks the bigger boundary between one verse and the next, so
+   the two kinds of break stay visually distinct. */
+.sharagan-verse + .sharagan-verse {
+  border-top: 1px solid var(--paper-line);
+  margin-top: 4px;
+}
+.sharagan-verse.highlighted {
+  background: var(--highlight-bg, rgba(198, 156, 74, 0.14));
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+
+.verse-armenian {
+  font-family: "GHEA Mariam", serif;
+  font-size: var(--fs-2xl);
+  line-height: 1.75;
+  color: var(--ink);
+  text-align: center;
+  margin: 0 0 4px;
+  padding: 0 6px;
+}
+
+/* Not floated: this is centered, wrapped poetry, not a flowing paragraph -
+   a float lets the browser center the *rest* of the first line separately
+   from the capital, which opens a large gap between them whenever that
+   line is short. An inline raised cap always stays glued to the letter
+   after it, on every line length. */
+.verse-armenian .dropcap {
+  font-family: "GHEA Avandakan", serif;
+  font-size: 1.5em;
+  color: var(--wine);
+  vertical-align: -0.14em;
+  line-height: 1;
+  /* GHEA Avandakan's own letterforms lean/slant at this display size (it's
+     an italic-styled face even in its "regular" cut) - their top strokes
+     reach into the space right after the letter, so this needs noticeably
+     more room than an upright drop cap would to keep from visually
+     touching the very next (non-stylized) letter. */
+  margin-right: 0.18em;
+}
+
+.verse-armenian .dropcap.dropcap-ornament {
+  font-size: 1.3em;
+  vertical-align: -0.08em;
+  margin-right: 0.12em;
+}
+
+.verse-armenian.script-translit .dropcap {
+  font-family: "EB Garamond", Georgia, serif;
+  font-weight: 700;
+  vertical-align: -0.1em;
+}
+.verse-armenian.script-translit .dropcap.dropcap-ornament {
+  font-family: "GHEA Avandakan", serif;
+}
+
+/* Click an Armenian word to jump to a root/declension search for it. The
+   underline only shows on hover, so plain reading and text selection/copy
+   both stay undisturbed. */
+.word-link { cursor: pointer; }
+.word-link:hover {
+  text-decoration: underline dotted;
+  text-decoration-color: var(--gold);
+  text-underline-offset: 4px;
+}
+.word-match {
+  font-weight: 700;
+  color: var(--wine);
+}
+
+/* Phrase-link hover highlighting (toggle-gated): a hovered phrase and its
+   translated counterpart light up together. Wired unconditionally, but only
+   visible while body.phrase-link is set, so the toggle needs no re-wiring. */
+.phrase { cursor: default; }
+body.phrase-link .phrase-active {
+  background: rgba(198, 156, 74, 0.3);
+  border-radius: 2px;
+  box-shadow: 0 0 0 2px rgba(198, 156, 74, 0.3);
+}
+
+/* =========================================================================
+   Inline study view (experimental, opt-in) - see sharagan.js for the
+   rationale. Phrase-link connections get a permanent, subtle underline
+   instead of only revealing on hover; scripture citations become small
+   inline chips right under the verse they belong to, each expanding an
+   inline footnote in place instead of a separate side panel; and an
+   optional up-front disclosure (right before the first verse) can still
+   show every citation for the whole Sharagan together, tabbed, exactly
+   like the old aside panel did.
+   ========================================================================= */
+body.study-mode .phrase {
+  border-bottom: 1px dotted rgba(var(--wine-rgb), 0.5);
+  border-radius: 2px;
+}
+
+.study-all-citations {
+  margin: 4px 0 18px;
+  text-align: center;
+}
+.study-all-citations-toggle {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-base);
+  font-weight: 700;
+  font-style: italic;
+  color: var(--wine);
+  background: none;
+  border: 1px dashed var(--paper-line);
+  border-radius: 999px;
+  padding: 6px 16px;
+  cursor: pointer;
+}
+.study-all-citations-toggle:hover { border-color: var(--gold); color: var(--gold-bright); }
+.study-all-citations-panel {
+  margin-top: 12px;
+  text-align: left;
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  border-radius: 6px;
+  padding: 18px 20px;
+}
+
+.study-scripture-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+.study-scripture-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--wine);
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  border-radius: 999px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+.study-scripture-chip:hover { border-color: var(--gold); }
+.study-scripture-chip.open {
+  background: var(--wine);
+  border-color: var(--wine);
+  color: var(--paper-deep);
+}
+
+.study-scripture-footnotes:empty { display: none; }
+
+.scripture-inline-footnote {
+  margin: 10px auto 4px;
+  max-width: 640px;
+  padding: 14px 18px;
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  border-left: 3px solid var(--wine);
+  border-radius: 4px;
+  text-align: left;
+}
+.scripture-inline-footnote .scripture-columns { gap: 20px; }
+
+@media (max-width: 640px) {
+  .scripture-inline-footnote { padding: 12px 14px; }
+  .scripture-inline-footnote .scripture-columns { grid-template-columns: 1fr; }
+}
+
+.verse-divider {
+  text-align: center;
+  color: var(--gold);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.3em;
+  margin: 4px 0 18px;
+  opacity: 0.75;
+}
+
+/* Native browser hyphenation for English text (the page is lang="en", so
+   the browser's own English hyphenation dictionary applies) - when a long
+   word has to break at the edge of the viewport, it breaks at a real
+   syllable with a hyphen shown, instead of an arbitrary cut with no mark
+   at all. Armenian doesn't get this from the browser (no built-in
+   dictionary for it) - see hyphenateArmenian() in sharagan.js for that
+   side instead. */
+.verse-english,
+.result-en,
+.scripture-verse.scripture-en,
+.reading-heading.script-translit,
+.reading-heading-sm.script-translit,
+.section-heading.script-translit,
+.result-text.script-translit {
+  hyphens: auto;
+}
+
+.verse-english {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-2xl);
+  line-height: 1.65;
+  color: var(--ink);
+  text-align: center;
+  padding: 0 10px;
+}
+
+.verse-english .dropcap {
+  font-family: "EB Garamond", Georgia, serif;
+  font-weight: 700;
+  font-style: italic;
+  font-size: 1.5em;
+  color: var(--wine);
+  vertical-align: -0.1em;
+  line-height: 1;
+  /* Italic to echo the Armenian drop cap's slant; same reasoning as that
+     one applies here too - the slanted stroke needs more room than an
+     upright cap so it doesn't visually run into the next letter. */
+  margin-right: 0.15em;
+}
+
+.verse-english .dropcap.dropcap-ornament {
+  /* The ornament mark itself ("֍"), not English text - but GHEA Avandakan
+     is still an Armenian display face, so use the site's other Armenian
+     face (Mariam, the body-text one) instead, for a plainer/quieter glyph
+     that doesn't look like Armenian display calligraphy sitting inside an
+     English paragraph. */
+  font-family: "GHEA Mariam", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.3em;
+  vertical-align: -0.06em;
+  margin-right: 0.12em;
+}
+
+.verse-english.pending {
+  font-style: italic;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+}
+
+.sharagan-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 18px 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--paper-line);
+}
+
+.sharagan-nav-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  border: 1px solid var(--paper-line);
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+}
+.sharagan-nav-chip:hover { border-color: var(--gold); }
+.sharagan-nav-chip.active {
+  background: var(--wine);
+  border-color: var(--wine);
+  color: var(--paper-deep);
+  cursor: default;
+}
+
+.reading-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--paper-line);
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--paper-deep);
+  background: var(--wine);
+  border: 1px solid var(--wine-deep);
+  border-radius: 3px;
+  padding: 9px 18px;
+  cursor: pointer;
+}
+.nav-btn:hover:not(:disabled) { background: var(--wine-deep); }
+.nav-btn:disabled { opacity: 0.35; cursor: default; }
+
+.jump-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-xs);
+  color: var(--muted);
+}
+.jump-form input {
+  width: 48px;
+  text-align: center;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-xs);
+  border: 1px solid var(--paper-line);
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 3px;
+  padding: 4px;
+}
+
+.whole-canon-link {
+  text-align: center;
+  margin-top: 14px;
+}
+.whole-canon-link a {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.whole-canon-link a:hover { color: var(--wine); }
+
+/* --- whole-canon (secondary) view --- */
+.stanza-block { margin-bottom: 20px; }
+.stanza-type-label {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  font-variant: small-caps;
+  color: var(--muted);
+  border-bottom: 1px solid var(--paper-line);
+  padding-bottom: 3px;
+  margin-bottom: 8px;
+}
+.whole-verse-line {
+  font-family: "GHEA Mariam", serif;
+  font-size: var(--fs-lg);
+  line-height: 1.6;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+.whole-verse-line:hover { color: var(--wine); }
+.whole-verse-line .verse-num {
+  color: var(--gold);
+  font-weight: 700;
+  margin-right: 5px;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-xs);
+}
+.whole-verse-en {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  border-left: 2px solid var(--paper-line);
+  padding-left: 8px;
+  margin: 2px 0 10px;
+}
+.whole-verse-en.pending { font-style: italic; }
+
+.footer-note {
+  text-align: center;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: 30px;
+}
+.footer-note a { color: var(--wine); }
+
+@media (max-width: 640px) {
+  .hymnal-title { font-size: 32px; }
+  .reading-heading { font-size: var(--fs-3xl); }
+  .reading-heading-sm { font-size: var(--fs-xl); }
+  .verse-armenian { font-size: var(--fs-xl); }
+  .verse-english { font-size: var(--fs-xl); }
+  .reading-card { padding: 20px 16px 18px; }
+  .reading-nav { justify-content: center; }
+}
+
+/* =========================================================================
+   Scripture reference — the connected Bible passage (Classical Armenian
+   from the Zohrab Bible, and the RSV) a hymn's own text actually alludes
+   to, shown when the "Scripture reference" control is on: an optional
+   up-front panel (.study-all-citations-panel, above) listing every
+   passage for the whole Sharagan, tabbed, plus a small inline chip and
+   footnote (.scripture-inline-footnote, above) at each verse that anchors
+   one. The classes below are the shared bilingual content markup both of
+   those reuse.
+   ========================================================================= */
+
+/* A hymn can have several real connected passages - a small tab strip
+   switches between them, one at a time, so the panel never turns into an
+   unreadable wall of every passage stacked on top of each other. */
+.scripture-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--paper-line);
+}
+.scripture-tab {
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--paper-line);
+  border-radius: 999px;
+  padding: 4px 11px;
+  cursor: pointer;
+}
+.scripture-tab:hover { border-color: var(--gold); color: var(--wine); }
+.scripture-tab.active {
+  background: var(--wine);
+  border-color: var(--wine);
+  color: var(--paper-deep);
+}
+
+/* The hymn side of the connection: the exact word/phrase within the
+   Sharagan text that a scripture passage was drawn from. Every connected
+   phrase (for any passage in this hymn, not just the one currently shown)
+   is a subtle, clickable link; the one matching the CURRENTLY ACTIVE tab
+   gets a real, persistent highlight - so glancing at the hymn shows you
+   at a glance which words the panel's current reference is about. */
+.scripture-hymn-link {
+  cursor: pointer;
+  border-bottom: 1px dotted var(--wine);
+}
+.scripture-hymn-link:hover { background: rgba(var(--wine-rgb), 0.14); }
+.scripture-hymn-link.active {
+  background: rgba(var(--wine-rgb), 0.22);
+  border-bottom: 1px solid var(--wine);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.scripture-entry-head { margin-bottom: 10px; }
+.scripture-entry-citation {
+  font-family: "EB Garamond", Georgia, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.06em;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--wine);
+}
+.scripture-entry-note {
+  font-family: "EB Garamond", Georgia, serif;
+  font-style: italic;
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.scripture-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.scripture-verse {
+  margin: 0 0 8px;
+  line-height: 1.5;
+  border-radius: 3px;
+  padding: 2px 4px;
+  margin-left: -4px;
+}
+/* Inside the "whole chapter" dialog, the verse(s) actually excerpted in
+   the side panel (the reason this passage is connected at all) get a
+   lasting highlight and a scroll-into-view on open, so opening the full
+   chapter doesn't lose track of which verse it was about. */
+.scripture-verse-highlighted {
+  background: rgba(var(--wine-rgb), 0.16);
+  box-shadow: inset 0 0 0 1px rgba(var(--wine-rgb), 0.4);
+}
+/* The exact phrase the hymn is actually drawing on, within a verse (or a
+   whole chapter of them) - bolded and colored so it doesn't take hunting
+   through the full verse text to see what's actually being connected. */
+.scripture-verse strong {
+  color: var(--wine);
+  font-weight: 700;
+}
+.scripture-verse-num {
+  font-family: "EB Garamond", Georgia, serif;
+  font-weight: 700;
+  color: var(--gold);
+  font-size: var(--fs-2xs);
+  vertical-align: super;
+  margin-right: 3px;
+}
+/* Armenian and English get the SAME size here (a bilingual pair read side
+   by side) - one language quietly smaller than the other, the way this
+   used to be set up, is the exact kind of mismatch this whole rework is
+   trying to get rid of. */
+.scripture-verse.scripture-arm,
+.scripture-verse.scripture-en {
+  font-size: var(--fs-md);
+  color: var(--ink);
+}
+.scripture-verse.scripture-arm { font-family: "GHEA Mariam", serif; }
+.scripture-verse.scripture-en { font-family: "EB Garamond", Georgia, serif; }
+
+.scripture-chapter-btn {
+  display: block;
+  margin-top: 14px;
+  background: none;
+  border: none;
+  font-family: "EB Garamond", Georgia, serif;
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--wine);
+  cursor: pointer;
+  padding: 0;
+}
+.scripture-chapter-btn:hover { color: var(--gold-bright); }
+
+/* --- "View the whole chapter" dialogue --- */
+.scripture-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 12, 6, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.scripture-dialog {
+  background: var(--paper-deep);
+  border: 1px solid var(--paper-line);
+  border-radius: 6px;
+  box-shadow: 0 12px 40px var(--shadow);
+  max-width: 1000px;
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.scripture-dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--paper-line);
+}
+.scripture-dialog-title {
+  /* Always English ("John 3 (complete)") - GHEA Avandakan is an Armenian
+     display face and its fallback Latin glyphs don't suit English text. */
+  font-family: "EB Garamond", Georgia, serif;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--wine);
+  font-size: var(--fs-xl);
+}
+.scripture-dialog-close {
+  background: none;
+  border: none;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.scripture-dialog-close:hover { color: var(--wine); }
+
+.scripture-dialog-body {
+  padding: 20px 22px 26px;
+  overflow-y: auto;
+}
+.scripture-dialog-body .scripture-columns { gap: 26px; }
+/* Same reasoning as the panel's own scripture-arm/scripture-en pair above:
+   matched sizes, not one language quietly smaller than the other. */
+.scripture-dialog-body .scripture-verse.scripture-arm,
+.scripture-dialog-body .scripture-verse.scripture-en {
+  font-size: var(--fs-base);
+}
+
+@media (max-width: 640px) {
+  .scripture-columns { grid-template-columns: 1fr; }
+  .scripture-dialog-overlay { padding: 12px; }
+  .scripture-dialog-head { padding: 12px 16px; }
+  .scripture-dialog-body { padding: 14px 16px 20px; }
+}

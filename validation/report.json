@@ -1,0 +1,3059 @@
+{
+ "generated": "validate_vs_final.mjs",
+ "note": "fast, names and reading sets are out-of-sample; service class is in-sample (table learned from the same tables)",
+ "summary": {
+  "all": {
+   "fast": {
+    "n": 14610,
+    "agree": 14379,
+    "pct": 98.4,
+    "kinds": {
+     "not_fast->fast": 199,
+     "fast->no-fast": 21,
+     "feast->fast": 8,
+     "unknown->fast": 3
+    }
+   },
+   "name_hy": {
+    "n": 14447,
+    "agree": 14350,
+    "pct": 99.3,
+    "kinds": {
+     "x": 97
+    }
+   },
+   "name_en": {
+    "n": 11597,
+    "agree": 11080,
+    "pct": 95.5,
+    "kinds": {
+     "x": 517
+    }
+   },
+   "readings_exact": {
+    "n": 14458,
+    "agree": 10032,
+    "pct": 69.4,
+    "kinds": {
+     "both_differ": 3730,
+     "engine_extra": 197,
+     "engine_missing": 431,
+     "disjoint": 68
+    }
+   },
+   "readings_eng_superset": {
+    "n": 14458,
+    "agree": 10229,
+    "pct": 70.7,
+    "kinds": {
+     "x": 4229
+    }
+   },
+   "readings_final_superset": {
+    "n": 14458,
+    "agree": 10471,
+    "pct": 72.4,
+    "kinds": {
+     "x": 3987
+    }
+   },
+   "readings_any_overlap": {
+    "n": 14458,
+    "agree": 14390,
+    "pct": 99.5,
+    "kinds": {
+     "x": 68
+    }
+   },
+   "service": {
+    "n": 54999,
+    "agree": 53287,
+    "pct": 96.9,
+    "kinds": {
+     "jashoo->other": 319,
+     "other->jashoo": 1393
+    }
+   }
+  },
+  "feed": {
+   "fast": {
+    "n": 435,
+    "agree": 430,
+    "pct": 98.9,
+    "kinds": {
+     "not_fast->fast": 5
+    }
+   },
+   "name_hy": {
+    "n": 429,
+    "agree": 427,
+    "pct": 99.5,
+    "kinds": {
+     "x": 2
+    }
+   },
+   "name_en": {
+    "n": 338,
+    "agree": 324,
+    "pct": 95.9,
+    "kinds": {
+     "x": 14
+    }
+   },
+   "readings_exact": {
+    "n": 431,
+    "agree": 300,
+    "pct": 69.6,
+    "kinds": {
+     "both_differ": 114,
+     "engine_extra": 5,
+     "engine_missing": 11,
+     "disjoint": 1
+    }
+   },
+   "readings_eng_superset": {
+    "n": 431,
+    "agree": 305,
+    "pct": 70.8,
+    "kinds": {
+     "x": 126
+    }
+   },
+   "readings_final_superset": {
+    "n": 431,
+    "agree": 311,
+    "pct": 72.2,
+    "kinds": {
+     "x": 120
+    }
+   },
+   "readings_any_overlap": {
+    "n": 431,
+    "agree": 430,
+    "pct": 99.8,
+    "kinds": {
+     "x": 1
+    }
+   },
+   "service": {
+    "n": 1580,
+    "agree": 1538,
+    "pct": 97.3,
+    "kinds": {
+     "jashoo->other": 9,
+     "other->jashoo": 33
+    }
+   }
+  }
+ },
+ "examples": {
+  "fast": [
+   {
+    "date": "2001-03-03",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2001-03-10",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2001-03-17",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2001-03-24",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2001-03-31",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2002-02-16",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2002-02-23",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2002-03-02",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2002-03-09",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2002-03-16",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2003-03-08",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2003-03-15",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2003-03-22",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2003-03-29",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2003-04-05",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2004-01-04",
+    "engine": "fast",
+    "final": "no-fast",
+    "rule": "R-FAST-H2ROW"
+   },
+   {
+    "date": "2004-02-28",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2004-03-06",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2004-03-13",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2004-03-20",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2004-03-27",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2004-04-07",
+    "engine": "feast",
+    "final": "fast",
+    "rule": "R-FAST-FIXED-FEAST"
+   },
+   {
+    "date": "2005-01-02",
+    "engine": "fast",
+    "final": "no-fast",
+    "rule": "R-FAST-H2ROW"
+   },
+   {
+    "date": "2005-02-12",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2005-02-19",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2005-02-26",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2005-03-05",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2005-03-12",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2006-03-04",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2006-03-11",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2006-03-18",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2006-03-25",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2006-04-01",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2006-12-31",
+    "engine": "fast",
+    "final": "no-fast",
+    "rule": "R-FAST-H2ROW"
+   },
+   {
+    "date": "2007-02-24",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2007-03-03",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2007-03-10",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2007-03-17",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2007-03-24",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   },
+   {
+    "date": "2008-02-09",
+    "engine": "not_fast",
+    "final": "fast",
+    "rule": "R-FAST-LENT-SATURDAY"
+   }
+  ],
+  "name_hy": [
+   {
+    "date": "2001-06-02",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2001-10-16",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2002-05-18",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2002-10-15",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2003-06-07",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2003-10-14",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2004-05-29",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2004-10-12",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2004-11-15",
+    "engine": [
+     "Սրբոցն Անդրէի զօրավարին եւ բանակի նորին, Կալինիկոսի եւ Դոմետեայ վկայիցն"
+    ],
+    "final": [
+     "Սրբոցն Աբրահամու եւ Խորենայ եւ անարծաթ բժշկացն Կոզմայի եւ Դամիանոսի եւ Աստուածատրոյ վկային"
+    ]
+   },
+   {
+    "date": "2004-11-16",
+    "engine": [
+     "Սրբոցն Անդրիանոսի եւ կնոջ նորա Անատոլայ եւ Թէոդորոսի եւ Ելեւթիւրոսի վկայիցն"
+    ],
+    "final": [
+     "Սրբոցն Անդրէի զօրավարին եւ բանակի նորին, Կալինիկոսի եւ Դոմետեայ վկայիցն"
+    ]
+   },
+   {
+    "date": "2004-11-18",
+    "engine": [
+     "Սրբոցն Աբրահամու եւ Խորենայ եւ անարծաթ բժշկացն Կոզմայի եւ Դամիանոսի եւ Աստուածատրոյ վկային",
+     "Սրբոցն Աբրահամու եւ Խորենայ եւ անարծաթ բժշկացն Կոզմայի եւ Դամիանոսի եւ Աստուածատրոյ վկային",
+     "Սրբոյն Աստուածատրոյ վկային"
+    ],
+    "final": [
+     "Սրբոցն Անդրիանոսի եւ կնոջ նորա Անատոլայ եւ Թէոդորոսի եւ Ելեւթիւրոսի վկայիցն"
+    ]
+   },
+   {
+    "date": "2005-05-14",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2005-10-11",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2006-06-03",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2006-10-17",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2007-05-26",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2007-10-16",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2008-05-10",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2008-10-14",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2009-05-30",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2009-10-13",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2010-05-22",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2010-10-12",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2011-06-11",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2011-10-11",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2012-05-26",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2012-10-16",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2013-05-18",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2013-10-15",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2014-06-07",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2014-10-14",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2015-05-23",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2015-10-13",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2016-05-14",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2016-07-23",
+    "engine": [
+     "Սրբոցն Պետրոսի հայրապետին, Վլասայ եպիսկոպոսին եւ Աբիսողոմայ սարկաւագին"
+    ],
+    "final": [
+     "Սրբոց հայրապետացն Աթանասի եւ Կիւրղի"
+    ]
+   },
+   {
+    "date": "2016-10-11",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2017-06-03",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2017-10-17",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   },
+   {
+    "date": "2018-05-19",
+    "engine": [
+     "Շաբաթ"
+    ],
+    "final": [
+     "ԽԹ օր Յինանց"
+    ]
+   },
+   {
+    "date": "2018-10-16",
+    "engine": [
+     "Սրբոց առաքելոցն Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիղուանոսի [Սրբոց առաքելոցն՝ Անանիայի, Մատաթիայ, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի, եւ Սիղուանոսի]"
+    ],
+    "final": [
+     "Սրբոց առաքելոցն Անանիայի, Մատթէի, Բառնաբայ, Փիլիպպոսի, Յովհաննու, Շիղայի եւ Սիւղիանոսի"
+    ]
+   }
+  ],
+  "name_en": [
+   {
+    "date": "2001-02-04",
+    "engine": [
+     null,
+     null,
+     null
+    ],
+    "final": [
+     "Fourth Sunday after Theophany",
+     null
+    ]
+   },
+   {
+    "date": "2001-02-09",
+    "engine": [
+     null
+    ],
+    "final": [
+     "Fifth Day of the Pre-Lenten Fast (Arachavorats Bahk Remembrance of the Prophet Jonah)",
+     null
+    ]
+   },
+   {
+    "date": "2001-03-10",
+    "engine": [
+     "St. Cyril, Patriarch of Jerusalem and Sts. Cyril the Bishop and his mother, Anna"
+    ],
+    "final": [
+     "Thirteenth Day of Great Lent",
+     null
+    ]
+   },
+   {
+    "date": "2001-03-17",
+    "engine": [
+     "St. John, Patriarch of Jerusalem, St. John of Odzun, Patriarch of Armenia, St. Gregory of Datev and St. John of Orodni"
+    ],
+    "final": [
+     "Twentieth Day of Great Lent",
+     null
+    ]
+   },
+   {
+    "date": "2001-05-25",
+    "engine": [
+     null
+    ],
+    "final": [
+     "Forty-first Day of Zadeeg",
+     null
+    ]
+   },
+   {
+    "date": "2001-06-02",
+    "engine": [
+     null
+    ],
+    "final": [
+     "Forty-ninth Day of Zadeeg"
+    ]
+   },
+   {
+    "date": "2001-06-25",
+    "engine": [
+     "St. Epiphanius, Bishop of Cyprus and Sts. Babylas, Bishop of Antioch and his three disciples"
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2001-06-28",
+    "engine": [
+     "Sts. Theodotus and the Seven Virgins, Martyrs of Ancyra and St. Thalilas, Physician of Cilicia"
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2001-09-24",
+    "engine": [
+     "St. Mamas of Gangra, hermit, St. Philectimon of Lyconia and St. Simeon the Stylite",
+     null
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2001-09-25",
+    "engine": [
+     "St. Shushan, daughter of St. Vartan the Great and St. Mariana of Pisidia, virgin, martyr"
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2001-09-27",
+    "engine": [
+     "St. Barlaam of Antioch, St. Anthimus, Bishop of Nicomedia and St. Irenaeus of Sirmium"
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2001-12-11",
+    "engine": [
+     "St. Cornelius the Centurion, St. Simeon, martyred in Jerusalem, Saints, martyrs that perished in the East and St. Polycarp, Bishop of Smyrna"
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2002-01-20",
+    "engine": [
+     null,
+     null
+    ],
+    "final": [
+     "First Sunday after Theophany",
+     null
+    ]
+   },
+   {
+    "date": "2002-01-25",
+    "engine": [
+     null
+    ],
+    "final": [
+     "Fifth Day of the Pre-Lenten Fast (Arachavorats Bahk Remembrance of the Prophet Jonah)",
+     null
+    ]
+   },
+   {
+    "date": "2002-02-23",
+    "engine": [
+     "St. Cyril, Patriarch of Jerusalem and Sts. Cyril the Bishop and his mother, Anna"
+    ],
+    "final": [
+     "Thirteenth Day of Great Lent",
+     null
+    ]
+   },
+   {
+    "date": "2002-03-02",
+    "engine": [
+     "St. John, Patriarch of Jerusalem, St. John of Odzun, Patriarch of Armenia, St. Gregory of Datev and St. John of Orodni"
+    ],
+    "final": [
+     "Twentieth Day of Great Lent",
+     null
+    ]
+   },
+   {
+    "date": "2002-05-10",
+    "engine": [
+     null
+    ],
+    "final": [
+     "Forty-first Day of Zadeeg",
+     null
+    ]
+   },
+   {
+    "date": "2002-05-18",
+    "engine": [
+     null
+    ],
+    "final": [
+     "Forty-ninth Day of Zadeeg"
+    ]
+   },
+   {
+    "date": "2002-06-10",
+    "engine": [
+     "St. Epiphanius, Bishop of Cyprus and Sts. Babylas, Bishop of Antioch and his three disciples"
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2002-06-13",
+    "engine": [
+     "Sts. Theodotus and the Seven Virgins, Martyrs of Ancyra and St. Thalilas, Physician of Cilicia"
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2002-09-23",
+    "engine": [
+     "St. Mamas of Gangra, hermit, St. Philectimon of Lyconia and St. Simeon the Stylite",
+     null
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2002-09-24",
+    "engine": [
+     "St. Shushan, daughter of St. Vartan the Great and St. Mariana of Pisidia, virgin, martyr"
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2002-09-26",
+    "engine": [
+     "St. Barlaam of Antioch, St. Anthimus, Bishop of Nicomedia and St. Irenaeus of Sirmium"
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2002-12-10",
+    "engine": [
+     "St. Cornelius the Centurion, St. Simeon, martyred in Jerusalem, Saints, martyrs that perished in the East and St. Polycarp, Bishop of Smyrna"
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2003-01-04",
+    "engine": [
+     "St. Basil the Great of Cesarea, St. Gregory of Nyssa, St. Sylvester, Patriarch of Rome and St. Ephrem the Syrian"
+    ],
+    "final": [
+     "Sixth Day of the Fast of Nativity",
+     null
+    ]
+   },
+   {
+    "date": "2003-02-09",
+    "engine": [
+     null,
+     null,
+     null
+    ],
+    "final": [
+     "Fourth Sunday after Theophany",
+     null
+    ]
+   },
+   {
+    "date": "2003-03-15",
+    "engine": [
+     "St. Cyril, Patriarch of Jerusalem and Sts. Cyril the Bishop and his mother, Anna"
+    ],
+    "final": [
+     "Thirteenth Day of Great Lent",
+     null
+    ]
+   },
+   {
+    "date": "2003-03-22",
+    "engine": [
+     "St. John, Patriarch of Jerusalem, St. John of Odzun, Patriarch of Armenia, St. Gregory of Datev and St. John of Orodni"
+    ],
+    "final": [
+     "Twentieth Day of Great Lent",
+     null
+    ]
+   },
+   {
+    "date": "2003-05-30",
+    "engine": [
+     null
+    ],
+    "final": [
+     "Forty-first Day of Zadeeg",
+     null
+    ]
+   },
+   {
+    "date": "2003-06-07",
+    "engine": [
+     null
+    ],
+    "final": [
+     "Forty-ninth Day of Zadeeg"
+    ]
+   },
+   {
+    "date": "2003-06-30",
+    "engine": [
+     "St. Epiphanius, Bishop of Cyprus and Sts. Babylas, Bishop of Antioch and his three disciples"
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2003-07-03",
+    "engine": [
+     "Sts. Theodotus and the Seven Virgins, Martyrs of Ancyra and St. Thalilas, Physician of Cilicia"
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2003-09-22",
+    "engine": [
+     "St. Mamas of Gangra, hermit, St. Philectimon of Lyconia and St. Simeon the Stylite"
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2003-09-23",
+    "engine": [
+     "St. Shushan, daughter of St. Vartan the Great and St. Mariana of Pisidia, virgin, martyr"
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2003-09-25",
+    "engine": [
+     "St. Barlaam of Antioch, St. Anthimus, Bishop of Nicomedia and St. Irenaeus of Sirmium"
+    ],
+    "final": [
+     "Fast Day",
+     null
+    ]
+   },
+   {
+    "date": "2004-01-03",
+    "engine": [
+     "St. Basil the Great of Cesarea, St. Gregory of Nyssa, St. Sylvester, Patriarch of Rome and St. Ephrem the Syrian"
+    ],
+    "final": [
+     "Fifth Day of the Fast of Nativity",
+     null
+    ]
+   },
+   {
+    "date": "2004-02-01",
+    "engine": [
+     null,
+     null,
+     null
+    ],
+    "final": [
+     "Third Sunday after Theophany",
+     null
+    ]
+   },
+   {
+    "date": "2004-02-06",
+    "engine": [
+     null
+    ],
+    "final": [
+     "Fifth Day of the Pre-Lenten Fast (Arachavorats Bahk Remembrance of the Prophet Jonah)",
+     null
+    ]
+   },
+   {
+    "date": "2004-03-06",
+    "engine": [
+     "St. Cyril, Patriarch of Jerusalem and Sts. Cyril the Bishop and his mother, Anna"
+    ],
+    "final": [
+     "Thirteenth Day of Great Lent",
+     null
+    ]
+   },
+   {
+    "date": "2004-03-13",
+    "engine": [
+     "St. John, Patriarch of Jerusalem, St. John of Odzun, Patriarch of Armenia, St. Gregory of Datev and St. John of Orodni"
+    ],
+    "final": [
+     "Twentieth Day of Great Lent",
+     null
+    ]
+   }
+  ],
+  "readings_exact": [
+   {
+    "date": "2001-01-16",
+    "engineOnly": [
+     "Wisdom of Solomon 5:1-8"
+    ],
+    "finalOnly": [
+     "Wisdom 5:1-8",
+     "John 10:11-16"
+    ]
+   },
+   {
+    "date": "2001-01-18",
+    "engineOnly": [
+     "Isaiah 41:15-20",
+     "1 Peter 2:9-15",
+     "John 9:39-10:10"
+    ],
+    "finalOnly": []
+   },
+   {
+    "date": "2001-01-20",
+    "engineOnly": [
+     "Wisdom of Solomon 6:2-10"
+    ],
+    "finalOnly": [
+     "Wisdom 6:1-9"
+    ]
+   },
+   {
+    "date": "2001-01-22",
+    "engineOnly": [
+     "Wisdom of Solomon 2:23-3:8",
+     "Isaiah 46:9-12",
+     "2 Corinthians 5:1-5",
+     "Luke 21:12-19"
+    ],
+    "finalOnly": []
+   },
+   {
+    "date": "2001-01-23",
+    "engineOnly": [
+     "Proverbs 1:20-25",
+     "Isaiah 55:10-13",
+     "Romans 15:30-33",
+     "Luke 12:32-40"
+    ],
+    "finalOnly": []
+   },
+   {
+    "date": "2001-01-27",
+    "engineOnly": [
+     "Proverbs 8:33-36",
+     "Hosea 10:12",
+     "Amos 5:10-14",
+     "Acts 20:25-32",
+     "John 10:11-16"
+    ],
+    "finalOnly": []
+   },
+   {
+    "date": "2001-01-30",
+    "engineOnly": [],
+    "finalOnly": [
+     "Nahum 1:7-9",
+     "Habakkuk 1:2-3",
+     "Zephaniah 1:7-8",
+     "Haggai 2:10",
+     "Zechariah 7:9-10",
+     "Malachi 1:6",
+     "Romans 11:2-5",
+     "Luke 13:31-35"
+    ]
+   },
+   {
+    "date": "2001-02-12",
+    "engineOnly": [
+     "Wisdom of Solomon 6:12-21",
+     "Isaiah 19:7"
+    ],
+    "finalOnly": [
+     "Wisdom 6:12-21",
+     "Isaiah 18:7-19:7"
+    ]
+   },
+   {
+    "date": "2001-02-13",
+    "engineOnly": [],
+    "finalOnly": [
+     "Malachi 3:1-4",
+     "Galatians 3:24-29",
+     "Leviticus 12:6-8",
+     "Proverbs 8:22-34",
+     "Ezekiel 44:1-2",
+     "Luke 2:22-40"
+    ]
+   },
+   {
+    "date": "2001-02-14",
+    "engineOnly": [
+     "Acts 5:47-50"
+    ],
+    "finalOnly": [
+     "Acts 7:47-50",
+     "II Timothy 3:16-4:8",
+     "John 7:1-13"
+    ]
+   },
+   {
+    "date": "2001-02-17",
+    "engineOnly": [
+     "Wisdom of Solomon 7:12-18"
+    ],
+    "finalOnly": [
+     "Wisdom 7:12-18"
+    ]
+   },
+   {
+    "date": "2001-02-20",
+    "engineOnly": [
+     "Wisdom of Solomon 5:16-23"
+    ],
+    "finalOnly": [
+     "Wisdom 5:16-23"
+    ]
+   },
+   {
+    "date": "2001-02-22",
+    "engineOnly": [
+     "Wisdom of Solomon 3:1-8"
+    ],
+    "finalOnly": [
+     "Wisdom 3:1-8"
+    ]
+   },
+   {
+    "date": "2001-02-24",
+    "engineOnly": [
+     "Ezekiel 4:16-19"
+    ],
+    "finalOnly": [
+     "Ezekiel 3:16-19"
+    ]
+   },
+   {
+    "date": "2001-02-25",
+    "engineOnly": [
+     "Matthew 27:57-61"
+    ],
+    "finalOnly": []
+   },
+   {
+    "date": "2001-03-03",
+    "engineOnly": [
+     "Wisdom of Solomon 8:19-9:5"
+    ],
+    "finalOnly": [
+     "Wisdom 8:19-9:5"
+    ]
+   },
+   {
+    "date": "2001-03-07",
+    "engineOnly": [
+     "Micah 3:1-7"
+    ],
+    "finalOnly": [
+     "Micah 4:1-7"
+    ]
+   },
+   {
+    "date": "2001-03-17",
+    "engineOnly": [
+     "Jeremiah 4:21-24"
+    ],
+    "finalOnly": [
+     "Baruch 4:21-24"
+    ]
+   },
+   {
+    "date": "2001-03-23",
+    "engineOnly": [
+     "Isaiah 44:22-45:8"
+    ],
+    "finalOnly": [
+     "Isaiah 43:22-44:8"
+    ]
+   },
+   {
+    "date": "2001-03-24",
+    "engineOnly": [
+     "Wisdom of Solomon 3:1-8",
+     "Isaiah 44:1-3"
+    ],
+    "finalOnly": [
+     "Wisdom 3:1-8",
+     "Isaiah 43:1-3"
+    ]
+   },
+   {
+    "date": "2001-03-31",
+    "engineOnly": [
+     "Wisdom of Solomon 1:15-2:22"
+    ],
+    "finalOnly": [
+     "Wisdom 1:15-2:22"
+    ]
+   },
+   {
+    "date": "2001-04-06",
+    "engineOnly": [
+     "Job 41:1-24"
+    ],
+    "finalOnly": [
+     "Job 21:1-34"
+    ]
+   },
+   {
+    "date": "2001-04-07",
+    "engineOnly": [
+     "Song of Songs 1:1-11",
+     "Wisdom of Solomon 10:9-20"
+    ],
+    "finalOnly": [
+     "Song of Solomon 1:2-11",
+     "Wisdom 10:9-20"
+    ]
+   },
+   {
+    "date": "2001-04-08",
+    "engineOnly": [
+     "Song of Songs 2:8-6:11",
+     "Song of Songs 1:1-2:3",
+     "Matthew 20:29-21:47",
+     "Matthew 21:1-10"
+    ],
+    "finalOnly": [
+     "Song of Solomon 1:1-2:3",
+     "John 12:44-50",
+     "Song of Solomon 2:8-6:11"
+    ]
+   },
+   {
+    "date": "2001-04-12",
+    "engineOnly": [
+     "Mark 26:17-30"
+    ],
+    "finalOnly": [
+     "Matthew 26:17-30",
+     "Jonah 2:3-10"
+    ]
+   },
+   {
+    "date": "2001-04-13",
+    "engineOnly": [
+     "Wisdom of Solomon 2:1-22"
+    ],
+    "finalOnly": [
+     "Wisdom 2:1-22"
+    ]
+   },
+   {
+    "date": "2001-04-16",
+    "engineOnly": [],
+    "finalOnly": [
+     "Acts 2:22-41",
+     "Mark 16:2-8"
+    ]
+   },
+   {
+    "date": "2001-04-19",
+    "engineOnly": [
+     "Acts 3:13-31"
+    ],
+    "finalOnly": [
+     "Acts 4:13-31",
+     "Acts 4:13-31"
+    ]
+   },
+   {
+    "date": "2001-04-21",
+    "engineOnly": [
+     "Acts 14:26-33",
+     "John 21:1-14"
+    ],
+    "finalOnly": [
+     "Acts 13:25-33"
+    ]
+   },
+   {
+    "date": "2001-05-02",
+    "engineOnly": [
+     "1 Peter 4:1-9"
+    ],
+    "finalOnly": [
+     "I Peter 3:1-9"
+    ]
+   },
+   {
+    "date": "2001-05-06",
+    "engineOnly": [],
+    "finalOnly": [
+     "Luke 23:32-46",
+     "Mark 4:26-34"
+    ]
+   },
+   {
+    "date": "2001-05-12",
+    "engineOnly": [
+     "2 Peter 4:10-18"
+    ],
+    "finalOnly": [
+     "II Peter 3:10-18"
+    ]
+   },
+   {
+    "date": "2001-05-13",
+    "engineOnly": [
+     "Matthew 14:53-58"
+    ],
+    "finalOnly": [
+     "Matthew 13:53-58"
+    ]
+   },
+   {
+    "date": "2001-05-15",
+    "engineOnly": [
+     "Matthew 13:12-20"
+    ],
+    "finalOnly": [
+     "Matthew 14:13-21"
+    ]
+   },
+   {
+    "date": "2001-05-18",
+    "engineOnly": [
+     "Luke 14:22-35"
+    ],
+    "finalOnly": [
+     "Luke 13:22-35"
+    ]
+   },
+   {
+    "date": "2001-05-24",
+    "engineOnly": [
+     "Song of Songs 3:6-4:3"
+    ],
+    "finalOnly": [
+     "Song of Solomon 3:6-4:3"
+    ]
+   },
+   {
+    "date": "2001-05-27",
+    "engineOnly": [
+     "Song of Songs 6:9-8:13"
+    ],
+    "finalOnly": [
+     "Mark 10:46-11:11",
+     "Song of Solomon 6:9-8:13"
+    ]
+   },
+   {
+    "date": "2001-06-05",
+    "engineOnly": [
+     "Wisdom of Solomon 1:5-7"
+    ],
+    "finalOnly": [
+     "Romans 1:18-25",
+     "Matthew 8:5-13",
+     "Wisdom 1:5-7",
+     "Matthew 3:16-4:2"
+    ]
+   },
+   {
+    "date": "2001-06-07",
+    "engineOnly": [
+     "Wisdom of Solomon 9:13-10:2"
+    ],
+    "finalOnly": [
+     "Wisdom 9:13-10:2"
+    ]
+   },
+   {
+    "date": "2001-06-08",
+    "engineOnly": [
+     "Wisdom of Solomon 6:11-17"
+    ],
+    "finalOnly": [
+     "Wisdom 6:10-16"
+    ]
+   }
+  ],
+  "readings_eng_superset": [
+   {
+    "date": "2001-01-16",
+    "engineOnly": [
+     "Wisdom of Solomon 5:1-8"
+    ],
+    "finalOnly": [
+     "Wisdom 5:1-8",
+     "John 10:11-16"
+    ]
+   },
+   {
+    "date": "2001-01-20",
+    "engineOnly": [
+     "Wisdom of Solomon 6:2-10"
+    ],
+    "finalOnly": [
+     "Wisdom 6:1-9"
+    ]
+   },
+   {
+    "date": "2001-01-30",
+    "engineOnly": [],
+    "finalOnly": [
+     "Nahum 1:7-9",
+     "Habakkuk 1:2-3",
+     "Zephaniah 1:7-8",
+     "Haggai 2:10",
+     "Zechariah 7:9-10",
+     "Malachi 1:6",
+     "Romans 11:2-5",
+     "Luke 13:31-35"
+    ]
+   },
+   {
+    "date": "2001-02-12",
+    "engineOnly": [
+     "Wisdom of Solomon 6:12-21",
+     "Isaiah 19:7"
+    ],
+    "finalOnly": [
+     "Wisdom 6:12-21",
+     "Isaiah 18:7-19:7"
+    ]
+   },
+   {
+    "date": "2001-02-13",
+    "engineOnly": [],
+    "finalOnly": [
+     "Malachi 3:1-4",
+     "Galatians 3:24-29",
+     "Leviticus 12:6-8",
+     "Proverbs 8:22-34",
+     "Ezekiel 44:1-2",
+     "Luke 2:22-40"
+    ]
+   },
+   {
+    "date": "2001-02-14",
+    "engineOnly": [
+     "Acts 5:47-50"
+    ],
+    "finalOnly": [
+     "Acts 7:47-50",
+     "II Timothy 3:16-4:8",
+     "John 7:1-13"
+    ]
+   },
+   {
+    "date": "2001-02-17",
+    "engineOnly": [
+     "Wisdom of Solomon 7:12-18"
+    ],
+    "finalOnly": [
+     "Wisdom 7:12-18"
+    ]
+   },
+   {
+    "date": "2001-02-20",
+    "engineOnly": [
+     "Wisdom of Solomon 5:16-23"
+    ],
+    "finalOnly": [
+     "Wisdom 5:16-23"
+    ]
+   },
+   {
+    "date": "2001-02-22",
+    "engineOnly": [
+     "Wisdom of Solomon 3:1-8"
+    ],
+    "finalOnly": [
+     "Wisdom 3:1-8"
+    ]
+   },
+   {
+    "date": "2001-02-24",
+    "engineOnly": [
+     "Ezekiel 4:16-19"
+    ],
+    "finalOnly": [
+     "Ezekiel 3:16-19"
+    ]
+   },
+   {
+    "date": "2001-03-03",
+    "engineOnly": [
+     "Wisdom of Solomon 8:19-9:5"
+    ],
+    "finalOnly": [
+     "Wisdom 8:19-9:5"
+    ]
+   },
+   {
+    "date": "2001-03-07",
+    "engineOnly": [
+     "Micah 3:1-7"
+    ],
+    "finalOnly": [
+     "Micah 4:1-7"
+    ]
+   },
+   {
+    "date": "2001-03-17",
+    "engineOnly": [
+     "Jeremiah 4:21-24"
+    ],
+    "finalOnly": [
+     "Baruch 4:21-24"
+    ]
+   },
+   {
+    "date": "2001-03-23",
+    "engineOnly": [
+     "Isaiah 44:22-45:8"
+    ],
+    "finalOnly": [
+     "Isaiah 43:22-44:8"
+    ]
+   },
+   {
+    "date": "2001-03-24",
+    "engineOnly": [
+     "Wisdom of Solomon 3:1-8",
+     "Isaiah 44:1-3"
+    ],
+    "finalOnly": [
+     "Wisdom 3:1-8",
+     "Isaiah 43:1-3"
+    ]
+   },
+   {
+    "date": "2001-03-31",
+    "engineOnly": [
+     "Wisdom of Solomon 1:15-2:22"
+    ],
+    "finalOnly": [
+     "Wisdom 1:15-2:22"
+    ]
+   },
+   {
+    "date": "2001-04-06",
+    "engineOnly": [
+     "Job 41:1-24"
+    ],
+    "finalOnly": [
+     "Job 21:1-34"
+    ]
+   },
+   {
+    "date": "2001-04-07",
+    "engineOnly": [
+     "Song of Songs 1:1-11",
+     "Wisdom of Solomon 10:9-20"
+    ],
+    "finalOnly": [
+     "Song of Solomon 1:2-11",
+     "Wisdom 10:9-20"
+    ]
+   },
+   {
+    "date": "2001-04-08",
+    "engineOnly": [
+     "Song of Songs 2:8-6:11",
+     "Song of Songs 1:1-2:3",
+     "Matthew 20:29-21:47",
+     "Matthew 21:1-10"
+    ],
+    "finalOnly": [
+     "Song of Solomon 1:1-2:3",
+     "John 12:44-50",
+     "Song of Solomon 2:8-6:11"
+    ]
+   },
+   {
+    "date": "2001-04-12",
+    "engineOnly": [
+     "Mark 26:17-30"
+    ],
+    "finalOnly": [
+     "Matthew 26:17-30",
+     "Jonah 2:3-10"
+    ]
+   },
+   {
+    "date": "2001-04-13",
+    "engineOnly": [
+     "Wisdom of Solomon 2:1-22"
+    ],
+    "finalOnly": [
+     "Wisdom 2:1-22"
+    ]
+   },
+   {
+    "date": "2001-04-16",
+    "engineOnly": [],
+    "finalOnly": [
+     "Acts 2:22-41",
+     "Mark 16:2-8"
+    ]
+   },
+   {
+    "date": "2001-04-19",
+    "engineOnly": [
+     "Acts 3:13-31"
+    ],
+    "finalOnly": [
+     "Acts 4:13-31",
+     "Acts 4:13-31"
+    ]
+   },
+   {
+    "date": "2001-04-21",
+    "engineOnly": [
+     "Acts 14:26-33",
+     "John 21:1-14"
+    ],
+    "finalOnly": [
+     "Acts 13:25-33"
+    ]
+   },
+   {
+    "date": "2001-05-02",
+    "engineOnly": [
+     "1 Peter 4:1-9"
+    ],
+    "finalOnly": [
+     "I Peter 3:1-9"
+    ]
+   },
+   {
+    "date": "2001-05-06",
+    "engineOnly": [],
+    "finalOnly": [
+     "Luke 23:32-46",
+     "Mark 4:26-34"
+    ]
+   },
+   {
+    "date": "2001-05-12",
+    "engineOnly": [
+     "2 Peter 4:10-18"
+    ],
+    "finalOnly": [
+     "II Peter 3:10-18"
+    ]
+   },
+   {
+    "date": "2001-05-13",
+    "engineOnly": [
+     "Matthew 14:53-58"
+    ],
+    "finalOnly": [
+     "Matthew 13:53-58"
+    ]
+   },
+   {
+    "date": "2001-05-15",
+    "engineOnly": [
+     "Matthew 13:12-20"
+    ],
+    "finalOnly": [
+     "Matthew 14:13-21"
+    ]
+   },
+   {
+    "date": "2001-05-18",
+    "engineOnly": [
+     "Luke 14:22-35"
+    ],
+    "finalOnly": [
+     "Luke 13:22-35"
+    ]
+   },
+   {
+    "date": "2001-05-24",
+    "engineOnly": [
+     "Song of Songs 3:6-4:3"
+    ],
+    "finalOnly": [
+     "Song of Solomon 3:6-4:3"
+    ]
+   },
+   {
+    "date": "2001-05-27",
+    "engineOnly": [
+     "Song of Songs 6:9-8:13"
+    ],
+    "finalOnly": [
+     "Mark 10:46-11:11",
+     "Song of Solomon 6:9-8:13"
+    ]
+   },
+   {
+    "date": "2001-06-05",
+    "engineOnly": [
+     "Wisdom of Solomon 1:5-7"
+    ],
+    "finalOnly": [
+     "Romans 1:18-25",
+     "Matthew 8:5-13",
+     "Wisdom 1:5-7",
+     "Matthew 3:16-4:2"
+    ]
+   },
+   {
+    "date": "2001-06-07",
+    "engineOnly": [
+     "Wisdom of Solomon 9:13-10:2"
+    ],
+    "finalOnly": [
+     "Wisdom 9:13-10:2"
+    ]
+   },
+   {
+    "date": "2001-06-08",
+    "engineOnly": [
+     "Wisdom of Solomon 6:11-17"
+    ],
+    "finalOnly": [
+     "Wisdom 6:10-16"
+    ]
+   },
+   {
+    "date": "2001-06-09",
+    "engineOnly": [
+     "Wisdom of Solomon 7:31-8:21",
+     "John 4:1-6"
+    ],
+    "finalOnly": [
+     "Wisdom 7:21-24",
+     "John 3:1-6"
+    ]
+   },
+   {
+    "date": "2001-06-11",
+    "engineOnly": [
+     "Isaiah null",
+     "Romans null"
+    ],
+    "finalOnly": [
+     "Isaiah 61:10-62:3",
+     "Romans 15:30-16:2"
+    ]
+   },
+   {
+    "date": "2001-06-16",
+    "engineOnly": [
+     "Wisdom of Solomon 5:1-8"
+    ],
+    "finalOnly": [
+     "Wisdom 5:1-8"
+    ]
+   },
+   {
+    "date": "2001-06-17",
+    "engineOnly": [
+     "Matthew 24:27-36"
+    ],
+    "finalOnly": [
+     "Matthew 14:27-36"
+    ]
+   },
+   {
+    "date": "2001-06-19",
+    "engineOnly": [
+     "Song of Songs 8:14-24"
+    ],
+    "finalOnly": [
+     "Song of Solomon 8:14",
+     "Song of Solomon 3:1-4"
+    ]
+   }
+  ],
+  "readings_final_superset": [
+   {
+    "date": "2001-01-16",
+    "engineOnly": [
+     "Wisdom of Solomon 5:1-8"
+    ],
+    "finalOnly": [
+     "Wisdom 5:1-8",
+     "John 10:11-16"
+    ]
+   },
+   {
+    "date": "2001-01-18",
+    "engineOnly": [
+     "Isaiah 41:15-20",
+     "1 Peter 2:9-15",
+     "John 9:39-10:10"
+    ],
+    "finalOnly": []
+   },
+   {
+    "date": "2001-01-20",
+    "engineOnly": [
+     "Wisdom of Solomon 6:2-10"
+    ],
+    "finalOnly": [
+     "Wisdom 6:1-9"
+    ]
+   },
+   {
+    "date": "2001-01-22",
+    "engineOnly": [
+     "Wisdom of Solomon 2:23-3:8",
+     "Isaiah 46:9-12",
+     "2 Corinthians 5:1-5",
+     "Luke 21:12-19"
+    ],
+    "finalOnly": []
+   },
+   {
+    "date": "2001-01-23",
+    "engineOnly": [
+     "Proverbs 1:20-25",
+     "Isaiah 55:10-13",
+     "Romans 15:30-33",
+     "Luke 12:32-40"
+    ],
+    "finalOnly": []
+   },
+   {
+    "date": "2001-01-27",
+    "engineOnly": [
+     "Proverbs 8:33-36",
+     "Hosea 10:12",
+     "Amos 5:10-14",
+     "Acts 20:25-32",
+     "John 10:11-16"
+    ],
+    "finalOnly": []
+   },
+   {
+    "date": "2001-02-12",
+    "engineOnly": [
+     "Wisdom of Solomon 6:12-21",
+     "Isaiah 19:7"
+    ],
+    "finalOnly": [
+     "Wisdom 6:12-21",
+     "Isaiah 18:7-19:7"
+    ]
+   },
+   {
+    "date": "2001-02-14",
+    "engineOnly": [
+     "Acts 5:47-50"
+    ],
+    "finalOnly": [
+     "Acts 7:47-50",
+     "II Timothy 3:16-4:8",
+     "John 7:1-13"
+    ]
+   },
+   {
+    "date": "2001-02-17",
+    "engineOnly": [
+     "Wisdom of Solomon 7:12-18"
+    ],
+    "finalOnly": [
+     "Wisdom 7:12-18"
+    ]
+   },
+   {
+    "date": "2001-02-20",
+    "engineOnly": [
+     "Wisdom of Solomon 5:16-23"
+    ],
+    "finalOnly": [
+     "Wisdom 5:16-23"
+    ]
+   },
+   {
+    "date": "2001-02-22",
+    "engineOnly": [
+     "Wisdom of Solomon 3:1-8"
+    ],
+    "finalOnly": [
+     "Wisdom 3:1-8"
+    ]
+   },
+   {
+    "date": "2001-02-24",
+    "engineOnly": [
+     "Ezekiel 4:16-19"
+    ],
+    "finalOnly": [
+     "Ezekiel 3:16-19"
+    ]
+   },
+   {
+    "date": "2001-02-25",
+    "engineOnly": [
+     "Matthew 27:57-61"
+    ],
+    "finalOnly": []
+   },
+   {
+    "date": "2001-03-03",
+    "engineOnly": [
+     "Wisdom of Solomon 8:19-9:5"
+    ],
+    "finalOnly": [
+     "Wisdom 8:19-9:5"
+    ]
+   },
+   {
+    "date": "2001-03-07",
+    "engineOnly": [
+     "Micah 3:1-7"
+    ],
+    "finalOnly": [
+     "Micah 4:1-7"
+    ]
+   },
+   {
+    "date": "2001-03-17",
+    "engineOnly": [
+     "Jeremiah 4:21-24"
+    ],
+    "finalOnly": [
+     "Baruch 4:21-24"
+    ]
+   },
+   {
+    "date": "2001-03-23",
+    "engineOnly": [
+     "Isaiah 44:22-45:8"
+    ],
+    "finalOnly": [
+     "Isaiah 43:22-44:8"
+    ]
+   },
+   {
+    "date": "2001-03-24",
+    "engineOnly": [
+     "Wisdom of Solomon 3:1-8",
+     "Isaiah 44:1-3"
+    ],
+    "finalOnly": [
+     "Wisdom 3:1-8",
+     "Isaiah 43:1-3"
+    ]
+   },
+   {
+    "date": "2001-03-31",
+    "engineOnly": [
+     "Wisdom of Solomon 1:15-2:22"
+    ],
+    "finalOnly": [
+     "Wisdom 1:15-2:22"
+    ]
+   },
+   {
+    "date": "2001-04-06",
+    "engineOnly": [
+     "Job 41:1-24"
+    ],
+    "finalOnly": [
+     "Job 21:1-34"
+    ]
+   },
+   {
+    "date": "2001-04-07",
+    "engineOnly": [
+     "Song of Songs 1:1-11",
+     "Wisdom of Solomon 10:9-20"
+    ],
+    "finalOnly": [
+     "Song of Solomon 1:2-11",
+     "Wisdom 10:9-20"
+    ]
+   },
+   {
+    "date": "2001-04-08",
+    "engineOnly": [
+     "Song of Songs 2:8-6:11",
+     "Song of Songs 1:1-2:3",
+     "Matthew 20:29-21:47",
+     "Matthew 21:1-10"
+    ],
+    "finalOnly": [
+     "Song of Solomon 1:1-2:3",
+     "John 12:44-50",
+     "Song of Solomon 2:8-6:11"
+    ]
+   },
+   {
+    "date": "2001-04-12",
+    "engineOnly": [
+     "Mark 26:17-30"
+    ],
+    "finalOnly": [
+     "Matthew 26:17-30",
+     "Jonah 2:3-10"
+    ]
+   },
+   {
+    "date": "2001-04-13",
+    "engineOnly": [
+     "Wisdom of Solomon 2:1-22"
+    ],
+    "finalOnly": [
+     "Wisdom 2:1-22"
+    ]
+   },
+   {
+    "date": "2001-04-19",
+    "engineOnly": [
+     "Acts 3:13-31"
+    ],
+    "finalOnly": [
+     "Acts 4:13-31",
+     "Acts 4:13-31"
+    ]
+   },
+   {
+    "date": "2001-04-21",
+    "engineOnly": [
+     "Acts 14:26-33",
+     "John 21:1-14"
+    ],
+    "finalOnly": [
+     "Acts 13:25-33"
+    ]
+   },
+   {
+    "date": "2001-05-02",
+    "engineOnly": [
+     "1 Peter 4:1-9"
+    ],
+    "finalOnly": [
+     "I Peter 3:1-9"
+    ]
+   },
+   {
+    "date": "2001-05-12",
+    "engineOnly": [
+     "2 Peter 4:10-18"
+    ],
+    "finalOnly": [
+     "II Peter 3:10-18"
+    ]
+   },
+   {
+    "date": "2001-05-13",
+    "engineOnly": [
+     "Matthew 14:53-58"
+    ],
+    "finalOnly": [
+     "Matthew 13:53-58"
+    ]
+   },
+   {
+    "date": "2001-05-15",
+    "engineOnly": [
+     "Matthew 13:12-20"
+    ],
+    "finalOnly": [
+     "Matthew 14:13-21"
+    ]
+   },
+   {
+    "date": "2001-05-18",
+    "engineOnly": [
+     "Luke 14:22-35"
+    ],
+    "finalOnly": [
+     "Luke 13:22-35"
+    ]
+   },
+   {
+    "date": "2001-05-24",
+    "engineOnly": [
+     "Song of Songs 3:6-4:3"
+    ],
+    "finalOnly": [
+     "Song of Solomon 3:6-4:3"
+    ]
+   },
+   {
+    "date": "2001-05-27",
+    "engineOnly": [
+     "Song of Songs 6:9-8:13"
+    ],
+    "finalOnly": [
+     "Mark 10:46-11:11",
+     "Song of Solomon 6:9-8:13"
+    ]
+   },
+   {
+    "date": "2001-06-05",
+    "engineOnly": [
+     "Wisdom of Solomon 1:5-7"
+    ],
+    "finalOnly": [
+     "Romans 1:18-25",
+     "Matthew 8:5-13",
+     "Wisdom 1:5-7",
+     "Matthew 3:16-4:2"
+    ]
+   },
+   {
+    "date": "2001-06-07",
+    "engineOnly": [
+     "Wisdom of Solomon 9:13-10:2"
+    ],
+    "finalOnly": [
+     "Wisdom 9:13-10:2"
+    ]
+   },
+   {
+    "date": "2001-06-08",
+    "engineOnly": [
+     "Wisdom of Solomon 6:11-17"
+    ],
+    "finalOnly": [
+     "Wisdom 6:10-16"
+    ]
+   },
+   {
+    "date": "2001-06-09",
+    "engineOnly": [
+     "Wisdom of Solomon 7:31-8:21",
+     "John 4:1-6"
+    ],
+    "finalOnly": [
+     "Wisdom 7:21-24",
+     "John 3:1-6"
+    ]
+   },
+   {
+    "date": "2001-06-11",
+    "engineOnly": [
+     "Isaiah null",
+     "Romans null"
+    ],
+    "finalOnly": [
+     "Isaiah 61:10-62:3",
+     "Romans 15:30-16:2"
+    ]
+   },
+   {
+    "date": "2001-06-16",
+    "engineOnly": [
+     "Wisdom of Solomon 5:1-8"
+    ],
+    "finalOnly": [
+     "Wisdom 5:1-8"
+    ]
+   },
+   {
+    "date": "2001-06-17",
+    "engineOnly": [
+     "Matthew 24:27-36"
+    ],
+    "finalOnly": [
+     "Matthew 14:27-36"
+    ]
+   }
+  ],
+  "readings_any_overlap": [
+   {
+    "date": "2001-10-23",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2002-10-22",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2003-10-21",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2004-10-19",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2004-11-15",
+    "engineOnly": [
+     "Proverbs 4:10-27",
+     "Isaiah 48:17-21",
+     "2 Corinthians 10:3-6",
+     "Matthew 10:37-42"
+    ],
+    "finalOnly": [
+     "Wisdom 5:15-17",
+     "Lamentations 3:22-56",
+     "II Timothy 3:10-15",
+     "Luke 12:32-40"
+    ]
+   },
+   {
+    "date": "2004-11-16",
+    "engineOnly": [
+     "Lamentations 3:22-56",
+     "Romans 8:18-27",
+     "John 16:1-5"
+    ],
+    "finalOnly": [
+     "Proverbs 4:10-27",
+     "Isaiah 48:17-21",
+     "II Corinthians 10:3-6",
+     "Matthew 10:37-42"
+    ]
+   },
+   {
+    "date": "2005-10-18",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2006-09-02",
+    "engineOnly": [],
+    "finalOnly": [
+     "Wisdom 9:13-10:3",
+     "Micah 7:18-20",
+     "I Corinthians 12:28-13:3",
+     "John 20:24-31"
+    ]
+   },
+   {
+    "date": "2006-10-24",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2007-10-23",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2008-10-21",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2009-10-20",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2010-08-06",
+    "engineOnly": [
+     "2 Timothy 2:3-14",
+     "John 5:31-47"
+    ],
+    "finalOnly": [
+     "II Timothy 3:1-7",
+     "John 6:64-72"
+    ]
+   },
+   {
+    "date": "2010-10-19",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2011-10-18",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2012-10-23",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2013-10-22",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2014-10-21",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2015-10-20",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2016-07-23",
+    "engineOnly": [
+     "Wisdom of Solomon 5:1-8",
+     "Baruch 3:31-4:4",
+     "Romans 8:28-39"
+    ],
+    "finalOnly": [
+     "Proverbs 11:2-11",
+     "Isaiah 61:3-7",
+     "Hebrews 13:7-9",
+     "John 16:33-17:8"
+    ]
+   },
+   {
+    "date": "2016-10-18",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2017-09-02",
+    "engineOnly": [],
+    "finalOnly": [
+     "Wisdom 9:13-10:3",
+     "Micah 7:18-20",
+     "I Corinthians 12:28-13:3",
+     "John 20:24-31"
+    ]
+   },
+   {
+    "date": "2017-10-24",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2018-10-23",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2019-02-13",
+    "engineOnly": [],
+    "finalOnly": [
+     "Malachi 3:1-4",
+     "Galatians 3:24-29",
+     "Leviticus 12:6-8",
+     "Proverbs 8:22-34",
+     "Ezekiel 44:1-2",
+     "Luke 2:22-40"
+    ]
+   },
+   {
+    "date": "2019-10-22",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2020-10-20",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2021-08-06",
+    "engineOnly": [
+     "2 Timothy 2:3-14",
+     "John 5:31-47"
+    ],
+    "finalOnly": [
+     "II Timothy 3:1-7",
+     "John 6:64-71"
+    ]
+   },
+   {
+    "date": "2021-10-19",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2022-10-18",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2023-09-02",
+    "engineOnly": [],
+    "finalOnly": [
+     "Wisdom 9:13-10:3",
+     "Micah 7:18-20",
+     "I Corinthians 12:28-13:3",
+     "John 20:24-31"
+    ]
+   },
+   {
+    "date": "2023-10-24",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2024-10-22",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2025-10-21",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2026-08-07",
+    "engineOnly": [
+     "2 Timothy 2:3-14",
+     "John 5:31-47"
+    ],
+    "finalOnly": [
+     "II Timothy 3:1-7",
+     "John 6:64-72"
+    ]
+   },
+   {
+    "date": "2026-10-20",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2027-10-19",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2028-09-02",
+    "engineOnly": [],
+    "finalOnly": [
+     "Wisdom 9:13-10:3",
+     "Micah 7:18-20",
+     "I Corinthians 12:28-13:3",
+     "John 20:24-31"
+    ]
+   },
+   {
+    "date": "2028-10-24",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   },
+   {
+    "date": "2029-10-23",
+    "engineOnly": [
+     "Wisdom of Solomon 1:11-15"
+    ],
+    "finalOnly": [
+     "Wisdom 1:11-15",
+     "Lamentations 3:22-56",
+     "I Timothy 5:17-21",
+     "Matthew 10:26-33"
+    ]
+   }
+  ],
+  "service": [
+   {
+    "date": "2001-01-01",
+    "key": "Luke 20:1-8",
+    "engine": "Divine Liturgy (Synaxis)",
+    "final": "other: Matins (Morning)"
+   },
+   {
+    "date": "2001-04-14",
+    "key": "Matthew 28:1-20",
+    "engine": "Paschal Divine Liturgy (closing gospel)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-14",
+    "key": "Matthew 28:16-20",
+    "engine": "Paschal Divine Liturgy (closing gospel)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-15",
+    "key": "Mark 16:2-8",
+    "engine": "Matins (Morning)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-17",
+    "key": "Luke 24:13-35",
+    "engine": "Matins (Morning)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-17",
+    "key": "Luke 24:13-35",
+    "engine": "Dismissal",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-18",
+    "key": "Luke 24:36-40",
+    "engine": "Matins (Morning)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-18",
+    "key": "Luke 24:13-35",
+    "engine": "Vespers (Evening)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-18",
+    "key": "Luke 24:36-40",
+    "engine": "Dismissal",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-19",
+    "key": "Matthew 5:1-12",
+    "engine": "Matins (Morning)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-19",
+    "key": "Luke 24:36-40",
+    "engine": "Vespers (Evening)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-19",
+    "key": "Matthew 5:1-12",
+    "engine": "Dismissal",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-20",
+    "key": "John 21:1-14",
+    "engine": "Matins (Morning)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-20",
+    "key": "Matthew 5:1-12",
+    "engine": "Vespers (Evening)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-20",
+    "key": "John 21:1-14",
+    "engine": "Dismissal",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-21",
+    "key": "John 21:15-25",
+    "engine": "Dismissal",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-22",
+    "key": "Luke 4:14-30",
+    "engine": "Matins (Morning)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-28",
+    "key": "Mark 2:23-3:5",
+    "engine": "Dismissal",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-29",
+    "key": "Luke 6:12-45",
+    "engine": "Matins (Morning)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-29",
+    "key": "Matthew 8:18-9:8",
+    "engine": "Vespers (Evening)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-04-29",
+    "key": "Mark 3:6-12",
+    "engine": "Dismissal",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-05-12",
+    "key": "Mark 6:14-23",
+    "engine": "Dismissal",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-05-13",
+    "key": "Luke 11:33-12:12",
+    "engine": "Matins (Morning)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-05-13",
+    "key": "John 19:25-30",
+    "engine": "Vespers (Evening)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-05-13",
+    "key": "Mark 6:30-44",
+    "engine": "Dismissal",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-05-16",
+    "key": "Matthew 14:1-36",
+    "engine": "Vespers (Evening)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-05-21",
+    "key": "Matthew 17:14-20",
+    "engine": "Vespers (Evening)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-05-23",
+    "key": "Matthew 18:10-35",
+    "engine": "Vespers (Evening)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-06-06",
+    "key": "John 1:29-34",
+    "engine": "Vespers (Evening)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-06-08",
+    "key": "John 3:1-8",
+    "engine": "Dismissal",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-08-12",
+    "key": "Luke 1:39-56",
+    "engine": "Vespers (Evening)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-08-12",
+    "key": "John 19:25-30",
+    "engine": "Vespers (Evening)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-08-15",
+    "key": "Luke 1:26-38",
+    "engine": "Matins (Morning)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-08-20",
+    "key": "Luke 1:26-38",
+    "engine": "Matins (Morning)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-08-26",
+    "key": "Luke 1:39-56",
+    "engine": "Matins (Morning)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2001-12-31",
+    "key": "Luke 20:1-8",
+    "engine": "Divine Liturgy (Synaxis)",
+    "final": "other: Matins (Morning)"
+   },
+   {
+    "date": "2002-03-30",
+    "key": "Matthew 28:1-20",
+    "engine": "Paschal Divine Liturgy (closing gospel)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2002-03-30",
+    "key": "Matthew 28:16-20",
+    "engine": "Paschal Divine Liturgy (closing gospel)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2002-03-31",
+    "key": "Mark 16:2-8",
+    "engine": "Matins (Morning)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   },
+   {
+    "date": "2002-04-02",
+    "key": "Luke 24:13-35",
+    "engine": "Matins (Morning)",
+    "final": "jashoo: Divine Liturgy (Synaxis)"
+   }
+  ]
+ }
+}

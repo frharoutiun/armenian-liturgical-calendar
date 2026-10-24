@@ -1,0 +1,75 @@
+/* Additions for the Liturgical Calendar site (tabs, scan viewer, AI-translation label, provenance badges, calendar).
+   Colours reuse the variables of sharagan.css; fallbacks keep it readable if a variable is missing. */
+.site-tabs { display: flex; gap: 8px; justify-content: center; margin: 10px 0 6px; }
+.site-tab {
+  font: inherit; padding: 6px 18px; border-radius: 999px; border: 1px solid var(--paper-line);
+  background: transparent; color: inherit; cursor: pointer;
+}
+.site-tab.active { background: var(--wine); color: #fff; border-color: var(--wine); }
+.site-tab:focus-visible, .scan-btn:focus-visible, .cal-link:focus-visible { outline: 2px solid var(--wine); outline-offset: 2px; }
+
+.scan-btn, .cal-link {
+  font: inherit; font-size: 0.82em; padding: 2px 10px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--paper-line); background: transparent; color: inherit;
+}
+.scan-btn:hover, .cal-link:hover { background: rgba(var(--wine-rgb), 0.12); }
+.hymn-scan-row { margin: 6px 0 10px; text-align: center; }
+.verse-meta { margin: 6px 0 2px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.85em; opacity: 0.95; }
+.prov-badge { padding: 1px 8px; border-radius: 999px; border: 1px solid var(--paper-line); font-size: 0.8em; }
+.prov-scan { background: rgba(60, 100, 160, 0.12); }
+.prov-warn { background: rgba(200, 140, 20, 0.16); }
+.scan-reading { margin: 4px 0; font-size: 0.9em; }
+.scan-reading summary { cursor: pointer; opacity: 0.85; }
+.supplement-note { margin: 8px 0 12px; padding: 8px 12px; border-left: 3px solid var(--wine); background: rgba(var(--wine-rgb), 0.08); font-size: 0.9em; }
+
+.ai-label {
+  display: inline-block; padding: 0 8px; border-radius: 999px; font-size: 0.75em; font-weight: 600; letter-spacing: 0.02em;
+  background: rgba(120, 70, 160, 0.16); border: 1px solid rgba(120, 70, 160, 0.5); vertical-align: 1px;
+}
+.ai-translation { font-style: italic; }
+
+/* scan overlay */
+.scan-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0, 0, 0, 0.55); display: flex; align-items: stretch; justify-content: center; padding: 12px; }
+.scan-overlay[hidden] { display: none; }
+.scan-dialog {
+  background: var(--paper-deep); color: var(--ink); border-radius: 10px; width: min(1100px, 100%);
+  display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+}
+.scan-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--paper-line); }
+.scan-bar button, .scan-bar input { font: inherit; padding: 3px 10px; }
+.scan-bar input[type="number"] { width: 5.2em; }
+#scanClose { margin-left: auto; font-size: 1.3em; line-height: 1; }
+.scan-note { margin: 6px 12px; font-size: 0.85em; opacity: 0.85; }
+.scan-view { flex: 1; overflow: auto; padding: 0 12px 12px; }
+.pagewrap { position: relative; margin: 0 auto; max-width: none; }
+.pagewrap img { width: 100%; height: auto; display: block; }
+.pagewrap .hl { position: absolute; background: rgba(255, 220, 0, 0.28); border: 1px solid rgba(200, 160, 0, 0.8); pointer-events: none; }
+body.scan-open { overflow: hidden; }
+.state.error { padding: 20px; }
+
+/* calendar */
+.cal-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.cal-form input { font: inherit; padding: 6px 10px; }
+.cal-label { font-weight: 600; }
+.cal-chip { display: inline-block; padding: 1px 10px; margin: 2px 4px 2px 0; border-radius: 999px; border: 1px solid var(--paper-line); font-size: 0.85em; }
+.cal-chip.warn { background: rgba(200, 140, 20, 0.16); }
+.cal-comm { margin-bottom: 8px; }
+.cal-facts { margin: 6px 0 10px; }
+.cal-h { margin: 18px 0 6px; font-size: 1.05em; }
+.cal-note { font-size: 0.85em; opacity: 0.8; }
+.cal-readings, .cal-hymns, .cal-chants, .cal-canons { list-style: none; padding: 0; margin: 0; }
+.cal-readings li, .cal-hymns li, .cal-chants li, .cal-canons li { margin: 8px 0; padding-bottom: 8px; border-bottom: 1px dotted var(--paper-line); }
+.cal-links { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 6px; }
+.cal-unresolved { margin-top: 14px; font-size: 0.9em; }
+.cal-foot { font-size: 0.8em; opacity: 0.7; margin-top: 14px; }
+@media (max-width: 720px) { .scan-overlay { padding: 0; } .scan-dialog { border-radius: 0; } }
+
+/* W7 day page */
+.cal-en { margin: 8px 0; } .cal-en .cal-verses { margin: 4px 0; line-height: 1.55; } .cal-en sup { color: var(--ink-faint, #888); font-size: .7em; margin: 0 2px 0 4px; }
+.cal-sub { font-size: .8em; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-faint, #777); }
+.cal-pending { font-style: italic; opacity: .85; }
+.cal-hy summary { cursor: pointer; margin: 6px 0; } .cal-hy .hy-text { line-height: 1.8; margin: 6px 0; }
+.cal-audio { margin: 6px 0; }
+.cal-ai { margin: 6px 0; padding: 6px 10px; border-left: 3px dashed var(--accent, #8a5a2b); background: rgba(138,90,43,.07); font-style: italic; }
+.cal-rsv-note { font-size: .8em; opacity: .8; }
+#calShowAll { margin: 8px 0; }
