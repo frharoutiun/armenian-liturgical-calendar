@@ -148,3 +148,20 @@ details.cal-other > .cal-readings, details.cal-other > .cal-chants { padding: 0 
 .site-about > summary { cursor: pointer; font-weight: 700; color: var(--wine); text-align: center; }
 .hymnal-intro .header-controls { justify-content: flex-start; margin: 10px 0 0; }
 .hymnal-intro h2 { margin-bottom: 4px; }
+
+/* chants interleaved with the readings; the day's canon part by part */
+.cal-chant { margin: 8px 0 8px 10px; padding: 6px 12px; border-left: 3px solid var(--gold, #b8924a); background: rgba(var(--wine-rgb), .05); border-radius: 0 6px 6px 0; }
+.chant-head { font-size: .9em; margin-bottom: 3px; }
+.chant-kind { font-weight: 700; color: var(--wine); text-transform: uppercase; letter-spacing: .05em; font-size: .85em; }
+.chant-hy { font-size: 1.12rem; line-height: 1.7; }
+.chant-en { font-style: italic; margin-top: 3px; opacity: .92; }
+.cal-chantlist { padding: 0 6px 8px; }
+.canon-index { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+details.canon-part { border: 1px solid var(--paper-line); border-radius: 6px; margin: 8px 0; }
+details.canon-part > summary { cursor: pointer; padding: 9px 12px; background: rgba(var(--wine-rgb), .07); }
+.canon-hymn { padding: 6px 14px 10px; }
+.canon-sub { margin: 12px 0 6px; font-size: 1rem; color: var(--wine); font-weight: 600; }
+.canon-st { padding: 7px 0; border-bottom: 1px dotted var(--paper-line); }
+.canon-hy { line-height: 1.75; font-size: 1.08rem; }
+.canon-en-src { font-style: italic; opacity: .9; margin-top: 2px; }
+.canon-st .cal-ai { margin-top: 4px; }
