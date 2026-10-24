@@ -160,28 +160,62 @@ function canonView(day) {
     });
     const cands = (p.candidates || []).filter((c) => c && (c.page != null || c.startPage != null)).slice(0, 3);
     return { key: p.part || p.key || p.type || "p" + n, label: p.label_en || p.label || p.name || p.type || p.key || "Part " + (n + 1), labelHy: p.labelHy || p.label_hy || p.title_hy || p.title || "", page: firstPage(p) || (hymns.find((x) => x.page != null) || {}).page, hymns, status: p.status || "", note: p.note || "", needsReview: !!p.needsReview, cands };
-  }).filter((p) => p.hymns.length || p.note || p.cands.length);
+  });
   return parts.length ? { parts, summary: cn.summary || null } : null;
 }
-function renderCanon(cv) {
-  const stChip = (p) => (p.status === "missing" ? chip("to be confirmed", "warn") : p.status === "from_rubric" ? chip("opening only", "warn") : p.status === "not_applicable" ? chip("not sung today") : p.needsReview ? chip("needs review", "warn") : "");
-  let h = `<nav class="canon-index" aria-label="Parts of the canon">` + cv.parts.map((p, n) => `<button type="button" class="cal-link" data-part="canon-part-${n}">${esc(p.label)}${p.needsReview ? " &bull;" : ""}</button>`).join(" ") + `</nav>`;
-  cv.parts.forEach((p, n) => {
-    const settled = p.hymns.length && p.status !== "missing" && p.status !== "not_applicable";
-    h += `<details class="canon-part" id="canon-part-${n}"${n === 0 && settled ? " open" : ""}><summary><strong>${esc(p.label)}</strong>${p.labelHy ? ` <span class="script-original" lang="hy">${esc(p.labelHy)}</span>` : ""}${p.page != null && settled ? ` <span class="cal-note">scan p.${esc(p.page)}</span>` : ""} ${stChip(p)}</summary>`;
-    if (p.note) h += `<p class="cal-note canon-note">${esc(p.note)}</p>`;
-    if (p.cands.length) h += `<details class="hy-cands"><summary>Possible places in the book (${p.cands.length}), not a decision</summary><ul>` + p.cands.map((c) => `<li><span class="script-original" lang="hy">${esc(cleanTitle(c.title))}</span> <button type="button" class="cal-link" data-page="${esc(c.page != null ? c.page : c.startPage)}">scan p.${esc(c.page != null ? c.page : c.startPage)}</button></li>`).join("") + `</ul></details>`;
-    p.hymns.forEach((hy) => {
-      const pg = hy.page != null ? hy.page : (hy.stanzas.find((x) => x.page != null) || {}).page;
-      const title = hy.heading || hy.incipit;
-      h += `<div class="canon-hymn">${title ? `<h5 class="canon-sub script-original" lang="hy">${esc(cleanTitle(title))}</h5>` : ""}<div class="hy-acts">${pg != null ? `<button type="button" class="cal-link cal-scan" data-page="${esc(pg)}"${hy.pagesAll && hy.pagesAll.length > 1 ? ` title="continues to p.${esc(hy.pagesAll[hy.pagesAll.length - 1])}"` : ""}>View scan &middot; p.${esc(pg)}</button>` : ""}${hy.type ? chip(hy.type) : ""}${hy.mode ? chip("Mode " + hy.mode) : ""}</div>`;
-      hy.stanzas.forEach((st) => { h += `<div class="canon-st" data-sid="${esc(st.id || "")}"><div class="canon-hy script-original" lang="hy">${esc(st.text || "")}</div><div class="canon-en"></div></div>`; });
-      h += `</div>`;
-    });
-    h += `</details>`;
+const nStanzas = (p) => p.hymns.reduce((n, hy) => n + hy.stanzas.length, 0);
+function canonIndex(cv) {
+  return `<nav class="canon-index" aria-label="Parts of the canon">` + cv.parts.map((p, n) => { const c = nStanzas(p); return `<button type="button" class="cal-link${p.needsReview || !p.hymns.length ? " idx-warn" : ""}" data-part="canon-part-${n}">${esc(p.label)} <span>${p.status === "not_applicable" ? "not today" : c ? c + (c === 1 ? " stanza" : " stanzas") : "not located"}</span></button>`; }).join(" ") + `</nav>`;
+}
+function renderCanonPart(p, n, open) {
+  const stChip = p.status === "missing" ? chip("to be confirmed", "warn") : p.status === "from_rubric" ? chip("opening only", "warn") : p.status === "not_applicable" ? chip("not sung today") : p.needsReview ? chip("needs review", "warn") : "";
+  const settled = p.hymns.length && p.status !== "missing" && p.status !== "not_applicable";
+  let h = `<details class="canon-part" id="canon-part-${n}"${open && settled ? " open" : ""}><summary><strong>${esc(p.label)}</strong>${p.labelHy ? ` <span class="script-original" lang="hy">${esc(p.labelHy)}</span>` : ""}${p.page != null && settled ? ` <span class="cal-note">scan p.${esc(p.page)}</span>` : ""} ${stChip}</summary>`;
+  if (!p.hymns.length && p.status !== "not_applicable") h += `<p class="cal-note canon-note">Not located in the Sharagnots for this day.</p>`;
+  if (p.note) h += `<p class="cal-note canon-note">${esc(p.note)}</p>`;
+  if (p.cands.length) h += `<details class="hy-cands"><summary>Possible places in the book (${p.cands.length}), not a decision</summary><ul>` + p.cands.map((c) => `<li><span class="script-original" lang="hy">${esc(cleanTitle(c.title))}</span> <button type="button" class="cal-link" data-page="${esc(c.page != null ? c.page : c.startPage)}">scan p.${esc(c.page != null ? c.page : c.startPage)}</button></li>`).join("") + `</ul></details>`;
+  p.hymns.forEach((hy) => {
+    const pg = hy.page != null ? hy.page : (hy.stanzas.find((x) => x.page != null) || {}).page;
+    const title = hy.heading || hy.incipit;
+    h += `<div class="canon-hymn">${title ? `<h5 class="canon-sub script-original" lang="hy">${esc(cleanTitle(title))}</h5>` : ""}<div class="hy-acts">${pg != null ? `<button type="button" class="cal-link cal-scan" data-page="${esc(pg)}"${hy.pagesAll && hy.pagesAll.length > 1 ? ` title="continues to p.${esc(hy.pagesAll[hy.pagesAll.length - 1])}"` : ""}>View scan &middot; p.${esc(pg)}</button>` : ""}${hy.type ? chip(hy.type) : ""}${hy.mode ? chip("Mode " + hy.mode) : ""}</div>`;
+    hy.stanzas.forEach((st) => { h += `<div class="canon-st" data-sid="${esc(st.id || "")}"><div class="canon-hy script-original" lang="hy">${esc(st.text || "")}</div><div class="canon-en"></div></div>`; });
+    h += `</div>`;
   });
+  return h + `</details>`;
+}
+function renderCanon(cv) { return canonIndex(cv) + cv.parts.map((p, n) => renderCanonPart(p, n, n === 0)).join(""); }
+// Services of the day (W11_SERVICE_MAP.md): which canon parts belong to which service, in the order of the liturgical day.
+const SERVICE_PARTS = [
+  { id: "midnight", label: "Midnight service", parts: ["orhnutyun"] },
+  { id: "morning", label: "Morning service", parts: ["harts", "gordzk", "metsatsutse", "voghormya", "der_hergnits", "mankunk"] },
+  { id: "hours", label: "Third, Sixth and Ninth hours", note: "Fixed hours with no canon parts of their own." },
+  { id: "liturgy", label: "Divine Liturgy", parts: ["jashoo"], readings: true },
+  { id: "evening", label: "Evening service", parts: ["hampartsi"], unconfirmed: "the exact slot of the Hampartsi is unconfirmed" },
+  { id: "compline", label: "Compline", note: "Fixed service with no canon parts of its own." },
+];
+function renderServices(day, cv, readingsHtml, hasJashooReadings) {
+  const byKey = new Map(); cv.parts.forEach((p, n) => byKey.set(p.key, { p, n }));
+  const used = new Set();
+  const dominical = /^sun/i.test(day.weekday || "");
+  let h = renderCanonIndexOnly(cv);
+  SERVICE_PARTS.forEach((sv) => {
+    const mine = (sv.parts || []).map((k) => byKey.get(k)).filter(Boolean);
+    mine.forEach((m) => used.add(m.p.key));
+    if (!mine.length && !sv.readings && !sv.note) return;
+    h += `<div class="svc-block" id="svc-${sv.id}"><h4 class="svc-title">${esc(sv.label)}${sv.unconfirmed ? " " + chip("unconfirmed", "warn") : ""}</h4>`;
+    if (sv.note) h += `<p class="cal-note">${esc(sv.note)}</p>`;
+    mine.forEach((m, i) => { h += renderCanonPart(m.p, m.n, m.n === 0); });
+    if (sv.readings) {
+      if (!dominical) h += `<p class="cal-note">These readings (Jashoo) are appointed for the day. On an ordinary weekday there is no Divine Liturgy; on a feast day it is celebrated. ${chip("unconfirmed for this day", "warn")}</p>`;
+      h += readingsHtml;
+    }
+    h += `</div>`;
+  });
+  const rest = cv.parts.filter((p) => !used.has(p.key));
+  if (rest.length) h += `<div class="svc-block"><h4 class="svc-title">Other parts</h4>${rest.map((p) => renderCanonPart(p, byKey.get(p.key).n, false)).join("")}</div>`;
   return h;
 }
+const renderCanonIndexOnly = (cv) => canonIndex(cv);
 let stanzaIndex = null;
 function stanzaLookup() {
   const LCS = window.LCS, map = LCS && LCS.anchorMap, corpus = LCS && LCS.corpus && LCS.corpus();
@@ -237,42 +271,46 @@ function renderDay(day) {
   if (day.easter) h += chip("Easter " + day.easter);
   h += `</div></header>`;
   const nHyReview = hymns.filter((x) => hymnView(x).review).length;
-  h += `<nav class="jumpbar" aria-label="On this page"><button type="button" data-jump="sec-readings">Readings &amp; chants <span>${readings.length}</span></button><button type="button" data-jump="sec-hymns">Hymns <span>${hymns.length}</span></button><button type="button" data-jump="sec-notes">Notes &amp; sources${(day.unresolved || []).length ? " <span>" + day.unresolved.length + "</span>" : ""}</button></nav>`;
+  h += `<nav class="jumpbar" aria-label="On this page"><button type="button" data-jump="sec-readings">Services, readings &amp; hymns <span>${readings.length}</span></button><button type="button" data-jump="sec-hymns">Hymns <span>${hymns.length}</span></button><button type="button" data-jump="sec-notes">Notes &amp; sources${(day.unresolved || []).length ? " <span>" + day.unresolved.length + "</span>" : ""}</button></nav>`;
 
   // Readings, with the chants (psalm / mesedi / alleluia) interleaved in service order
-  h += `<section class="day-sec" id="sec-readings"><h3 class="cal-h">Readings and chants</h3>`;
   const chants = day.chants || [];
   const placed = new Set();
+  let readingsHtml = "", hasJashoo = false;
   if (readings.length) {
     const idx = readings.map((r, i) => i);
     const main = idx.filter((i) => readings[i].service && readings[i].service.class === "jashoo");
+    hasJashoo = main.length > 0;
     const rest = idx.filter((i) => main.indexOf(i) < 0);
     const lead = main.length ? main : idx;
     const rdItem = (r, i, open) => `<details class="cal-reading" data-ri="${i}"${open ? " open" : ""}><summary><strong>${esc(r.citationEn || r.citationKey || "")}</strong> <span class="script-original" lang="hy">${esc(r.verbatimArmenian || "")}</span> ${r.service && r.service.label ? chip(r.service.label, r.service.confident ? "" : "warn") : ""}${r.needsPageCheck ? chip("needs page check", "warn") : ""}</summary><div class="cal-reading-body" id="cal-rb-${i}"><p class="cal-note">Loading&hellip;</p></div></details>`;
     const sequence = (list, openFirst) => list.map((i, n) => chantsBefore(chants, i, readings[i], placed).map(renderChant).join("") + rdItem(readings[i], i, n < openFirst)).join("");
-    if (main.length) h += `<p class="cal-note">Divine Liturgy (Jashoo), in service order</p>`;
-    h += `<div class="cal-readings">` + sequence(lead, 3) + `</div>`;
-    if (rest.length && main.length) h += `<details class="cal-other"><summary>Other services (${rest.length} reading${rest.length > 1 ? "s" : ""})</summary><div class="cal-readings">` + sequence(rest, 0) + `</div></details>`;
-  } else h += `<div class="empty-state">No readings are appointed, or none could be resolved, for this day.</div>`;
+    if (main.length) readingsHtml += `<p class="cal-note">Readings of the Divine Liturgy (Jashoo), in service order</p>`;
+    readingsHtml += `<div class="cal-readings">` + sequence(lead, 3) + `</div>`;
+    if (rest.length && main.length) readingsHtml += `<details class="cal-other"><summary>Other services (${rest.length} reading${rest.length > 1 ? "s" : ""})</summary><div class="cal-readings">` + sequence(rest, 0) + `</div></details>`;
+  } else readingsHtml += `<div class="empty-state">No readings are appointed, or none could be resolved, for this day.</div>`;
   const loose = chants.filter((c) => !placed.has(c));
-  if (loose.length) h += `<details class="cal-other"><summary>Chants not tied to a reading (${loose.length})</summary><div class="cal-chantlist">` + loose.map(renderChant).join("") + `</div></details>`;
-  h += `</section>`;
+  if (loose.length) readingsHtml += `<details class="cal-other"><summary>Chants not tied to a reading (${loose.length})</summary><div class="cal-chantlist">` + loose.map(renderChant).join("") + `</div></details>`;
 
-  // Hymns: the whole canon part by part when the resolver supplies day.canon; otherwise the listed hymns
   const canon = canonView(day);
-  h += `<section class="day-sec" id="sec-hymns"><h3 class="cal-h">${canon ? "Canon of the day (Sharagnots)" : "Hymns appointed (Sharagnots)"}</h3>`;
   if (canon) {
-    h += renderCanon(canon);
+    // One block per service of the liturgical day, with the whole canon part by part and the readings inside the Divine Liturgy
+    h += `<section class="day-sec" id="sec-readings"><h3 class="cal-h">Services of the day</h3><span id="sec-hymns"></span>${renderServices(day, canon, readingsHtml, hasJashoo)}`;
     if (hymns.length) h += `<details class="cal-other"><summary>Hymns named in the Tonatsoyts (${hymns.length})</summary><div class="cal-readings">${renderHymnGroups(day)}</div></details>`;
-  } else if (hymns.length) {
-    if (nHyReview) h += `<p class="cal-note">${hymns.length - nHyReview} of ${hymns.length} hymns have a settled Sharagnots page; ${nHyReview} need review.</p>`;
-    h += renderHymnGroups(day);
-  } else h += `<div class="empty-state">The book names no hymns for this day.</div>`;
-  if ((day.canons || []).length && !canon) {
-    h += `<h4 class="hy-group-title">Canons named by the book</h4><ul class="cal-canons">` + day.canons.map((c) => `<li><span class="script-original" lang="hy">${esc(c.canonTitle || "")}</span> ${c.mapped ? "" : chip("not mapped", "warn")}
-      ${(c.sections || []).slice(0, 1).map((s) => `<button type="button" class="cal-link" data-page="${esc((s.pages && s.pages[0]) || "")}">scan p.${esc((s.pages && s.pages[0]) || "?")}</button>`).join(" ")}</li>`).join("") + `</ul>`;
+    h += `</section>`;
+  } else {
+    h += `<section class="day-sec" id="sec-readings"><h3 class="cal-h">Readings and chants</h3>${readingsHtml}</section>`;
+    h += `<section class="day-sec" id="sec-hymns"><h3 class="cal-h">Hymns appointed (Sharagnots)</h3>`;
+    if (hymns.length) {
+      if (nHyReview) h += `<p class="cal-note">${hymns.length - nHyReview} of ${hymns.length} hymns have a settled Sharagnots page; ${nHyReview} need review.</p>`;
+      h += renderHymnGroups(day);
+    } else h += `<div class="empty-state">The book names no hymns for this day.</div>`;
+    if ((day.canons || []).length) {
+      h += `<h4 class="hy-group-title">Canons named by the book</h4><ul class="cal-canons">` + day.canons.map((c) => `<li><span class="script-original" lang="hy">${esc(c.canonTitle || "")}</span> ${c.mapped ? "" : chip("not mapped", "warn")}
+        ${(c.sections || []).slice(0, 1).map((s) => `<button type="button" class="cal-link" data-page="${esc((s.pages && s.pages[0]) || "")}">scan p.${esc((s.pages && s.pages[0]) || "?")}</button>`).join(" ")}</li>`).join("") + `</ul>`;
+    }
+    h += `</section>`;
   }
-  h += `</section>`;
 
   // Notes
   h += `<section class="day-sec" id="sec-notes"><h3 class="cal-h">Notes &amp; sources</h3>`;

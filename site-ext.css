@@ -165,3 +165,8 @@ details.canon-part > summary { cursor: pointer; padding: 9px 12px; background: r
 .canon-hy { line-height: 1.75; font-size: 1.08rem; }
 .canon-en-src { font-style: italic; opacity: .9; margin-top: 2px; }
 .canon-st .cal-ai { margin-top: 4px; }
+
+.svc-block { margin: 16px 0; padding-top: 4px; }
+.svc-title { margin: 0 0 6px; font-size: 1.12rem; color: var(--wine); padding-bottom: 3px; border-bottom: 2px solid var(--paper-line); }
+.canon-index .cal-link span { opacity: .75; font-size: .85em; margin-left: 3px; }
+.canon-index .idx-warn { background: rgba(200, 140, 20, .14); }
