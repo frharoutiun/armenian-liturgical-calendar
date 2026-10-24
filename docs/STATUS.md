@@ -1,6 +1,6 @@
 # Status (generated)
 
-Build 2026-10-24 11:44 UTC, commit 9b844fb
+Build 2026-10-24 11:47 UTC, commit 26b97f2
 
 - **Calendar engine (any date, 1583-9999)**: Complete: runs in your browser from the calgen rules of the Tonatsoyts. Rules not yet demonstrated are labelled provisional; open questions are shown (Lenten Saturdays, the Elijah / St Gregory fast days).
 - **Hymnal (Krapar Sharagnots + scan supplement)**: 116 verified Krapar sections plus 809 supplement sections from the 1888 Sharagnots (8497 stanzas), each with a button to the printed scan page.

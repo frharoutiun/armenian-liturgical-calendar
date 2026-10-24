@@ -11,3 +11,8 @@ Docs:          `docs/DATA.md` (data combination rules), `docs/ENGINE_API.md` (ca
 
 Credits: hymnal code, data and design by frharoutiun/Armenian-Church-Tools (sharagan/); fonts GHEA Mariam and EB Garamond (OFL, see fonts/).
 AI translations are labelled "AI translation (Claude)". Scripture: RSV with attribution.
+
+Live site: https://frharoutiun.github.io/armenian-liturgical-calendar/   (GitHub Pages, repo frharoutiun/armenian-liturgical-calendar)
+Redeploy:  `tools/deploy.sh "message"` (tests + publish check + push + live verification). Scripture audio is in a separate repository
+(frharoutiun/armenian-liturgical-audio), referenced by `window.LC_AUDIO_BASE` in day-extras.js. See docs/LICENSES.md and status.html.
+Calendar tab extras (day-extras.js): cached RSVCE + Armenian Jashots text per reading, audio player, AI hymn translations; scripture-match.mjs maps readings to cache keys.
