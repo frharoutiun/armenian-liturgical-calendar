@@ -1,12 +1,11 @@
 {
  "generated": "2026-10-24T07:36:35",
  "citations": 2490,
- "english_ok": 178,
- "english_pct": 7.1,
+ "english_ok": 70,
+ "english_pct": 2.8,
  "armenian_ok": 2342,
  "armenian_pct": 94.1,
  "used_in_2001_2040": 1004,
- "used_english_pct": 8.2,
  "used_armenian_pct": 98.1,
  "shards": 63,
  "bytes": 7146764,
@@ -15,188 +14,7 @@
   "missing": 2302,
   "suspect_span": 10
  },
- "english_missing_sample": [
-  {
-   "key": "II Corinthians|6:16-7:1",
-   "status": "missing",
-   "note": "chapter II Corinthians 7 not cached yet",
-   "slots": 319
-  },
-  {
-   "key": "Luke|2:1-2:7",
-   "status": "missing",
-   "note": "chapter Luke 2 not cached yet",
-   "slots": 281
-  },
-  {
-   "key": "Matthew|5:1-5:12",
-   "status": "missing",
-   "note": "chapter Matthew 5 not cached yet",
-   "slots": 238
-  },
-  {
-   "key": "Proverbs|11:30-12:4",
-   "status": "missing",
-   "note": "chapter Proverbs 11 not cached yet",
-   "slots": 238
-  },
-  {
-   "key": "Malachi|3:1-3:2",
-   "status": "missing",
-   "note": "chapter Malachi 3 not cached yet",
-   "slots": 237
-  },
-  {
-   "key": "Hebrews|11:32-11:40",
-   "status": "missing",
-   "note": "chapter Hebrews 11 not cached yet",
-   "slots": 234
-  },
-  {
-   "key": "Lamentations|3:22-3:56",
-   "status": "missing",
-   "note": "chapter Lamentations 3 not cached yet",
-   "slots": 201
-  },
-  {
-   "key": "Zechariah|2:10-2:13",
-   "status": "missing",
-   "note": "chapter Zechariah 2 not cached yet",
-   "slots": 199
-  },
-  {
-   "key": "Hebrews|12:1-12:7",
-   "status": "missing",
-   "note": "chapter Hebrews 12 not cached yet",
-   "slots": 193
-  },
-  {
-   "key": "Hebrews|13:7-13:9",
-   "status": "missing",
-   "note": "chapter Hebrews 13 not cached yet",
-   "slots": 162
-  },
-  {
-   "key": "Proverbs|11:2-11:11",
-   "status": "missing",
-   "note": "chapter Proverbs 11 not cached yet",
-   "slots": 162
-  },
-  {
-   "key": "John|12:24-12:26",
-   "status": "missing",
-   "note": "chapter John 12 not cached yet",
-   "slots": 160
-  },
-  {
-   "key": "I Timothy|2:1-2:7",
-   "status": "missing",
-   "note": "chapter I Timothy 2 not cached yet",
-   "slots": 159
-  },
-  {
-   "key": "I Peter|5:1-5:7",
-   "status": "missing",
-   "note": "chapter I Peter 5 not cached yet",
-   "slots": 158
-  },
-  {
-   "key": "II Timothy|3:10-3:15",
-   "status": "missing",
-   "note": "chapter II Timothy 3 not cached yet",
-   "slots": 149
-  },
-  {
-   "key": "Song of Solomon|6:3-6:8",
-   "status": "missing",
-   "note": "chapter Song of Solomon 6 not cached yet",
-   "slots": 145
-  },
-  {
-   "key": "John|9:39-10:10",
-   "status": "missing",
-   "note": "chapter John 9 not cached yet",
-   "slots": 133
-  },
-  {
-   "key": "Song of Solomon|8:14-8:14",
-   "status": "missing",
-   "note": "chapter Song of Solomon 8 not cached yet",
-   "slots": 126
-  },
-  {
-   "key": "Jeremiah|16:16-16:21",
-   "status": "missing",
-   "note": "chapter Jeremiah 16 not cached yet",
-   "slots": 122
-  },
-  {
-   "key": "John|3:22-3:36",
-   "status": "missing",
-   "note": "chapter John 3 not cached yet",
-   "slots": 122
-  },
-  {
-   "key": "John|16:33-17:8",
-   "status": "missing",
-   "note": "chapter John 16 not cached yet",
-   "slots": 122
-  },
-  {
-   "key": "Galatians|3:29-4:7",
-   "status": "missing",
-   "note": "chapter Galatians 4 not cached yet",
-   "slots": 121
-  },
-  {
-   "key": "Isaiah|7:10-7:16",
-   "status": "missing",
-   "note": "chapter Isaiah 7 not cached yet",
-   "slots": 121
-  },
-  {
-   "key": "Song of Solomon|4:9-4:15",
-   "status": "missing",
-   "note": "chapter Song of Solomon 4 not cached yet",
-   "slots": 121
-  },
-  {
-   "key": "Hebrews|12:18-12:27",
-   "status": "missing",
-   "note": "chapter Hebrews 12 not cached yet",
-   "slots": 120
-  },
-  {
-   "key": "Hebrews|13:17-13:21",
-   "status": "missing",
-   "note": "chapter Hebrews 13 not cached yet",
-   "slots": 120
-  },
-  {
-   "key": "I Corinthians|2:6-2:10",
-   "status": "missing",
-   "note": "chapter I Corinthians 2 not cached yet",
-   "slots": 120
-  },
-  {
-   "key": "II Peter|2:9-2:22",
-   "status": "missing",
-   "note": "chapter II Peter 2 not cached yet",
-   "slots": 120
-  },
-  {
-   "key": "Isaiah|18:7-18:7",
-   "status": "missing",
-   "note": "chapter Isaiah 18 not cached yet",
-   "slots": 120
-  },
-  {
-   "key": "Jeremiah|1:1-1:10",
-   "status": "missing",
-   "note": "chapter Jeremiah 1 not cached yet",
-   "slots": 120
-  }
- ],
+ "english_missing_sample": [],
  "armenian_missing_sample": [
   {
    "key": "I Samuel|25:1-25:1",
@@ -348,5 +166,6 @@
    "slots": 0,
    "chains_known": 0
   }
- ]
+ ],
+ "note": "Canonical English removed 2026-10-24: served live from ACHR endpoint. english_* counts below refer to cached Apocrypha only."
 }

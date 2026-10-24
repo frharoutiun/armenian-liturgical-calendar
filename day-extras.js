@@ -1,8 +1,12 @@
-// Day page extras (W7): fills each reading with the cached English RSVCE text, the Armenian Jashots text and the audio player,
-// and each appointed hymn with its AI English translation (if present). Everything is lazy-loaded static JSON.
+// Day page extras (W7/W8): fills each reading with English scripture, the Armenian Jashots text and the audio player,
+// and each appointed hymn with its AI English translation (if present).
+//   English, canonical books: fetched live in the reader's browser from ACHR's public scripture endpoint (Crossway ESV, under the
+//   church's own licence; never stored in this repository). Apocrypha/deuterocanon: cached RSVCE shards (the ESV has none).
 //   data/scripture/index.json + shards/<book>.json   (W3)     audio: <audio repo>/audio/index.json (W5)     data/ai-en.json (W2)
 import { buildLookup, findCitations, segmentsOf, bibleGatewayUrl, normBook } from "./scripture-match.mjs";
 
+const ACHR_API = window.LC_ESV_API || "https://www.achrct.org/api/scripture";
+const APOCRYPHA = new Set(["azariah", "baruch", "judith", "wisdom", "sirach", "tobit", "1maccabees", "2maccabees", "3maccabees", "4maccabees", "1esdras", "2esdras", "prayerofmanasseh", "susanna", "beldragon", "belandthedragon"]);
 const AUDIO_BASE = (window.LC_AUDIO_BASE || "https://frharoutiun.github.io/armenian-liturgical-audio/").replace(/\/?$/, "/");
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const j = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(u + ": HTTP " + r.status); return r.json(); });
@@ -60,13 +64,81 @@ async function gather(reading) {
   return out;
 }
 
-function englishHtml(recs, reading) {
-  const have = recs.filter((r) => r.en);
-  if (have.length === recs.length && recs.length) {
-    return '<div class="cal-en"><div class="cal-sub">English (RSVCE)</div>' + have.map((r) => '<p class="cal-verses">' + r.en.map((v) => `<sup>${esc(v.r.split(":").pop())}</sup>${esc(v.t)}`).join(" ") + "</p>").join("") + "</div>";
-  }
-  const link = bibleGatewayUrl(reading.passage);
-  return `<div class="cal-en cal-pending"><div class="cal-sub">English (RSVCE)</div><p>English text pending. ${link ? `<a href="${esc(link)}" target="_blank" rel="noopener">Read this passage on BibleGateway (RSVCE)</a>` : ""}</p></div>`;
+const ROMAN = { iii: "3", ii: "2", i: "1" };
+function esvQuery(seg) {
+  const book = String(seg.book).replace(/^(iii|ii|i)\s+/i, (m, r) => ROMAN[r.toLowerCase()] + " ");
+  const same = seg.ch1 === seg.ch2;
+  let r = `${book} ${seg.ch1}`;
+  if (seg.v1 != null) { r += ":" + seg.v1; if (!same) r += "-" + seg.ch2 + ":" + seg.v2; else if (seg.v2 !== seg.v1) r += "-" + seg.v2; }
+  else if (!same) r += "-" + seg.ch2;
+  return r;
+}
+// Keep only text-level markup from the endpoint's HTML (no scripts, links, styles or ids).
+const ALLOW = new Set(["P", "H3", "H4", "B", "I", "EM", "STRONG", "SPAN", "SUP", "BR", "BLOCKQUOTE", "DIV"]);
+function cleanHtml(html) {
+  const doc = new DOMParser().parseFromString("<body>" + html + "</body>", "text/html");
+  const walk = (n) => {
+    [...n.childNodes].forEach((c) => {
+      if (c.nodeType === 3) return;
+      if (c.nodeType !== 1 || !ALLOW.has(c.tagName)) { if (c.nodeType === 1 && /^(SCRIPT|STYLE|IFRAME|OBJECT)$/.test(c.tagName)) c.remove(); else { while (c.firstChild) n.insertBefore(c.firstChild, c); c.remove(); } return; }
+      [...c.attributes].forEach((at) => { if (at.name !== "class") c.removeAttribute(at.name); else c.setAttribute("class", c.getAttribute("class").replace(/[^\w -]/g, "")); });
+      walk(c);
+    });
+  };
+  walk(doc.body);
+  return doc.body.innerHTML;
+}
+const liveCache = new Map();
+function fetchEsv(ref) {
+  const k = "lc-esv:" + ref;
+  try { const t = sessionStorage.getItem(k); if (t) return Promise.resolve(JSON.parse(t)); } catch (e) { /* storage unavailable */ }
+  if (liveCache.has(ref)) return liveCache.get(ref);
+  const p = fetch(ACHR_API + "?reference=" + encodeURIComponent(ref)).then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then((d) => { if (!d || !d.ok || !d.html) throw new Error("no text"); try { sessionStorage.setItem(k, JSON.stringify(d)); } catch (e) { /* quota */ } return d; })
+    .catch((e) => { liveCache.delete(ref); throw e; });
+  liveCache.set(ref, p);
+  return p;
+}
+const bgLink = (seg) => `https://www.biblegateway.com/passage/?search=${encodeURIComponent(esvQuery(seg))}&version=ESV`;
+const isApoc = (seg) => APOCRYPHA.has(normBook(seg.book));
+
+// One block per reading; canonical segments are filled in afterwards so the Armenian text and hymns never wait on the network.
+function englishBlock(recs) {
+  const box = document.createElement("div");
+  box.className = "cal-en";
+  recs.forEach((r) => {
+    const part = document.createElement("div");
+    part.className = "cal-en-part";
+    if (isApoc(r.segment)) {
+      if (r.en && r.en.length) part.innerHTML = '<div class="cal-sub">English (RSVCE)</div><p class="cal-verses">' + r.en.map((v) => `<sup>${esc(v.r.split(":").pop())}</sup>${esc(v.t)}`).join(" ") + "</p>";
+      else part.innerHTML = `<div class="cal-sub">English (RSVCE)</div><p class="cal-pending">English text pending. <a href="${esc(bibleGatewayUrl({ book: r.segment.book, segments: [r.segment] }))}" target="_blank" rel="noopener">Read this passage on BibleGateway (RSVCE)</a></p>`;
+    } else {
+      const ref = esvQuery(r.segment);
+      part.innerHTML = `<div class="cal-sub">English (ESV): ${esc(ref)}</div><p class="cal-pending cal-loading">Loading ESV text from achrct.org…</p>`;
+      fillEsv(part, r.segment, ref);
+    }
+    box.appendChild(part);
+  });
+  return box;
+}
+function fillEsv(part, seg, ref) {
+  fetchEsv(ref).then((d) => {
+    const body = document.createElement("div");
+    body.className = "cal-esv";
+    if (d.introduction) { const p = document.createElement("p"); p.className = "cal-note"; p.textContent = d.introduction + (d.introductionCaption ? " (" + d.introductionCaption + ")" : ""); body.appendChild(p); }
+    const t = document.createElement("div"); t.className = "cal-verses"; t.innerHTML = cleanHtml(d.html); body.appendChild(t);
+    if (d.copyright) { const c = document.createElement("div"); c.className = "cal-note cal-esv-copy"; c.textContent = d.copyright; body.appendChild(c); }
+    part.querySelector(".cal-loading").replaceWith(body);
+    if (d.audioAvailable && d.audioUrl && /^https:\/\/audio\.esv\.org\//.test(d.audioUrl)) {
+      const au = document.createElement("div"); au.className = "cal-audio";
+      au.setAttribute("data-clips", JSON.stringify([d.audioUrl]));
+      au.innerHTML = '<button type="button" class="nav-btn cal-play" aria-label="Play reading audio">&#9654; Play reading</button> <span class="cal-note">Human-read ESV audio from Crossway (esv.org).</span>';
+      body.appendChild(au);
+    }
+  }).catch(() => {
+    const el = part.querySelector(".cal-loading");
+    if (el) { el.classList.remove("cal-loading"); el.innerHTML = `English text could not be loaded right now (offline, or the achrct.org service is busy). <a href="${esc(bgLink(seg))}" target="_blank" rel="noopener">Read this passage on BibleGateway (ESV)</a> · <a href="https://www.esv.org/${encodeURIComponent(ref)}/" target="_blank" rel="noopener">esv.org</a>`; }
+  });
 }
 
 function armenianHtml(recs, reading) {
@@ -99,8 +171,9 @@ async function audioHtml(recs, reading) {
 async function readingBody(reading) {
   const recs = await gather(reading);
   const wrap = document.createElement("div");
-  wrap.innerHTML = englishHtml(recs, reading) + armenianHtml(recs, reading) + (await audioHtml(recs, reading))
-    + (reading.jashots && reading.jashots.introEn ? `<div class="cal-note">Introduction: ${esc(reading.jashots.introEn)}</div>` : "");
+  if (recs.length) wrap.appendChild(englishBlock(recs));
+  wrap.insertAdjacentHTML("beforeend", armenianHtml(recs, reading) + (await audioHtml(recs, reading))
+    + (reading.jashots && reading.jashots.introEn ? `<div class="cal-note">Introduction: ${esc(reading.jashots.introEn)}</div>` : ""));
   return wrap;
 }
 
@@ -134,9 +207,12 @@ async function hymnExtra(h) {
 
 async function afterRender(day, root) {
   const attr = await getAttr();
-  if (attr && attr.english && !root.querySelector(".cal-rsv-note") && root.querySelector(".cal-en")) {
-    root.querySelector("article").insertAdjacentHTML("beforeend", `<p class="cal-foot cal-rsv-note">${esc(attr.english.copyright)} English scripture text is the RSVCE as served by BibleGateway; Armenian reading text is from the Jashots; audio is AI-generated speech.</p>`);
-  }
+  const art = root.querySelector("article");
+  if (!attr || !art || root.querySelector(".cal-rsv-note")) return;
+  const apoc = [...root.querySelectorAll(".cal-en-part")].some((p) => /RSVCE/.test(p.textContent));
+  const msg = "Canonical English scripture is the ESV, loaded live from the ACHR website (achrct.org) under the church's Crossway licence; it is not stored on this site. "
+    + (apoc && attr.english ? attr.english.copyright + " " : "") + "Armenian reading text is from the Jashots; audio of announcements is AI-generated speech.";
+  art.insertAdjacentHTML("beforeend", `<p class="cal-foot cal-rsv-note">${esc(msg)}</p>`);
 }
 
 window.LCalendarHooks = Object.assign(window.LCalendarHooks || {}, { readingBody, afterRender, hymnExtra });

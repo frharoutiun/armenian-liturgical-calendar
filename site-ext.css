@@ -73,3 +73,4 @@ body.scan-open { overflow: hidden; }
 .cal-ai { margin: 6px 0; padding: 6px 10px; border-left: 3px dashed var(--accent, #8a5a2b); background: rgba(138,90,43,.07); font-style: italic; }
 .cal-rsv-note { font-size: .8em; opacity: .8; }
 #calShowAll { margin: 8px 0; }
+.cal-esv h3 { font-size: 1em; margin: .6em 0 .2em; } .cal-esv p { margin: .4em 0; line-height: 1.55; } .cal-esv .verse-num { color: var(--ink-faint, #888); font-size: .7em; vertical-align: super; margin-right: 2px; } .cal-esv-copy { font-size: .75em; }

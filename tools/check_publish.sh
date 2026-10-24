@@ -14,5 +14,16 @@ git ls-files -z -- '*.js' '*.mjs' '*.py' '*.sh' '*.md' '*.html' '*.css' '*.json'
 git ls-files -z -- 'data/*.json' 'data/*/*.json' 'data/*/*/*.json' | xargs -0 grep -lE '(sk-[A-Za-z0-9]{24,}|gh[pousr]_[A-Za-z0-9]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)' 2>/dev/null && bad=1
 # 4. files over 90 MB (GitHub limit is 100 MB)
 git ls-files -z | xargs -0 ls -l 2>/dev/null | awk '$5 > 90*1024*1024 {print "TOO BIG: " $9; b=1} END {exit b}' || bad=1
+# 5. no stored canonical-book English scripture (served live from ACHR instead); only Apocrypha shards may carry "en"
+python3 - <<'PY' || bad=1
+import glob, json, os, sys
+keep = {"azariah", "baruch", "judith", "ii-maccabees", "i-maccabees", "iii-maccabees", "wisdom", "sirach", "tobit"}
+badn = 0
+for f in glob.glob("data/scripture/shards/*.json"):
+    if os.path.basename(f)[:-5] in keep: continue
+    for k, r in json.load(open(f, encoding="utf-8"))["citations"].items():
+        if "en" in r: print("CANONICAL ENGLISH STORED:", f, k); badn += 1
+sys.exit(1 if badn else 0)
+PY
 if [ $bad -ne 0 ]; then echo "secrets scan FAILED"; exit 1; fi
 echo "secrets scan ok"

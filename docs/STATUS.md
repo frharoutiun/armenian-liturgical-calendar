@@ -1,12 +1,12 @@
 # Status (generated)
 
-Build 2026-10-24 11:47 UTC, commit 26b97f2
+Build 2026-10-24 17:53 UTC, commit 38972e7
 
 - **Calendar engine (any date, 1583-9999)**: Complete: runs in your browser from the calgen rules of the Tonatsoyts. Rules not yet demonstrated are labelled provisional; open questions are shown (Lenten Saturdays, the Elijah / St Gregory fast days).
-- **Hymnal (Krapar Sharagnots + scan supplement)**: 116 verified Krapar sections plus 809 supplement sections from the 1888 Sharagnots (8497 stanzas), each with a button to the printed scan page.
-- **English scripture (RSVCE)**: 7.1% of 2490 cached citations so far; the rest fill in as a rate-limited fetch completes. Where missing, a link to BibleGateway is shown.
+- **Hymnal (Krapar Sharagnots + scan supplement)**: 116 verified Krapar sections plus 812 supplement sections from the 1888 Sharagnots (8497 stanzas), each with a button to the printed scan page.
+- **English scripture**: Canonical books: ESV, loaded live in your browser from the ACHR website's scripture service (Crossway text under the church's licence; not stored on this site), with the same reading introductions and human-read Crossway audio. If that service is unreachable a link to BibleGateway is shown. Apocrypha (Wisdom, Judith, Baruch, Maccabees, Prayer of Azariah): RSVCE cached here.
 - **Armenian reading text (Jashots)**: 94.1% of citations; AI-assisted transcription of the printed Jashots, proofreading in progress.
-- **AI English translations of hymns**: 0 stanzas translated so far (labelled 'AI translation (Claude)', not reviewed by a person).
+- **AI English translations of hymns**: 6531 stanzas translated so far (labelled 'AI translation (Claude)', not reviewed by a person).
 - **Scripture audio**: Hosted in a separate repository; readings without a clip show 'audio pending'.
 
 ## AI-generated content

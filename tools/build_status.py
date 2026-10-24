@@ -24,7 +24,7 @@ en_pct = cov.get("english_pct", 0); hy_pct = cov.get("armenian_pct", 0)
 rows = [
   ("Calendar engine (any date, 1583-9999)", "Complete: runs in your browser from the calgen rules of the Tonatsoyts. Rules not yet demonstrated are labelled provisional; open questions are shown (Lenten Saturdays, the Elijah / St Gregory fast days)."),
   ("Hymnal (Krapar Sharagnots + scan supplement)", f"{rep.get('krapar_sections','?')} verified Krapar sections plus {rep.get('supplement_sections','?')} supplement sections from the 1888 Sharagnots ({rep.get('anchored_stanzas','?')} stanzas), each with a button to the printed scan page."),
-  ("English scripture (RSVCE)", f"{en_pct}% of {cov.get('citations','?')} cached citations so far; the rest fill in as a rate-limited fetch completes. Where missing, a link to BibleGateway is shown."),
+  ("English scripture", "Canonical books: ESV, loaded live in your browser from the ACHR website's scripture service (Crossway text under the church's licence; not stored on this site), with the same reading introductions and human-read Crossway audio. If that service is unreachable a link to BibleGateway is shown. Apocrypha (Wisdom, Judith, Baruch, Maccabees, Prayer of Azariah): RSVCE cached here."),
   ("Armenian reading text (Jashots)", f"{hy_pct}% of citations; AI-assisted transcription of the printed Jashots, proofreading in progress."),
   ("AI English translations of hymns", f"{ai_n} stanzas translated so far (labelled 'AI translation (Claude)', not reviewed by a person)."),
   ("Scripture audio", ("%s clips (AI-generated speech)" % audio_n) if audio_n else "Hosted in a separate repository; readings without a clip show 'audio pending'."),
@@ -38,7 +38,7 @@ ai_labelled = [
 sources = [
   "Calendar rules: the Tonatsoyts (Hador 1 and 2), implemented as the calgen rules engine. English commemoration names: published forms (Vemkar / ACHR) where available, otherwise 'composed' and marked.",
   "Hymnal: frharoutiun/Armenian-Church-Tools (Krapar Sharagnots) and the Unicode text of the 1888 Etchmiadzin Sharagnots supplied by Fr Ghevond Ajemian, anchored to our scan of the printed book.",
-  "Scripture: Revised Standard Version, Catholic Edition (RSVCE), via BibleGateway, as on achrct.com. Armenian: Jashots (Ճաշոց).",
+  "Scripture: English Standard Version via the ACHR website's scripture service (as on achrct.org); RSVCE (BibleGateway) for the Apocrypha only. Armenian: Jashots (Ճաշոց).",
   "Transliteration: the parish Maroon Book convention (TR).",
 ]
 limits = [

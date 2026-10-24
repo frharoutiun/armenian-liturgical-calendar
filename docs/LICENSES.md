@@ -1,11 +1,12 @@
 # Licences and attribution
 
-* **Scripture (English)**: Revised Standard Version of the Bible, Catholic Edition (RSVCE), copyright 1965, 1966 the Division of Christian Education of
-  the National Council of the Churches of Christ in the United States of America. Used by permission. All rights reserved. The text is the same RSVCE that
-  the ACHR site (achrct.com) requests from BibleGateway; it is cached here so the static site needs no live fetch. The owner explicitly chose to embed the
-  cached text (2026-10-24). The project guard `tools/publish_check.py` (digitization project) normally blocks RSV text from builds; it was overridden
-  knowingly for this owner decision. To take the English text down: rebuild the scripture cache with `--no-english` (see data/scripture/README.md) and redeploy.
-  The ESV (Crossway) is not cached or stored.
+* **Scripture (English), canonical books**: English Standard Version (ESV), copyright 2001 Crossway. It is NOT stored in this repository. The page fetches each passage
+  in the reader's browser from the ACHR website's public scripture endpoint (`https://www.achrct.org/api/scripture`), which serves it under the church's own Crossway
+  licence, together with the Crossway copyright notice (shown under every passage), reading introductions and a link to Crossway's human-read audio. Cached canonical RSVCE
+  text that an earlier build contained was removed on 2026-10-24 (it remains in git history of this repo; history was deliberately not rewritten).
+* **Scripture (English), Apocrypha/deuterocanon only** (Wisdom, Judith, Baruch, II Maccabees, Prayer of Azariah): RSVCE, copyright 1965, 1966 the Division of Christian Education of
+  the National Council of the Churches of Christ in the United States of America. Used by permission. All rights reserved. Cached in `data/scripture/shards/`
+  because the ESV has no Apocrypha, as on the ACHR site. `tools/check_publish.sh` fails the deploy if English appears in any canonical-book shard.
 * **Hymnal code, data and design**: frharoutiun/Armenian-Church-Tools (sharagan/), the owner's own work (vendored snapshot in vendor/krapar-upstream/).
 * **Sharagnots text**: the 1888 Etchmiadzin Sharagnots (printed scan) and a typed Unicode text supplied by Fr Ghevond Ajemian (2026-10-20).
 * **Prayers by Fr Arshen** (where shown): attributed to him; used with his permission.
