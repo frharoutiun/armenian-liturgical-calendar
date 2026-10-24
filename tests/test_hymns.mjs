@@ -75,4 +75,21 @@ ok('day.canon: parts in the owner\'s order, every part present / from the rubric
   assert.equal(e.parts[0].status, 'present'); assert.equal(e.parts[0].hymns[0].page, 193); assert.ok(e.parts[0].hymns.length >= 5);   // the Easter canon's Orhnutyun: many hymns, not just the one named
   assert.equal(e.parts[5].status, 'not_applicable');   // Mankunk on a Sunday
 });
+ok('day.canon second pass: service slot on every part, source and complete flags, labelled parts keep the book\'s start, no empty canon on fast days', () => {
+  for (const d of ['2027-03-28', '2026-12-25', '2027-01-18', '2027-06-13', '2027-02-18']) {
+    const c = cal.resolveDay(d).canon;
+    assert.ok(typeof c.summary.allPartsLocated === 'boolean' && typeof c.summary.hasLiturgy === 'boolean');
+    for (const p of c.parts) {
+      assert.ok(p.service && p.service.service && p.service.evidence.length, 'service slot');
+      assert.ok(['canon', 'rubric', 'generic_rule', 'generic_kind', 'none'].includes(p.source)); assert.equal(typeof p.complete, 'boolean');
+      if (p.source.startsWith('generic')) assert.ok(p.needsReview && p.note && p.hymns.every((h) => h.confidence <= 0.6), 'rule-based fills are flagged and capped');
+    }
+    assert.deepEqual(c.parts.map((p) => p.service.service), ['midnight', 'morning', 'morning', 'morning', 'morning', 'morning', 'divine_liturgy', 'evening']);
+  }
+  const nat = cal.resolveDay('2026-12-25').canon;   // Friday fast before Nativity: no canon of its own, the rubric names a repose Harts
+  assert.ok(nat.parts.filter((p) => p.hymns.length).length >= 3, 'not an empty canon');
+  const e = cal.resolveDay('2027-03-28').canon;     // the book labels the Easter Harts at p195: weaker evidence must not move it earlier
+  assert.equal(e.parts[1].hymns[0].page, 195); assert.ok(e.parts[0].hymns.length >= 6);
+  assert.equal(cal.resolveDay('2027-03-28').canon.summary.hasLiturgy, true); assert.equal(cal.resolveDay('2027-01-18').canon.summary.hasLiturgy, false);
+});
 console.log(`${n} hymn tests passed`);

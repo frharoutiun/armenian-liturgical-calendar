@@ -8,7 +8,8 @@
 import { initEngine, resolveDay as engineResolveDay } from './calgen/engine/day.mjs';
 import * as core from './calgen/engine/core.mjs';
 import { loadRulebook } from './calgen/engine/ctx.mjs';
-import { createHymnResolver, assembleCanon } from './hymns.mjs';
+import { createHymnResolver } from './hymns.mjs';
+import { refineCanonParts, assembleCanon } from './canon.mjs';
 
 export const SCHEMA = 'liturgical-day/1.0';
 export const MIN_YEAR = 1583, MAX_YEAR = 9999;
@@ -96,10 +97,11 @@ export async function createCalendar(opts = {}) {
   const loadData = await makeLoader(dataBase);
   await initEngine();
   const rb = await loadRulebook(loadRb);
-  const [readingsIdx, hymnIdx, recCanons, recService, hymnOpenings, canonParts] = await Promise.all([
+  const [readingsIdx, hymnIdx, recCanons, recService, hymnOpenings, canonParts, canonMarks] = await Promise.all([
     loadData('readings_index.json').catch(() => ({ keys: {} })), loadData('hymn_index.json').catch(() => ({ hymns: [], sections: [] })), loadData('record_canons.json').catch(() => ({ records: {} })),
-    loadData('record_service.json').catch(() => ({ keys: {} })), loadData('hymn_openings.json').catch(() => ({ rows: [] })), loadData('canon_parts.json').catch(() => ({ canons: {} })),
+    loadData('record_service.json').catch(() => ({ keys: {} })), loadData('hymn_openings.json').catch(() => ({ rows: [] })), loadData('canon_parts.json').catch(() => ({ canons: {} })), loadData('canon_marks.json').catch(() => ({ marks: {} })),
   ]);
+  const refinedCanons = refineCanonParts(canonParts, canonMarks.marks);
   const idxByBook = new Map();
   for (const [k, e] of Object.entries(readingsIdx.keys || {})) {
     const m = /^(.*?) (\d+(?::\d+)?(?:-\d+(?::\d+)?)?)$/.exec(k); if (!m) continue;
@@ -218,7 +220,7 @@ export async function createCalendar(opts = {}) {
       easter: core.iso(core.easter(p.y)), easterOffset: day.easterOffset,
       mode: { number: day.mode.number, armenian: day.mode.armenian, since: day.mode.since, basis: 'computed from the eight-week mode cycle' },
       table: day.table, status: day.status, provisional: needsReview || fasting.provisional,
-      commemorations: comms, fasting, readings, chants, hymns, canons, sharagnots: sharagnotsGroups(hymns), canon: assembleCanon(canonParts, hr, { weekday: day.weekday, modeArmenian: day.mode && day.mode.armenian }),
+      commemorations: comms, fasting, readings, chants, hymns, canons, sharagnots: sharagnotsGroups(hymns), canon: assembleCanon(refinedCanons, hr, { weekday: day.weekday, modeArmenian: day.mode && day.mode.armenian, easterOffset: day.easterOffset, fastStatus: f && f.status }),
       labels: day.labels || [], annotations: day.annotations || [], unresolved,
       provenance: { claims: (day.claims || []).map((c) => ({ rule: c.rule, status: c.status, kind: c.kind, records: c.records, pages: c.source && c.source.pages })), records: day.records, overlays: day.overlays, hador2Rows: day.hador2Rows.map((r) => r.id), easterRule: day.easterRule },
     };

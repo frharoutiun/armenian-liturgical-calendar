@@ -149,6 +149,25 @@ def build_canon_parts():
             exp = cat.get('expanded')
             canons[head]['hymns'].append({'id': h['id'], 'block': s['id'], 'incipit': h.get('incipit'), 'mode': h.get('mode'), 'page': (h.get('pages') or [None])[0], 'pages': h.get('pages'),
                                           'stanza_ids': h.get('stanza_ids'), 'cat_printed': cat.get('source'), 'cat': exp})
+    # margin abbreviations kept by the Unicode document (Fr Ghevond Ajemian): a second, independent witness of where each part starts
+    UNI = {'տ': 'der_hergnits', 'մ': 'metsatsutse', 'գ': 'harts', 'ո': 'voghormya', 'հ': 'harts', 'ճշ': 'jashoo', 'մկ': 'mankunk', 'հբ': 'hampartsi'}
+    units = {u['u']: u for u in json.load(open(os.path.join(PROJ, 'output/sharagnots_unicode_proof/unicode_units.json'), encoding='utf-8'))['units']}
+    st = json.load(open(os.path.join(PROJ, 'output/sharagnots_anchored/stanzas.json'), encoding='utf-8'))['stanzas']
+    uni_tag = {}
+    for x in sorted(st, key=lambda y: (y['hymn_id'], y.get('stanza_n') or 0)):
+        if x['hymn_id'] in uni_tag:
+            continue
+        for uid in x.get('unit_ids') or []:
+            u = units.get(int(str(uid).split('-')[-1]))
+            for t in (u or {}).get('tags') or []:
+                if t in UNI and x['hymn_id'] not in uni_tag:
+                    uni_tag[x['hymn_id']] = {'part': UNI[t], 'tag': t, 'gordzk': t == 'գ'}
+    for cid in order:
+        for h in canons[cid]['hymns']:
+            if h['id'] in uni_tag:
+                h['uni_part'] = uni_tag[h['id']]['part']; h['uni_tag'] = uni_tag[h['id']]['tag']
+                if uni_tag[h['id']]['gordzk']:
+                    h['uni_gordzk'] = True
     for cid in order:
         prev, first = None, True
         for h in canons[cid]['hymns']:

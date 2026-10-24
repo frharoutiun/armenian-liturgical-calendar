@@ -10,21 +10,22 @@ const qi = args.indexOf('--queue'), queuePath = qi >= 0 ? args[qi + 1] : null;
 const cal = await createCalendar({ baseUrl: new URL('engine/', root).href, dataUrl: new URL('data/calendar/', root).href });
 const queue = new Map(); const summaries = []; const partQueue = new Map();
 for (const year of years) {
-const st = {}; const partSt = {}; let daysCanonComplete = 0; let days = 0, daysCertain = 0, daysNoHymn = 0, multiPage = 0; const bad = [];
+const st = {}; const partSt = {}; const srcSt = {}; let daysNeedWork = 0; let daysCanonComplete = 0; let days = 0, daysCertain = 0, daysNoHymn = 0, multiPage = 0; const bad = [];
 for (let i = 0; i < ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0 ? 366 : 365); i++) {
   const iso = new Date(Date.UTC(year, 0, 1 + i)).toISOString().slice(0, 10);
   const r = cal.resolveDay(iso); days++;
   const hs = r.hymns || []; if (!hs.length) daysNoHymn++;
   let complete = true;
   for (const p of r.canon.parts) {
-    partSt[p.status] = (partSt[p.status] || 0) + 1;
-    if (p.status === 'missing' || p.status === 'from_rubric') {
+    partSt[p.status] = (partSt[p.status] || 0) + 1; srcSt[p.source] = (srcSt[p.source] || 0) + 1;
+    if (p.status === 'missing' || (p.status === 'from_rubric' && !p.complete)) {
       complete = false;
       const prim = r.canon.canons.find((c) => c.role === 'primary'); const key = (prim ? prim.title.replace(/\s+/g, ' ').trim() : 'no feast canon located') + '|' + p.part;
       const q = partQueue.get(key) || { canon: prim ? prim.title.replace(/\s+/g, ' ').trim() : null, canonPage: prim ? prim.startPage : null, part: p.part, status: p.status, candidates: p.candidates, days: [] }; if (q.days.length < 5) q.days.push(iso); partQueue.set(key, q);
     }
   }
-  if (complete) daysCanonComplete++;
+  if (r.canon.summary.allPartsLocated) daysCanonComplete++;
+  if (!complete) daysNeedWork++;
   let ok = true;
   for (const h of hs) {
     st[h.status] = (st[h.status] || 0) + 1;
@@ -33,7 +34,7 @@ for (let i = 0; i < ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0 ? 
   }
   if (hs.length && ok) daysCertain++; else if (hs.length) bad.push(iso);
 }
-const out = { year, days, daysNoHymn, daysWithHymns: days - daysNoHymn, daysEveryHymnResolved: daysCertain, daysWholeCanonLocated: daysCanonComplete, canonPartStatus: partSt, hymnStatus: st, multiPageLinks: multiPage, reviewItems: queue.size };
+const out = { year, days, daysNoHymn, daysWithHymns: days - daysNoHymn, daysEveryHymnResolved: daysCertain, daysWholeCanonLocated: daysCanonComplete, canonPartStatus: partSt, canonPartSource: srcSt, hymnStatus: st, multiPageLinks: multiPage, reviewItems: queue.size };
 summaries.push(out); console.log(JSON.stringify(out));
 }
 if (queuePath) {
