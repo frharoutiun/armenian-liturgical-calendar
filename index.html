@@ -28,57 +28,59 @@
   <link rel="stylesheet" href="site-ext.css">
 </head>
 <body>
-  <main class="app">
-    <header class="hymnal-header">
-      <div class="ornament">֍</div>
-      <h1 class="hymnal-title">Շարակնոց<span class="badge-dev">In development</span></h1>
-      <p class="hymnal-subtitle">The Armenian liturgical calendar and the Hymnal of the Armenian Church, for reading, browsing, and search.</p>
+  <header class="topbar" id="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="./" aria-label="Շարակնոց, home"><span class="brand-mark" aria-hidden="true">֍</span><span class="brand-name">Շարակնոց</span><span class="badge-dev">Prototype</span></a>
       <nav class="site-tabs" aria-label="Sections">
-        <button type="button" class="site-tab active" id="tabHymnal" data-tab="hymnal">Hymnal</button>
-        <button type="button" class="site-tab" id="tabCalendar" data-tab="calendar">Calendar</button>
-        <a class="site-tab" href="status.html" style="text-decoration:none">About &amp; status</a>
+        <button type="button" class="site-tab active" id="tabCalendar" data-tab="calendar">Calendar</button>
+        <button type="button" class="site-tab" id="tabHymnal" data-tab="hymnal">Hymnal</button>
+        <a class="site-tab" href="status.html">About</a>
       </nav>
-      <div class="header-controls">
-        <label class="translit-toggle">
-          <input type="checkbox" id="translitToggle">
-          Transliteration
-        </label>
-        <label class="translit-toggle">
-          <input type="checkbox" id="phraseLinkToggle">
-          Link matching phrases
-        </label>
-        <label class="translit-toggle">
-          <input type="checkbox" id="studyModeToggle">
-          Scripture reference
-        </label>
-        <div class="theme-select-wrap">
-          <select id="themeSelect" aria-label="Choose color theme">
-            <option value="system">System</option>
-            <option value="light">Day</option>
-            <option value="dark">Night</option>
-          </select>
-        </div>
+      <form class="global-search" id="globalSearchForm" role="search" autocomplete="off">
+        <input type="search" id="globalSearch" placeholder="Search hymns (Armenian or English)&hellip;" aria-label="Search the hymnal">
+        <button type="submit" class="nav-btn" aria-label="Search">Search</button>
+      </form>
+      <div class="theme-select-wrap">
+        <select id="themeSelect" aria-label="Choose color theme">
+          <option value="system">System</option>
+          <option value="light">Day</option>
+          <option value="dark">Night</option>
+        </select>
       </div>
-    </header>
+    </div>
+  </header>
 
+  <main class="app">
     <div id="calendarRoot" hidden>
-      <section class="panel" aria-labelledby="cal-heading">
-        <h2 id="cal-heading">Calendar</h2>
+      <section class="panel cal-picker" aria-labelledby="cal-heading">
+        <h2 id="cal-heading">Choose a day</h2>
         <form id="calForm" class="cal-form" autocomplete="off">
-          <label for="calDate" class="cal-label">Date</label>
+          <button type="button" class="nav-btn" id="calPrev" aria-label="Previous day">&larr; Previous</button>
           <input type="date" id="calDate" min="1583-01-01" max="9999-12-31" aria-label="Date">
-          <input type="text" id="calDateText" inputmode="numeric" placeholder="or type YYYY-MM-DD or M/D/YYYY" aria-label="Type a date">
-          <button type="submit" class="nav-btn">Show day</button>
-          <button type="button" class="nav-btn" id="calPrev" aria-label="Previous day">&larr;</button>
+          <button type="button" class="nav-btn" id="calNext" aria-label="Next day">Next &rarr;</button>
           <button type="button" class="nav-btn" id="calToday">Today</button>
-          <button type="button" class="nav-btn" id="calNext" aria-label="Next day">&rarr;</button>
+          <span class="cal-or">or type</span>
+          <input type="text" id="calDateText" inputmode="numeric" placeholder="YYYY-MM-DD or M/D/YYYY" aria-label="Type a date">
+          <button type="submit" class="nav-btn">Show day</button>
         </form>
-        <p class="search-hint">Any date from 1583 to 9999. The commemoration, mode, fasting and readings are computed from the rules of the Tonatsoyts (Hador 1 and Hador 2); calendar rules that are not yet demonstrated are labelled provisional.</p>
+        <p class="where-is"><strong>Where is&hellip;?</strong>
+          a day&rsquo;s readings and hymns &rarr; pick a date here &middot;
+          a hymn or word &rarr; <a href="#" data-goto="search">Search</a> &middot;
+          all hymns by feast &rarr; <a href="#" data-goto="hymnal">Hymnal</a> &middot;
+          how this is computed &rarr; <a href="status.html">About</a></p>
       </section>
-      <section class="panel" style="padding-top:14px;"><div id="calResult" aria-live="polite"></div></section>
+      <section class="panel cal-result-panel"><div id="calResult" aria-live="polite"></div></section>
     </div>
 
     <div id="hymnalRoot">
+    <section class="panel hymnal-intro">
+      <p class="search-hint"><strong>Hymnal:</strong> search the corpus, or choose a feast below to browse its canons and hymns. Every hymn has a button that opens its page in the scan of the Sharagnots.</p>
+      <div class="header-controls hymnal-tools" aria-label="Reading options">
+        <label class="translit-toggle"><input type="checkbox" id="translitToggle"> Transliteration</label>
+        <label class="translit-toggle"><input type="checkbox" id="phraseLinkToggle"> Link matching phrases</label>
+        <label class="translit-toggle"><input type="checkbox" id="studyModeToggle"> Scripture reference</label>
+      </div>
+    </section>
     <button id="searchToggle" class="search-reveal" hidden>Search &amp; browse the corpus</button>
 
     <section class="panel" id="searchPanel" aria-labelledby="search-heading">
@@ -100,6 +102,7 @@
     </section>
     </div>
 
+    <details class="site-about"><summary>About this text, the English, and sources</summary>
     <p class="footer-note">
       <strong>About this text.</strong> The Krapar (Classical Armenian) text of the verified sections is the Sharagnots of
       the Armenian Church itself, not a translation, in the corrected-spelling form of the Krapar corpus with the English
@@ -111,8 +114,7 @@
     </p>
     <p class="footer-note">
       <strong>English.</strong> Translations marked <span class="ai-label">AI translation (Claude)</span> were produced by a
-      machine and have not been reviewed by a person. Scripture passages are quoted from the Revised Standard Version
-      (RSV) with attribution; readings are the Jashots lectionary readings.
+      machine and have not been reviewed by a person. Canonical English scripture is the ESV, loaded live from the ACHR website (achrct.org) under the church's Crossway licence; Apocrypha are quoted from the RSVCE with attribution. Readings are the Jashots lectionary readings.
     </p>
     <p class="footer-note">
       <strong>About this site.</strong> "Ganon" and other transliterations follow the parish's Maroon Book convention (via
@@ -121,6 +123,7 @@
       Hymn-type genres follow Fr. Daniel Findikyan's "Armenian Hymnography" (St. Nersess Armenian Seminary, LS323).
       Questions or corrections: frharoutiun@gmail.com.
     </p>
+    </details>
   </main>
 
   <div id="scanOverlay" class="scan-overlay" hidden>

@@ -1,6 +1,7 @@
 /* Additions for the Liturgical Calendar site (tabs, scan viewer, AI-translation label, provenance badges, calendar).
    Colours reuse the variables of sharagan.css; fallbacks keep it readable if a variable is missing. */
-.site-tabs { display: flex; gap: 8px; justify-content: center; margin: 10px 0 6px; }
+.site-tabs { display: flex; gap: 6px; align-items: center; }
+.site-tab { text-decoration: none; }
 .site-tab {
   font: inherit; padding: 6px 18px; border-radius: 999px; border: 1px solid var(--paper-line);
   background: transparent; color: inherit; cursor: pointer;
@@ -74,3 +75,76 @@ body.scan-open { overflow: hidden; }
 .cal-rsv-note { font-size: .8em; opacity: .8; }
 #calShowAll { margin: 8px 0; }
 .cal-esv h3 { font-size: 1em; margin: .6em 0 .2em; } .cal-esv p { margin: .4em 0; line-height: 1.55; } .cal-esv .verse-num { color: var(--ink-faint, #888); font-size: .7em; vertical-align: super; margin-right: 2px; } .cal-esv-copy { font-size: .75em; }
+
+
+/* ---- L1 layout: persistent top bar, one-column day page with a jump bar ---- */
+:root { --topbar-h: 58px; }
+.app { max-width: 960px; padding-top: 18px; }
+.topbar { position: sticky; top: 0; z-index: 60; background: var(--paper-deep); border-bottom: 1px solid var(--paper-line); box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+.topbar-inner { max-width: 1040px; margin: 0 auto; padding: 8px 20px; display: flex; align-items: center; gap: 14px; min-height: var(--topbar-h); box-sizing: border-box; }
+.brand { display: flex; align-items: baseline; gap: 8px; text-decoration: none; color: var(--wine); white-space: nowrap; }
+.brand-mark { color: var(--gold); font-size: 1.3em; }
+.brand-name { font-family: "GHEA Avandakan", serif; font-size: 1.7rem; line-height: 1; }
+.topbar .badge-dev { font-size: .6rem; padding: 1px 7px; }
+.global-search { display: flex; gap: 6px; flex: 1 1 220px; min-width: 0; margin-left: auto; max-width: 380px; }
+.global-search input { flex: 1; min-width: 0; font: inherit; padding: 6px 10px; border: 1px solid var(--paper-line); border-radius: 4px; background: var(--paper-deep); color: var(--ink); }
+.topbar .theme-select-wrap select { padding: 5px 6px; }
+@media (max-width: 860px) {
+  .topbar-inner { flex-wrap: wrap; gap: 8px 12px; padding: 8px 14px; }
+  .global-search { order: 5; flex-basis: 100%; max-width: none; margin-left: 0; }
+  .topbar .badge-dev { display: none; }
+}
+
+.panel h2 { margin-top: 0; }
+.cal-picker .cal-form { gap: 8px; }
+.cal-form input[type="date"], .cal-form input[type="text"] { font: inherit; padding: 6px 10px; border: 1px solid var(--paper-line); border-radius: 4px; background: var(--paper-deep); color: var(--ink); }
+.cal-form input[type="text"] { width: 12.5em; }
+.cal-or { font-size: .85em; opacity: .7; margin-left: 6px; }
+.where-is { margin: 12px 0 0; font-size: .92em; line-height: 1.6; }
+.where-is a { color: var(--wine); }
+.cal-result-panel { padding-top: 14px; }
+
+.day-head { text-align: center; padding-bottom: 6px; border-bottom: 1px solid var(--paper-line); margin-bottom: 4px; }
+.day-date { font-size: .9em; letter-spacing: .05em; text-transform: uppercase; opacity: .85; margin-bottom: 6px; }
+.day-title { font-family: "GHEA Avandakan", serif; font-size: 1.9rem; line-height: 1.25; color: var(--wine); margin: 4px 0 0; }
+.day-title-en { font-style: italic; font-size: 1.15rem; margin: 2px 0 8px; opacity: .92; }
+.cal-facts { margin: 8px 0 6px; }
+.jumpbar { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px 0; background: var(--paper-deep); border-bottom: 1px solid var(--paper-line); margin-bottom: 4px; }
+.jumpbar button { font: inherit; padding: 4px 14px; border-radius: 999px; border: 1px solid var(--paper-line); background: transparent; color: inherit; cursor: pointer; }
+.jumpbar button:hover { background: rgba(var(--wine-rgb), .12); }
+.jumpbar button span { margin-left: 4px; padding: 0 6px; border-radius: 999px; background: rgba(var(--wine-rgb), .18); font-size: .8em; }
+@media (min-width: 761px) { .jumpbar { position: sticky; top: var(--topbar-h); z-index: 40; } }
+.day-sec { scroll-margin-top: calc(var(--topbar-h) + 52px); padding-top: 4px; }
+.day-sec + .day-sec { margin-top: 10px; border-top: 1px solid var(--paper-line); }
+.cal-h { font-size: 1.3rem; margin: 14px 0 8px; color: var(--wine); }
+
+.cal-readings { margin: 4px 0; }
+details.cal-reading, details.cal-other { border: 1px solid var(--paper-line); border-radius: 6px; margin: 8px 0; background: rgba(var(--wine-rgb), .03); }
+details.cal-reading > summary, details.cal-other > summary { cursor: pointer; padding: 9px 12px; list-style-position: inside; }
+details.cal-reading[open] > summary { border-bottom: 1px solid var(--paper-line); }
+.cal-reading-body { padding: 4px 14px 12px; }
+details.cal-other > .cal-readings, details.cal-other > .cal-chants { padding: 0 10px 8px; }
+.cal-chants { list-style: none; margin: 0; padding: 0 12px 8px; }
+.cal-chants li { padding: 4px 0; }
+
+.hy-group { margin: 12px 0 18px; }
+.hy-group-title { margin: 0 0 6px; font-size: 1.05rem; padding: 4px 10px; border-left: 3px solid var(--wine); background: rgba(var(--wine-rgb), .07); }
+.hy-group-review .hy-group-title { border-left-color: #c88c14; background: rgba(200, 140, 20, .12); }
+.cal-hymns { list-style: none; margin: 0; padding: 0; }
+.hy-row { padding: 9px 4px 10px; border-bottom: 1px dotted var(--paper-line); }
+.hy-main { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.hy-inc { font-size: 1.15rem; }
+.hy-meta { display: inline-flex; flex-wrap: wrap; align-items: center; }
+.hy-acts { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 6px; }
+.cal-scan { background: rgba(var(--wine-rgb), .12); font-weight: 600; }
+.hy-cands { margin-top: 5px; font-size: .88em; }
+.hy-cands summary { cursor: pointer; opacity: .85; }
+.hy-cands ul { list-style: none; margin: 4px 0 0; padding: 0 0 0 10px; border-left: 2px dotted var(--paper-line); }
+.hy-cands li { padding: 3px 0; opacity: .9; }
+.cal-hymn-ai:empty { display: none; }
+.cal-ai { margin: 6px 0 0; }
+
+.site-about { margin-top: 28px; font-size: .92em; }
+.site-about > summary { cursor: pointer; font-weight: 700; color: var(--wine); text-align: center; }
+.hymnal-intro .header-controls { justify-content: flex-start; margin: 10px 0 0; }
+.hymnal-intro h2 { margin-bottom: 4px; }

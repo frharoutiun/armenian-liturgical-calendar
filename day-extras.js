@@ -191,7 +191,9 @@ document.addEventListener("click", (ev) => {
 });
 // ---- hymn AI translation ----
 async function hymnExtra(h) {
-  const links = (h.links || []).slice(0, 1);
+  // Only a resolved hymn gets its AI translation shown; an ambiguous one must not borrow a candidate's text.
+  const hid = h.resolved && h.resolved.hymnId ? h.resolved.hymnId : (!h.resolved && (h.links || []).length >= 1 && /^linked/.test(h.status || "") ? h.links[0].hymnId : null);
+  const links = hid ? [{ hymnId: hid }] : [];
   if (!links.length || !window.LCS) return "";
   const [ai, _] = await Promise.all([getAi(), window.LCS.ready]);
   const map = window.LCS.anchorMap;
@@ -207,7 +209,7 @@ async function hymnExtra(h) {
 
 async function afterRender(day, root) {
   const attr = await getAttr();
-  const art = root.querySelector("article");
+  const art = root.querySelector("#sec-notes") || root.querySelector("article");
   if (!attr || !art || root.querySelector(".cal-rsv-note")) return;
   const apoc = [...root.querySelectorAll(".cal-en-part")].some((p) => /RSVCE/.test(p.textContent));
   const msg = "Canonical English scripture is the ESV, loaded live from the ACHR website (achrct.org) under the church's Crossway licence; it is not stored on this site. "
