@@ -8,6 +8,7 @@
 import { initEngine, resolveDay as engineResolveDay } from './calgen/engine/day.mjs';
 import * as core from './calgen/engine/core.mjs';
 import { loadRulebook } from './calgen/engine/ctx.mjs';
+import { createHymnResolver, assembleCanon } from './hymns.mjs';
 
 export const SCHEMA = 'liturgical-day/1.0';
 export const MIN_YEAR = 1583, MAX_YEAR = 9999;
@@ -95,12 +96,10 @@ export async function createCalendar(opts = {}) {
   const loadData = await makeLoader(dataBase);
   await initEngine();
   const rb = await loadRulebook(loadRb);
-  const [readingsIdx, hymnIdx, recCanons, recService] = await Promise.all([
+  const [readingsIdx, hymnIdx, recCanons, recService, hymnOpenings, canonParts] = await Promise.all([
     loadData('readings_index.json').catch(() => ({ keys: {} })), loadData('hymn_index.json').catch(() => ({ hymns: [], sections: [] })), loadData('record_canons.json').catch(() => ({ records: {} })),
-    loadData('record_service.json').catch(() => ({ keys: {} })),
+    loadData('record_service.json').catch(() => ({ keys: {} })), loadData('hymn_openings.json').catch(() => ({ rows: [] })), loadData('canon_parts.json').catch(() => ({ canons: {} })),
   ]);
-  const byPrefix = new Map();
-  for (const h of hymnIdx.hymns) { const k = (h.key || '').slice(0, 10); if (!k) continue; if (!byPrefix.has(k)) byPrefix.set(k, []); byPrefix.get(k).push(h); }
   const idxByBook = new Map();
   for (const [k, e] of Object.entries(readingsIdx.keys || {})) {
     const m = /^(.*?) (\d+(?::\d+)?(?:-\d+(?::\d+)?)?)$/.exec(k); if (!m) continue;
@@ -119,24 +118,28 @@ export async function createCalendar(opts = {}) {
     return hit.length ? { exact: false, entries: hit.map((x) => x.e) } : null;
   }
   const sectionById = new Map((hymnIdx.sections || []).map((s) => [s.id, s]));
+  const hymnResolver = createHymnResolver(hymnIdx, hymnOpenings);
 
-  function linkHymn(h, daySections) {
-    const key = armKey(h.incipit);
-    const out = { source: h.source, type: h.type || '', incipit: h.incipit || '', mode: h.mode || '', links: [], status: 'unlinked', note: '' };
-    if (key.length < 5) { out.note = 'incipit too short to match'; return out; }
-    const n = Math.min(key.length, 12);
-    const cands = [];
-    for (const [pk, hs] of byPrefix) if (pk.startsWith(key.slice(0, Math.min(n, 10))) || key.startsWith(pk)) for (const x of hs) if ((x.key || '').startsWith(key.slice(0, n)) || key.startsWith((x.key || '').slice(0, n))) cands.push(x);
-    if (!cands.length) { out.note = 'no Sharagnots hymn begins with this incipit'; return out; }
-    const m = normMode(h.mode);
-    const scored = cands.map((x) => ({ x, modeOk: !!m && normMode(x.mode) === m, inCanon: daySections.has(x.section) })).sort((a, b) => (Number(b.inCanon) - Number(a.inCanon)) || (Number(b.modeOk) - Number(a.modeOk)));
-    const best = (a) => Number(a.inCanon) * 2 + Number(a.modeOk);
-    const uniq = scored.length === 1 || best(scored[0]) > best(scored[1]);
-    out.links = scored.slice(0, 5).map((s) => ({ hymnId: s.x.id, sectionId: s.x.section, sectionTitle: sectionById.get(s.x.section)?.title || null, incipit: s.x.incipit, mode: s.x.mode, pages: s.x.pages, category: s.x.category, modeAgrees: s.modeOk, inDayCanon: s.inCanon }));
-    out.status = uniq ? ((scored[0].modeOk || scored[0].inCanon) ? 'linked_high' : 'linked_medium') : 'ambiguous';
-    out.method = 'incipit_prefix' + (scored[0].modeOk ? '+mode' : '') + (scored[0].inCanon ? '+day_canon' : '');
-    if (!uniq) out.note = `${cands.length} Sharagnots hymns share this opening; listed candidates are not a decision`;
-    return out;
+  // One entry per hymn the day appoints. The Hador 1 record and the Hador 2 row often name the same hymn: merge those.
+  function hymnsFromResolution(list) {
+    const merged = new Map(), order = [];
+    for (const h of list) {
+      const k = h.resolved ? 'H:' + h.resolved.hymnId : 'U:' + armKey(h.incipit) + '|' + normMode(h.mode) + '|' + h.status;
+      if (merged.has(k)) { const m = merged.get(k); if (!m.sources.includes(h.source)) m.sources.push(h.source); continue; }
+      const link = h.resolved ? [{ hymnId: h.resolved.hymnId, sectionId: h.resolved.sectionId, sectionTitle: h.resolved.sectionTitle, incipit: h.resolved.incipit, mode: h.resolved.mode, pages: [h.resolved.page], category: null }] : [];
+      const o = { source: h.source, sources: [h.source], type: h.type, incipit: h.incipit, mode: h.mode, status: h.status, resolved: h.resolved, candidates: h.candidates, basis: h.basis, confidence: h.confidence, links: link, note: h.resolved ? '' : h.basis };
+      merged.set(k, o); order.push(o);
+    }
+    return order;
+  }
+  function sharagnotsGroups(hymns) {
+    const groups = new Map();
+    for (const h of hymns) if (h.resolved) {
+      const g = groups.get(h.resolved.sectionId) || { sectionId: h.resolved.sectionId, sectionTitle: h.resolved.sectionTitle, sectionPage: h.resolved.sectionPage, sectionKind: h.resolved.sectionKind, hymns: [] };
+      g.hymns.push({ hymnId: h.resolved.hymnId, incipit: h.resolved.incipit, mode: h.resolved.mode, type: h.type, page: h.resolved.page, status: h.status });
+      groups.set(h.resolved.sectionId, g);
+    }
+    return [...groups.values()].sort((x, y) => (x.sectionPage || 0) - (y.sectionPage || 0));
   }
 
   function serviceFor(reading) {
@@ -187,8 +190,9 @@ export async function createCalendar(opts = {}) {
       const rec = rb.H1.get(o);
       for (const c of (rec && recCanons.records[rec.id]) || []) canons.push({ recordOrdinal: o, canonTitle: c.canon_title, confidence: c.confidence, reviewStatus: c.review_status, method: c.method, sectionIds: c.sections, sections: c.sections.map((id) => sectionById.get(id)).filter(Boolean).map((s) => ({ id: s.id, title: s.title, pages: s.pages })), mapped: c.mapped });
     }
-    const daySections = new Set(canons.filter((c) => c.mapped).flatMap((c) => c.sectionIds));
-    const hymns = hymnsRaw.map((h) => linkHymn(h, daySections));
+        const nameList = [...day.records, ...day.overlays].map((o) => (rb.H1.get(o) || {}).name_armenian).concat(day.hador2Rows.map((r) => r.text), (day.commemorations || []).map((c) => c.armenian)).filter(Boolean);
+    const hr = hymnResolver.resolve(hymnsRaw, { names: nameList });
+    const hymns = hymnsFromResolution(hr.hymns);
     const comms = (day.commemorations || []).map((c) => {
       const tt = c.title || {};
       return {
@@ -214,7 +218,7 @@ export async function createCalendar(opts = {}) {
       easter: core.iso(core.easter(p.y)), easterOffset: day.easterOffset,
       mode: { number: day.mode.number, armenian: day.mode.armenian, since: day.mode.since, basis: 'computed from the eight-week mode cycle' },
       table: day.table, status: day.status, provisional: needsReview || fasting.provisional,
-      commemorations: comms, fasting, readings, chants, hymns, canons,
+      commemorations: comms, fasting, readings, chants, hymns, canons, sharagnots: sharagnotsGroups(hymns), canon: assembleCanon(canonParts, hr, { weekday: day.weekday, modeArmenian: day.mode && day.mode.armenian }),
       labels: day.labels || [], annotations: day.annotations || [], unresolved,
       provenance: { claims: (day.claims || []).map((c) => ({ rule: c.rule, status: c.status, kind: c.kind, records: c.records, pages: c.source && c.source.pages })), records: day.records, overlays: day.overlays, hador2Rows: day.hador2Rows.map((r) => r.id), easterRule: day.easterRule },
     };

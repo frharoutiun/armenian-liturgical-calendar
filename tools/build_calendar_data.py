@@ -90,15 +90,85 @@ def sec_title_key(t):
 
 
 def build_hymn_index():
+    """Hymn and section index. The anchored dataset cuts the book into page/column blocks and only ~190 of the 1,029 blocks carry a
+    printed heading; the others continue the canon of the nearest preceding headed block (book order). Each section gets `canon`
+    (id of that headed block) and each hymn inherits it, so a hymn can be tied to the feast canon it is printed under."""
     ix = json.load(open(os.path.join(PROJ, 'output/sharagnots_anchored/index.json'), encoding='utf-8'))
     hymns, secs = [], []
+    head = None
     for s in ix['sections']:
-        secs.append({'id': s['id'], 'title': s.get('title'), 'kind': s.get('kind'), 'modes': s.get('modes'), 'pages': s.get('pages'), 'key': sec_title_key(s.get('title'))})
+        if (s.get('title') or '').strip():
+            head = s['id']
+        secs.append({'id': s['id'], 'title': s.get('title'), 'kind': s.get('kind'), 'modes': s.get('modes'), 'pages': s.get('pages'), 'key': sec_title_key(s.get('title')), 'canon': head})
         for h in s.get('hymns') or []:
-            hymns.append({'id': h['id'], 'section': s['id'], 'seq': h.get('seq'), 'incipit': h.get('incipit'), 'key': arm_key(h.get('incipit')),
+            hymns.append({'id': h['id'], 'section': s['id'], 'canon': head, 'seq': h.get('seq'), 'incipit': h.get('incipit'), 'key': arm_key(h.get('incipit')),
                           'category': (h.get('category') or {}).get('expanded') or (h.get('category') or {}).get('source'), 'mode': h.get('mode'), 'pages': h.get('pages'), 'n_stanzas': h.get('n_stanzas')})
-    write_json(os.path.join(OUT, 'hymn_index.json'), {'schema': 'hymn-index/1.0', 'source': 'output/sharagnots_anchored/index.json', 'hymns': hymns, 'sections': [s for s in secs if s['key']]})
+    write_json(os.path.join(OUT, 'hymn_index.json'), {'schema': 'hymn-index/1.1', 'source': 'output/sharagnots_anchored/index.json', 'hymns': hymns, 'sections': secs})
     return hymns, secs
+
+
+def build_hymn_openings():
+    """Opening words of every stanza after the first (the Tonatsoyts often cues a stanza inside a hymn, e.g. the Hambardzi lists).
+    Compact rows [hymn_id, stanza_n, first_scan_page, opening_key]; the first stanza is the hymn incipit already in hymn_index."""
+    st = json.load(open(os.path.join(PROJ, 'output/sharagnots_anchored/stanzas.json'), encoding='utf-8'))['stanzas']
+    rows = []
+    for x in st:
+        if (x.get('stanza_n') or 1) <= 1:
+            continue
+        pages = x.get('scan_pages') or []
+        key = arm_key(x.get('reading') or x.get('unicode') or '')[:16]
+        if len(key) >= 4 and pages:
+            rows.append([x['hymn_id'], x['stanza_n'], pages[0], key])
+    write_json(os.path.join(OUT, 'hymn_openings.json'), {'schema': 'hymn-openings/1.0', 'source': 'output/sharagnots_anchored/stanzas.json', 'rows': rows})
+    return rows
+
+
+# canonical order of the parts of a Sharagnots canon (owner model) and the printed category -> part map
+PART_OF = {'օրհնութիւն': 'orhnutyun', 'օրհնութիւն պահոց': 'orhnutyun', 'հարց': 'harts', 'գործք': 'harts', 'մեծացուսցէ': 'metsatsutse', 'ողորմեա': 'voghormya',
+           'տէր յերկնից': 'der_hergnits', 'տէր երկնից': 'der_hergnits', 'մանկունք': 'mankunk', 'ճաշու': 'jashoo', 'համբարձի': 'hampartsi'}
+# categories that are sub-headings inside the current part (an Orhnutyun runs through changing sub-headings: of the Cross, of the Mother of God, ...)
+SUBHEADS = {'խաչի', 'աստուածածնի', 'յարութեան', 'յարութիւն', 'ապաշխարութիւն', 'ապաշխարութեան', 'ապաշխարհութեան', 'հանգստեան', 'մարտիրոսաց', 'հոգեգալուստ', 'հոգեգալստեան', 'ծնունդ', 'ծննդեան', 'առաքելոց', 'հայրապետաց', 'ողբ', 'մարգարէից'}
+
+
+def build_canon_parts():
+    """Every headed canon with its hymns in book order, each hymn assigned to a part. A hymn's part is the printed category it carries
+    (Օրհնութիւն, Հարց, Գործք, Մեծացուսցէ, Ողորմեա, Տէր յերկնից, Մանկունք, Ճաշու, Համբարձի); a hymn without one continues the part above it
+    (an Orhnutyun runs until the next Harts, a Harts includes its Gordzk); the first hymn of a canon with no category is taken as its Orhnutyun
+    (flagged inferred). Stanzas are referenced by id only, one scan page per hymn."""
+    ix = json.load(open(os.path.join(PROJ, 'output/sharagnots_anchored/index.json'), encoding='utf-8'))
+    canons, head, order = {}, None, []
+    for s in ix['sections']:
+        if (s.get('title') or '').strip():
+            head = s['id']
+            canons[head] = {'title': s.get('title'), 'kind': s.get('kind'), 'pages': s.get('pages'), 'hymns': []}
+            order.append(head)
+        if head is None:
+            continue
+        for h in sorted(s.get('hymns') or [], key=lambda x: x.get('seq') or 0):
+            cat = h.get('category') or {}
+            exp = cat.get('expanded')
+            canons[head]['hymns'].append({'id': h['id'], 'block': s['id'], 'incipit': h.get('incipit'), 'mode': h.get('mode'), 'page': (h.get('pages') or [None])[0], 'pages': h.get('pages'),
+                                          'stanza_ids': h.get('stanza_ids'), 'cat_printed': cat.get('source'), 'cat': exp})
+    for cid in order:
+        prev, first = None, True
+        for h in canons[cid]['hymns']:
+            ck = (h['cat'] or '').strip().lower()
+            part = PART_OF.get(ck)
+            if ck and not part and ck not in SUBHEADS:
+                part = 'other'
+            if ck in SUBHEADS:
+                h['heading'] = h['cat']
+            if part:
+                h['part'], h['part_basis'] = part, 'printed category'
+                if ck == 'գործք':
+                    h['subpart'] = 'gordzk'
+            elif prev:
+                h['part'], h['part_basis'] = prev, 'continues the part above'
+            else:
+                h['part'], h['part_basis'] = 'orhnutyun', 'inferred: the first hymn of a canon is its Orhnutyun'
+            prev = h['part']
+    write_json(os.path.join(OUT, 'canon_parts.json'), {'schema': 'canon-parts/1.0', 'source': 'output/sharagnots_anchored/index.json', 'order': order, 'canons': canons})
+    return canons
 
 
 def build_record_canons(secs):
@@ -142,5 +212,7 @@ def build_record_canons(secs):
 if __name__ == '__main__':
     r = build_readings_index()
     h, s = build_hymn_index()
+    build_hymn_openings()
+    build_canon_parts()
     c = build_record_canons(s)
     print(json.dumps({'reading_keys': len(r), 'hymns': len(h), 'sections': len(s), 'records_with_canons': len(c)}))

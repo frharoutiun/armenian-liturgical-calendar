@@ -37,8 +37,8 @@ ok('Easter 2027: the Resurrection, a feast day (no fast), readings and hymns pre
 ok('Nativity/Theophany Jan 6: Hador 1 feast, linked hymns, no invented content', () => {
   const r = cal.resolveDay('2030-01-06');
   assert.match(r.commemorations[0].english, /Nativity and Theophany/);
-  assert.ok(r.hymns.some((h) => h.status === 'linked_high' && h.links[0].hymnId));
-  for (const h of r.hymns) if (h.status === 'unlinked') assert.equal(h.links.length, 0);
+  assert.ok(r.hymns.some((h) => ['linked_exact', 'linked_section'].includes(h.status) && h.resolved && h.links[0].hymnId));
+  for (const h of r.hymns) if (!h.resolved) assert.equal(h.links.length, 0);
 });
 ok('owner fasting rulings: pre-Lent Wed/Fri fast; Jan 5 never fast; Lenten Saturday provisional', () => {
   assert.equal(cal.resolveDay('2027-01-15').fasting.status, 'fast');            // Friday before Lent
