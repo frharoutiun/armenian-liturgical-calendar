@@ -28,6 +28,8 @@ SITE = os.path.dirname(HERE)
 PROJECT = "/Users/frharoutiun/Documents/Church/Coding/06 - Donatsooyts Digitization"
 DEFAULT_ANCHORED = os.path.join(PROJECT, "output", "sharagnots_anchored")
 DEFAULT_VIEWER = os.path.join(PROJECT, "output", "sharagnots_viewer")
+DEFAULT_W10 = os.path.join(PROJECT, "output", "site_build", "w10")   # Unicode display layer (pipeline/s110_unicode_display_layer.py)
+TEXT_SOURCE = {"unicode": "u", "unicode_corrected": "uc", "unicode_repeat": "ur", "ours_cleaned": "oc"}
 KRAPAR = os.path.join(SITE, "vendor", "krapar-upstream", "data")
 
 WORD = re.compile(r"[Ա-Ֆա-և]+")
@@ -106,6 +108,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--anchored", default=DEFAULT_ANCHORED)
     ap.add_argument("--viewer", default=DEFAULT_VIEWER)
+    ap.add_argument("--w10", default=DEFAULT_W10)
     args = ap.parse_args()
 
     K = load(os.path.join(KRAPAR, "corpus.json"))
@@ -115,6 +118,8 @@ def main():
     AL = load(os.path.join(KRAPAR, "alignments.json"))
     SR = load(os.path.join(KRAPAR, "stanza-refs.json"))
     A = load(os.path.join(args.anchored, "stanzas.json"))["stanzas"]
+    W10 = load(os.path.join(args.w10, "unicode_display_layer.json"))["stanzas"]   # owner decision 2026-10-24: Unicode text is what supplement stanzas display
+    W10SEQ = load(os.path.join(args.w10, "unicode_sequence.json"))
     IDX = load(os.path.join(args.anchored, "index.json"))
     vendor_hash = hashlib.sha256(json.dumps(K, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
 
@@ -242,13 +247,20 @@ def main():
             for i in hi:
                 a = A[i]
                 loc = a.get("scan_location") or {}
-                v = {"text": ws(a["reading"] or a["ours_diplomatic"]), "a": a["id"], "p": a["scan_pages"], "src": "scan"}
+                lay = W10[a["id"]]
+                v = {"text": ws(lay["text"]), "a": a["id"], "p": a["scan_pages"], "src": "scan", "ts": TEXT_SOURCE[lay["basis"]]}
                 if loc:
                     v["l"] = [loc["start"]["column"], loc["start"]["line"], loc["end"]["column"], loc["end"]["line"]]
-                if a["counts"].get("unconfirmed_wording"):
-                    v["rv"] = a["counts"]["unconfirmed_wording"]
-                if a.get("reading_basis") == "ours_fallback":
+                if lay["basis"] == "unicode_corrected":
+                    v["cn"] = len(lay["corrections"])          # words corrected against the page (ledger entries in the layer)
+                if lay["basis"] == "unicode_repeat":
+                    v["ur"] = lay["repeat_of"]["pages"]        # the wording is printed in full at these pages
+                if lay["basis"] == "ours_cleaned":
                     v["fb"] = 1
+                if lay["ours_transcription"] and lay["basis"] != "ours_cleaned":
+                    v["o"] = ws(lay["ours_transcription"])     # diplomatic scan transcription, shown collapsed as "unreviewed"
+                if (lay.get("alignment") or {}).get("tier") == "low":
+                    v["al"] = 1                                # weak word overlap with the transcription: check against the scan
                 verses.append(v)
             st = {"type": label, "hymnTypes": [code] if code else [], "modes": [mode] if mode else [], "verses": verses,
                   "src": "scan", "hy": hid, "incipit": hm.get("incipit", "")}
@@ -328,6 +340,15 @@ def main():
     dump(os.path.join(out, "alignments.json"), AL)
     dump(os.path.join(out, "stanza-refs.json"), SR)
     dump(os.path.join(out, "anchor-map.json"), {"stanza": anchor_map, "hymn": hymn_map})
+    # canon structure of the whole book in document order (parts, headings), for the calendar's canon assembly
+    structure = {"version": "sharagnots-structure-1", "source": "output/site_build/w10/unicode_sequence.json",
+                 "stanzas": {e["id"]: {"pt": e["part"]["part_key"], "pc": e["part"]["category"], "pr": e["part"]["part_run"],
+                                       "pi": 1 if e["part"]["inherited_category"] else 0, "sec": e["section_id"], "hy": e["hymn_id"]}
+                             for e in W10SEQ["sequence"] if e["kind"] == "stanza"},
+                 "headings": [{"after": None, "text": e["text"], "u": e["unit"], "t": e["unit_type"], "p": e["scan_pages"], "sec": e["section_id"], "hy": e["hymn_id"], "anchor": e["anchor_stanza"]}
+                              for e in W10SEQ["sequence"] if e["kind"] == "heading"],
+                 "order": [e["id"] if e["kind"] == "stanza" else "H:" + (e["unit"] or e["anchor_stanza"]) for e in W10SEQ["sequence"]]}
+    dump(os.path.join(out, "sharagnots-structure.json"), structure)
     if not os.path.exists(os.path.join(out, "ai-en.json")):
         dump(os.path.join(out, "ai-en.json"), {"version": 1, "label": "AI translation (Claude)", "items": {}})
     shutil.copyfile(os.path.join(args.viewer, "data", "geometry.json"), os.path.join(out, "scan-geometry.json"))
@@ -346,6 +367,7 @@ def main():
         "anchored_stanzas": len(A), "anchored_stanzas_claimed_by_krapar": len(claimed),
         "supplement_sections": len(corpus) - len(K), "supplement_verses": len(unclaimed),
         "krapar_verses_with_differing_scan_reading": rd_count,
+        "supplement_text_source": dict(collections.Counter(v.get("ts") for sc in corpus[len(K):] for st in sc["stanzas"] for v in st["verses"])),
         "tokens_added_to_search_index": added_tokens, "lemmas": len(SI),
         "vendor_krapar_corpus_sha256": vendor_hash, "page_images_copied_this_run": copied,
     }

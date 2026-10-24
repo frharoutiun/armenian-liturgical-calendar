@@ -845,10 +845,18 @@
   function verseMetaHtml(section, verse) {
     var parts = [];
     if (verse.p) parts.push(scanButtonHtml(verse.p, verse.l));
-    if (verse.src === "scan") parts.push('<span class="prov-badge prov-scan" title="From the 1888 Sharagnots scan (Unicode-anchored text); not in the verified Krapar corpus">Scan supplement</span>');
-    if (verse.fb) parts.push('<span class="prov-badge prov-warn" title="No Unicode counterpart; this is our transcription of the scan">scan transcription only</span>');
-    if (verse.rv) parts.push('<span class="prov-badge prov-warn" title="' + verse.rv + ' word(s) of this stanza differ from the typed Unicode text and have not been checked against the page">' + verse.rv + ' unchecked wording</span>');
+    if (verse.src === "scan") {
+      var ATTR = "Text: Unicode edition prepared by Fr Ghevond Ajemian, checked against the scan";
+      if (verse.ts === "u" || verse.ts === "uc") parts.push('<span class="prov-badge prov-scan" title="' + ATTR + (verse.ts === "uc" ? "; " + verse.cn + " word(s) corrected where the printed page proved the typed word wrong" : "") + '">Unicode text (Ajemian)</span>');
+      else if (verse.ts === "ur") parts.push('<span class="prov-badge prov-scan" title="This stanza is a cue in the scan; the wording shown is the same text printed in full on scan page ' + (verse.ur || []).join(", ") + ' (' + ATTR + '). Matched by machine, not yet reviewed.">Unicode text (same wording as p.' + (verse.ur || []).join(", ") + ')</span>');
+      else parts.push('<span class="prov-badge prov-warn" title="No reliable counterpart in the Unicode edition for this stanza; this is our transcription of the scan with print marks removed">transcription only, not yet proofread</span>');
+      if (verse.al) parts.push('<span class="prov-badge prov-warn" title="Weak word overlap between the Unicode text and our transcription of this stanza: check against the scan">check against scan</span>');
+    }
     var html = parts.length ? '<div class="verse-meta">' + parts.join(" ") + '</div>' : "";
+    if (verse.o) {
+      html += '<details class="scan-reading"><summary>Scan transcription (unreviewed)</summary><div class="script-original" lang="hy">'
+        + escapeHtml(verse.o) + '</div></details>';
+    }
     if (verse.rd) {
       html += '<details class="scan-reading"><summary>Scan reading (1888 print spelling)</summary><div class="script-original" lang="hy">'
         + escapeHtml(verse.rd) + '</div></details>';
@@ -1351,7 +1359,7 @@
     html += '<div class="verse-progress">Sharagan ' + (stanzaIdx + 1) + ' of ' + section.stanzas.length + '</div>';
     var hymnPages = stanzaPages(stanza);
     if (hymnPages.length) html += '<div class="hymn-scan-row">' + scanButtonHtml(hymnPages, null, "Show scan page(s) of this Sharagan") + '</div>';
-    if (section.src === "scan") html += '<div class="supplement-note">This hymn is not in the verified Krapar corpus. The Armenian is the Unicode-anchored reading of the 1888 Sharagnots (the printed page is the source of truth: use the scan button). English is provided as an AI translation where available.</div>';
+    if (section.src === "scan") html += '<div class="supplement-note">This hymn is not in the verified Krapar corpus. The Armenian is the Unicode edition prepared by Fr Ghevond Ajemian, checked against the scan (the printed page is the source of truth: use the scan button); stanzas without a reliable Unicode counterpart show our own transcription and say so. English is provided as an AI translation where available.</div>';
     html += renderSharaganNav(section, stanzaIdx);
 
     var scriptureStanzaKey = section.id + ":" + stanzaIdx;
