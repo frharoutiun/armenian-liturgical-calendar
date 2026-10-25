@@ -393,6 +393,11 @@ async function readingBody(reading) {
   else if (eref && parsed && apocBook) {
     const rrecs = await gather({ passage: { ...parsed, book: recs[0].segment.book } });
     colEn.appendChild(englishBlock(rrecs.length ? rrecs : recs, null, audioBox));
+  } else if (entry && entry.digest && !apocBook) {
+    // K1: a printed range of hundreds of verses is the Jashots' digest (Genesis 4:1-50:26 for the Forefathers), not a passage: the ESV service is not asked for it
+    const box = document.createElement("div"); box.className = "cal-en";
+    box.innerHTML = `<div class="cal-en-part"><div class="cal-sub">English (ESV)</div><p class="cal-pending">${esc(entry.note || "This reading is a digest of the book, not a single passage.")} <a href="${esc(bibleGatewayUrl({ book: recs.length ? recs[0].segment.book : "Genesis", segments: [{ ch1: 4, v1: 1, ch2: 4, v2: 26 }] }))}" target="_blank" rel="noopener">Read Genesis 4 on BibleGateway (ESV)</a></p></div>`;
+    colEn.appendChild(box);
   } else if (recs.length && (reading.flags || []).includes("invalid_reference") && !apocBook) {
     // the printed citation is impossible (a verse beyond the end of the chapter, an end before the start): never ask the ESV service for it
     const box = document.createElement("div"); box.className = "cal-en";

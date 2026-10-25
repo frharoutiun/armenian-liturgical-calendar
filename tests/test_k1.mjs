@@ -48,7 +48,7 @@ globalThis.fetch = async (u) => { const p = String(u).replace('file://', ''); co
 const cal = await createCalendar({ baseUrl: 'file://' + root + 'engine/', dataUrl: 'file://' + root + 'data/calendar/' });
 const shards = new Map();
 const shard = (s) => { if (!shards.has(s)) { try { shards.set(s, JSON.parse(fs.readFileSync(root + 'data/scripture/arak29/t/' + s + '.json', 'utf8')).citations); } catch (e) { shards.set(s, null); } } return shards.get(s); };
-const ALLOW = new Set(['John 13:12', 'Wisdom of Solomon 7:31-8:21', 'Esther 10:9']);   // documented in K1_REPORT.md: open-ended print with no table range; start verse beyond the chapter; Esther 10 is not in Arak29
+const ALLOW = new Set(['John 13:12', 'Wisdom of Solomon 7:31-8:21', 'Esther 10:9', 'Genesis 4:1-50:26']);   // documented in K1_REPORT.md: open-ended print with no table range; start verse beyond the chapter; Esther 10 is not in Arak29; the Forefathers' Genesis digest is not a passage
 const missing = new Set(); let n = 0; const keysOn = {};
 for (let d = new Date('2026-10-25T00:00:00Z'); d <= new Date('2027-12-31T00:00:00Z'); d = new Date(d.getTime() + 86400000)) {
   const iso = d.toISOString().slice(0, 10); const r = await cal.resolveDay(iso);
@@ -61,12 +61,14 @@ for (let d = new Date('2026-10-25T00:00:00Z'); d <= new Date('2027-12-31T00:00:0
 }
 const bad = [...missing].filter((k) => !ALLOW.has(k));
 ok(n > 1500, 'engine readings checked (' + n + ')');
-ok(bad.length === 0, 'every reading of 2026-10-25..2027-12-31 has Armenian text except the documented three' + (bad.length ? ': ' + bad.join('; ') : ' (missing: ' + [...missing].join('; ') + ')'));
+ok(bad.length === 0, 'every reading of 2026-10-25..2027-12-31 has Armenian text except the documented four' + (bad.length ? ': ' + bad.join('; ') : ' (missing: ' + [...missing].join('; ') + ')'));
 const on = async (iso) => (await cal.resolveDay(iso)).readings.map((x) => x.citationKey);
 const k0831 = await on('2026-08-31'), k1012 = await on('2026-10-12'), k1123 = await on('2026-11-23');
 ok(k0831.includes('Isaiah 44:24-26') && !k0831.includes('Isaiah 24:24-26'), 'printed «ԻԴ. 24-26» is corrected to Isaiah 44:24-26 (2026-08-31)');
 ok(k1012.includes('Isaiah 18:7') && !k1012.includes('Isaiah 12:7'), 'printed «ԺԲ. 7» is corrected to Isaiah 18:7 (2026-10-12)');
 ok(k1123.includes('Song of Songs 8:14') && !k1123.includes('Song of Songs 4:14-24'), 'printed «Դ. 14 … վ. 24» (Փախիր եղբօրորդի) is corrected to Song of Songs 8:14 (2026-11-23)');
+const gen = shard('genesis') && shard('genesis')['Genesis 4:1-50:26'];
+ok(gen && !gen.verses && gen.status === 'needs_review' && !gen.english_ref_should_be && /digest/.test(gen.note), 'the Forefathers\' Genesis 4:1-50:26 is a digest: no 1,452-verse text and no ESV request for the whole book');
 const mk = shard('mark') && shard('mark')['Mark 10:1'];
 ok(mk && mk.english_ref_should_be === 'Mark 10:1-12' && mk.verses.length === 12 && /lectionary tables/.test(mk.end_basis || ''), 'open-ended «Mark 10:1» reads 10:1-12 (range from the lectionary tables) and asks the ESV for the whole range');
 console.log(fails ? 'FAILED ' + fails : 'K1 tests ok');
