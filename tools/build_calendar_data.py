@@ -103,7 +103,9 @@ def build_hymn_index():
         for h in s.get('hymns') or []:
             hymns.append({'id': h['id'], 'section': s['id'], 'canon': head, 'seq': h.get('seq'), 'incipit': h.get('incipit'), 'key': arm_key(h.get('incipit')),
                           'category': (h.get('category') or {}).get('expanded') or (h.get('category') or {}).get('source'), 'mode': h.get('mode'), 'pages': h.get('pages'), 'n_stanzas': h.get('n_stanzas')})
+    cat_fixes = fix_categories_from_margin_labels(hymns)
     fixes = fix_modes_from_printed_headings(hymns, secs)
+    fixes['category_fixes'] = cat_fixes
     write_json(os.path.join(OUT, 'hymn_index.json'), {'schema': 'hymn-index/1.2', 'source': 'output/sharagnots_anchored/index.json', 'mode_fixes': fixes, 'hymns': hymns, 'sections': secs})
     return hymns, secs
 
@@ -112,6 +114,32 @@ MODE_FIX = {}   # hymn id -> corrected mode (set by fix_modes_from_printed_headi
 MARGIN_MODE = {'աձ': 'ԱՁ', 'ակ': 'ԱԿ', 'բձ': 'ԲՁ', 'բկ': 'ԲԿ', 'գձ': 'ԳՁ', 'գկ': 'ԳԿ', 'դձ': 'ԴՁ', 'դկ': 'ԴԿ'}
 ORDINAL_LETTER = {'Առաջին': 'Ա', 'Երկրորդ': 'Բ', 'Երրորդ': 'Գ', 'Չորրորդ': 'Դ'}
 MODE_HEADING = re.compile(r'^(?:\d+\.\s*)?(?:Հարց|Օրհնութիւն)\b[^:։]{0,22}?\b(Առաջին|Երկրորդ|Երրորդ|Չորրորդ)\s+ձայն')
+
+
+def fix_categories_from_margin_labels(hymns):
+    """F2: M1's 41 'part word vs index category' conflicts, settled (output/site_build/m1/margin_label_queue.json, part_conflicts):
+      * a lone «գ» label is the printed abbreviation of Գործք (the part inside the Harts); the index read the category as 'գ', 'Գ' or 'դ' (OCR of a one-letter label)
+        -> category Գործք;  * the label «ողր» (Ողորմեա) against the index category 'Ողբ' (a misreading of the same abbreviation) -> Ողորմեա.
+    Every other conflict is two parts served by one hymn («ճշու / մեծ», «հրց / ապշ / մի» ...): the printed label stacks the parts; nothing to change here (the canon builder
+    reads such stacks as 'serves both parts'). The old category is kept as `category_index`."""
+    p = os.path.join(PROJ, 'output/site_build/m1/margin_label_queue.json')
+    if not os.path.exists(p):
+        return {}
+    by = {h['id']: h for h in hymns}
+    n = collections.Counter()
+    for c in json.load(open(p, encoding='utf-8')).get('part_conflicts') or []:
+        h = by.get(c['hymn_id'])
+        if not h:
+            continue
+        lab, cat = (c.get('label_part') or '').strip(), (h.get('category') or '').strip()
+        new = None
+        if lab == 'գ' and cat != 'Գործք':
+            new = 'Գործք'
+        elif lab == 'ողր' and cat == 'Ողբ':
+            new = 'Ողորմեա'
+        if new:
+            h['category_index'] = h.get('category'); h['category'] = new; n[new] += 1
+    return dict(n)
 
 
 def fix_modes_from_printed_headings(hymns, secs):
@@ -224,6 +252,8 @@ def scan_margin_evidence():
     return json.load(open(p, encoding='utf-8')).get('hymns') or {}
 
 
+_E_PART = {arm_key(k)[:3]: v for k, v in {'օրհ': 'orhnutyun', 'հրց': 'harts', 'հարց': 'harts', 'մեծ': 'metsatsutse', 'ողր': 'voghormya', 'տրյ': 'der_hergnits', 'տրլ': 'der_hergnits',
+                                           'մնկ': 'mankunk', 'ճշ': 'jashoo', 'հմբ': 'hampartsi'}.items()}
 REF_PART = {'օրհ': 'Օրհնութիւն', 'հրց': 'Հարց', 'հարց': 'Հարց', 'մեծ': 'Մեծացուսցէ', 'ողր': 'Ողորմեա', 'տրյ': 'Տէր յերկնից', 'տրլ': 'Տէր յերկնից',
             'մնկ': 'Մանկունք', 'ճշ': 'Ճաշու', 'ճշու': 'Ճաշու', 'հմբ': 'Համբարձի'}
 REF_WEIGHT = {'E': 1.0, 'J': 0.3, 'L': 0.5, 'K': 0.3, 'I': 0.2}   # calibrated on the 346 hymns that carry a Unicode margin tag (F2_REPORT.md): 81.5% right vs 67% for the index alone
@@ -550,6 +580,13 @@ def build_canon_parts():
                 h['part'], h['part_basis'] = prev, 'continues the part above'
             else:
                 h['part'], h['part_basis'] = 'orhnutyun', 'inferred: the first hymn of a canon is its Orhnutyun'
+            # F2: the Echmiadzin TOC names the part of (almost) every hymn («Հմբ. Յրթ.», «Ողր. Մրտ.» ...); where our own assignment is only inferred (continues the part
+            # above / first hymn of a canon), a different part named there replaces it, recorded in part_basis
+            if h['part_basis'] in ('continues the part above', 'inferred: the first hymn of a canon is its Orhnutyun'):
+                e_parts = {_E_PART.get(arm_key(v['part'])[:3]) for (hid, k), v in getattr(reference_modes, 'aliases', {}).items() if hid == h['id']} - {None}
+                if len(e_parts) == 1 and next(iter(e_parts)) != h['part']:
+                    h['part_index'], h['part'] = h['part'], next(iter(e_parts))
+                    h['part_basis'] = f"the Echmiadzin TOC lists it as «{next(v['part'] for (hid, k), v in reference_modes.aliases.items() if hid == h['id'])}» (our own reading was only inferred: {h['part_index']})"
             prev = h['part']
     # the weekday canons («Կանոն Երկուշաբաթի / ... / Ուրբաթի / Շաբաթու աւուրն», one per weekday) are generic by weekday, whatever kind the index gave them
     WD = ['երկուշաբ', 'երեքշաբ', 'չորեքշաբ', 'հինգշաբ', 'ուրբաթ', 'շաբաթու']

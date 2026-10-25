@@ -77,5 +77,23 @@ class ModeEvidence(unittest.TestCase):
                     self.assertEqual(BY[hid]['mode'][1], e['half'])
 
 
+    def test_f2_category_and_part_witnesses(self):
+        # M1's part conflicts: a lone «գ» label is Գործք, 'Ողբ' is a misreading of Ողորմեա; the old category is kept
+        fx = IDX['mode_fixes'].get('category_fixes') or {}
+        self.assertGreaterEqual(fx.get('Գործք', 0), 10)
+        for h in H:
+            if 'category_index' in h:
+                self.assertIn(h['category'], ('Գործք', 'Ողորմեա'))
+        # the Echmiadzin TOC's part word replaces an only-inferred part of the canon builder, recorded in part_basis
+        cp = json.load(open(os.path.join(SITE, 'data/calendar/canon_parts.json'), encoding='utf-8'))['canons']
+        n = 0
+        for c in cp.values():
+            for h in c['hymns']:
+                if 'part_index' in h:
+                    n += 1; self.assertIn('Echmiadzin TOC', h['part_basis']); self.assertNotEqual(h['part'], h['part_index'])
+        self.assertGreater(n, 30)
+        self.assertGreater(len(json.load(open(os.path.join(SITE, 'data/calendar/hymn_aliases.json'), encoding='utf-8'))['aliases']), 800)
+
+
 if __name__ == '__main__':
     unittest.main()
