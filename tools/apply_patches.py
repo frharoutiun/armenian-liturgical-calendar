@@ -94,7 +94,10 @@ HELPERS = r'''
       else parts.push('<span class="prov-badge prov-warn" title="No reliable counterpart in the Unicode edition for this stanza; this is our transcription of the scan with print marks removed">transcription only, not yet proofread</span>');
       if (verse.al) parts.push('<span class="prov-badge prov-warn" title="Weak word overlap between the Unicode text and our transcription of this stanza: check against the scan">check against scan</span>');
     }
+    if (verse.a2 && verse.a2.length && verse.p && verse.p.length > 1) parts.push('<span class="prov-badge prov-scan" title="This stanza runs over a column or page break in the print; the continuation was joined to its opening">continues over a page break (p.' + verse.p.join("\u2013") + ')</span>');
+    if (verse.x) parts.push('<span class="prov-badge prov-warn" title="The print gives only a cue here (' + escapeHtml(verse.x.c) + '). The rest of the refrain is completed from ' + (verse.x.f ? "the same hymn" : "the Krapar/W1 expansion of the same hymn") + ' (rule: ' + escapeHtml(verse.x.r) + ', confidence ' + escapeHtml(verse.x.k) + '). Check against the scan.">cue completed</span>');
     var html = parts.length ? '<div class="verse-meta">' + parts.join(" ") + '</div>' : "";
+    if (verse.x) html += '<div class="cue-completed">Printed cue: <span class="script-original" lang="hy">' + escapeHtml(verse.x.c) + '</span> &rarr; completed: <span class="script-original cue-added" lang="hy">' + escapeHtml(verse.x.a) + '</span></div>';
     if (verse.o) {
       html += '<details class="scan-reading"><summary>Scan transcription (unreviewed)</summary><div class="script-original" lang="hy">'
         + escapeHtml(verse.o) + '</div></details>';

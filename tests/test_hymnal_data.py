@@ -46,6 +46,7 @@ class HymnalData(unittest.TestCase):
                 for v in st["verses"]:
                     if v.get("a"):
                         ids.add(v["a"])
+                    ids.update(v.get("a2") or [])        # pieces of a stanza cut by a column / page break are shown with their head
         self.assertEqual(len(ids), 8497)
         self.assertEqual(set(self.amap["stanza"]), ids)
 

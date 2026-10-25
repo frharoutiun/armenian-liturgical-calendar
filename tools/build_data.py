@@ -24,12 +24,17 @@ Deterministic: running twice gives byte-identical files.
 import argparse, collections, hashlib, json, os, re, shutil, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import stanza_fixes as SF   # D1: split stanzas, cue completion, neume marks
 SITE = os.path.dirname(HERE)
 PROJECT = "/Users/frharoutiun/Documents/Church/Coding/06 - Donatsooyts Digitization"
 DEFAULT_ANCHORED = os.path.join(PROJECT, "output", "sharagnots_anchored")
 DEFAULT_VIEWER = os.path.join(PROJECT, "output", "sharagnots_viewer")
 DEFAULT_W10 = os.path.join(PROJECT, "output", "site_build", "w10")   # Unicode display layer (pipeline/s110_unicode_display_layer.py)
 TEXT_SOURCE = {"unicode": "u", "unicode_corrected": "uc", "unicode_repeat": "ur", "ours_cleaned": "oc"}
+BASIS_RANK = {"unicode": 0, "unicode_corrected": 1, "unicode_repeat": 2, "ours_cleaned": 3}   # worst basis wins when stanza pieces are merged
+W1_EXPANDED = os.path.join(PROJECT, "output", "sharagnots_unicode_proof", "expanded", "expanded_stanzas.json")
+D1_OUT = os.path.join(PROJECT, "output", "site_build", "d1")
 KRAPAR = os.path.join(SITE, "vendor", "krapar-upstream", "data")
 
 WORD = re.compile(r"[Ա-Ֆա-և]+")
@@ -181,6 +186,79 @@ def main():
                     stats["unlinked"] += 1
     total_k = sum(len(st["verses"]) for s in K for st in s["stanzas"])
 
+    # ---- D1: stanzas cut by a column / page break; merged display text; cue completion
+    chain = SF.tail_chains(A, [ws(W10[a["id"]]["text"]) for a in A])
+    groups = collections.defaultdict(list)          # root head index -> [head, tail, ...] (a stanza cut by column / page breaks)
+    for t, hroot in sorted(chain.items()):
+        groups[hroot].append(t)
+    absorbed = {}          # hidden piece index -> index of the verse that shows it (merged head, or the Krapar verse that is already full)
+    carried = collections.defaultdict(list)           # showing index -> [hidden piece indexes]
+    tail_audit = []
+    for hroot, ts in sorted(groups.items()):
+        members = [hroot] + ts
+        cl = [m for m in members if m in claimed]
+        if len(cl) == 0:
+            target, cls = hroot, "merged_into_head"
+        elif len(cl) == 1:
+            target, cls = cl[0], "hidden_behind_krapar_verse"
+        else:
+            target, cls = None, "several_pieces_claimed_by_krapar_not_merged"
+        for m in members:
+            if m == target or target is None:
+                continue
+            absorbed[m] = target
+            carried[target].append(m)
+        for t in ts:
+            tail_audit.append({"tail": A[t]["id"], "head": A[hroot]["id"], "shown_by": A[target]["id"] if target is not None else None, "class": cls,
+                               "pages": [A[hroot]["scan_pages"][-1], A[t]["scan_pages"][0]],
+                               "head_text_end": ws(W10[A[hroot]["id"]]["text"])[-40:], "tail_text": ws(W10[A[t]["id"]]["text"])[:60]})
+    by_hymn_idx = collections.defaultdict(list)
+    for i in range(len(A)):
+        if i not in absorbed:
+            by_hymn_idx[A[i]["hymn_id"]].append(i)
+
+    def piece_ids(i):
+        return sorted([i] + carried.get(i, []))
+
+    def merged_text(i):
+        return ws(" ".join(ws(W10[A[j]["id"]]["text"]) for j in piece_ids(i)))
+
+    printed = {i: merged_text(i) for i in range(len(A)) if i not in absorbed}
+    try:
+        W1 = {r["stanza_id"]: r for r in load(W1_EXPANDED)["records"] if r.get("applied")}
+    except OSError:
+        W1 = {}
+    cue_low = []          # whole-word cues matched only by the same hymn's refrain (unverified): proposed, NOT applied
+    completion = {}        # anchored idx -> completion dict (only stanzas shown as scan-supplement verses get it applied below)
+    for hid, idxs in by_hymn_idx.items():
+        for k, i in enumerate(idxs):
+            sid = A[i]["id"]
+            if i in claimed:
+                continue
+            r = None
+            if sid in W1:
+                hi = W1[sid].get("refrain_holder_stanza_index")
+                htxt = printed.get(hi) if isinstance(hi, int) else None
+                r = SF.complete_with_w1(printed[i], W1[sid], htxt)
+                if r:
+                    r["holder"] = A[hi]["id"] if isinstance(hi, int) and htxt else None
+                    r["k"] = "high" if r["spelling"] == "unicode" else "medium"
+            if not r:
+                prev = [(A[j]["id"], printed[j]) for j in reversed(idxs[max(0, k - 6):k])]
+                nxt = [(A[j]["id"], printed[j]) for j in idxs[k + 1:k + 5]]
+                r = SF.find_expansion(printed[i], prev) or SF.find_expansion(printed[i], nxt)
+                if r and r.get("ambiguous"):
+                    r = None
+                    stats["cue_ambiguous"] += 1
+                if r:
+                    r["k"] = "medium" if r["rule"].endswith("truncated_cue") else "low"
+            if r and r["k"] == "low":
+                cue_low.append({"id": sid, "pages": A[i]["scan_pages"], "printed_end": printed[i][-60:], "cue": r["cue"], "proposed_completion": r["added"], "holder": r.get("holder"), "rule": r["rule"]})
+                stats["cue_low_not_applied"] += 1
+                r = None
+            if r:
+                completion[i] = r
+
     # ---- build merged corpus
     gname_to_code = {v["name"]: k for k, v in FA["genreInfo"].items()}
     corpus = json.loads(json.dumps(K))  # deep copy; Krapar text/en untouched
@@ -195,6 +273,9 @@ def main():
                 a = A[i]
                 v["a"] = a["id"]
                 v["p"] = a["scan_pages"]
+                if carried.get(i):
+                    v["a2"] = [A[t]["id"] for t in sorted(carried[i])]
+                    v["p"] = sorted({*a["scan_pages"], *[pg for t in carried[i] for pg in A[t]["scan_pages"]]})
                 if a.get("scan_location"):
                     loc = a["scan_location"]
                     v["l"] = [loc["start"]["column"], loc["start"]["line"], loc["end"]["column"], loc["end"]["line"]]
@@ -213,7 +294,7 @@ def main():
         if s["title"]:
             carry_title = collapse_spaced_letters(" / ".join(x.strip() for x in s["title"].split("\n") if x.strip()))
         sec_title[s["id"]] = carry_title
-    unclaimed = [i for i in range(len(A)) if i not in claimed]
+    unclaimed = [i for i in range(len(A)) if i not in claimed and i not in absorbed]
     by_section = collections.OrderedDict()
     for i in unclaimed:
         by_section.setdefault(A[i]["section_id"], []).append(i)
@@ -247,20 +328,50 @@ def main():
             for i in hi:
                 a = A[i]
                 loc = a.get("scan_location") or {}
-                lay = W10[a["id"]]
-                v = {"text": ws(lay["text"]), "a": a["id"], "p": a["scan_pages"], "src": "scan", "ts": TEXT_SOURCE[lay["basis"]]}
+                pcs = piece_ids(i)
+                lays = [W10[A[j]["id"]] for j in pcs]
+                lay = dict(lays[0])
+                lay["basis"] = max((l["basis"] for l in lays), key=lambda b: BASIS_RANK[b])
+                text = printed[i]
+                pages = sorted({pg for j in pcs for pg in A[j]["scan_pages"]})
+                v = {"text": text, "a": a["id"], "p": pages, "src": "scan", "ts": TEXT_SOURCE[lay["basis"]]}
+                if len(pcs) > 1:
+                    v["a2"] = [A[j]["id"] for j in pcs[1:]]            # the tail piece(s) of a stanza cut by a column / page break
                 if loc:
                     v["l"] = [loc["start"]["column"], loc["start"]["line"], loc["end"]["column"], loc["end"]["line"]]
                 if lay["basis"] == "unicode_corrected":
-                    v["cn"] = len(lay["corrections"])          # words corrected against the page (ledger entries in the layer)
+                    v["cn"] = sum(len(l.get("corrections") or []) for l in lays)          # words corrected against the page (ledger entries in the layer)
                 if lay["basis"] == "unicode_repeat":
-                    v["ur"] = lay["repeat_of"]["pages"]        # the wording is printed in full at these pages
+                    v["ur"] = next(l["repeat_of"]["pages"] for l in lays if l["basis"] == "unicode_repeat")        # the wording is printed in full at these pages
                 if lay["basis"] == "ours_cleaned":
                     v["fb"] = 1
-                if lay["ours_transcription"] and lay["basis"] != "ours_cleaned":
-                    v["o"] = ws(lay["ours_transcription"])     # diplomatic scan transcription, shown collapsed as "unreviewed"
-                if (lay.get("alignment") or {}).get("tier") == "low":
+                # neume (khaz) signs typed as stress marks (our transcription, and some noise in the Unicode document): kept apart, reversible;
+                # the comma sign (055D) is only removed from our own transcription
+                clean, marks = SF.split_neumes(text, SF.NEUMES if lay["basis"] == "ours_cleaned" else "\u055b\u055c\u055e")
+                if marks:
+                    v["text"], v["nm"] = ws(clean), marks
+                    stats["neume_marks_removed_from_text"] += len(marks)
+                own = " ".join(ws(l["ours_transcription"]) for l in lays if l["ours_transcription"])
+                if own and lay["basis"] != "ours_cleaned":
+                    clean, marks = SF.split_neumes(own)
+                    v["o"] = ws(clean)                                 # diplomatic scan transcription, shown collapsed as "unreviewed"
+                    if marks:
+                        v["om"] = marks
+                        stats["neume_marks_removed_from_o"] += len(marks)
+                if any((l.get("alignment") or {}).get("tier") == "low" for l in lays):
                     v["al"] = 1                                # weak word overlap with the transcription: check against the scan
+                c = completion.get(i)
+                if c:
+                    nchars = SF.NEUMES if lay["basis"] == "ours_cleaned" or c.get("spelling") == "book_orthography" else "\u055b\u055c\u055e"
+                    added = ws(SF.split_neumes(c["added"], nchars)[0])
+                    full = ws(SF.split_neumes(c["full"], nchars)[0])
+                    if not full.endswith(added):
+                        c = None                                       # never ship a completion that does not end the text
+                if c:
+                    v["pt"] = v["text"]                              # the printed text (cue kept), before completion
+                    v["text"] = full
+                    v["x"] = {"c": c["cue"], "a": added, "n": len(added), "f": c.get("holder"), "r": c["rule"], "k": c["k"]}
+                    stats["cue_completed_" + c["k"]] += 1
                 verses.append(v)
             st = {"type": label, "hymnTypes": [code] if code else [], "modes": [mode] if mode else [], "verses": verses,
                   "src": "scan", "hy": hid, "incipit": hm.get("incipit", "")}
@@ -283,6 +394,16 @@ def main():
                 if v.get("a"):
                     anchor_map.setdefault(v["a"], [s["id"], si, g + vi])
             g += len(st["verses"])
+    absorbed_map = {}
+    for s_ in corpus:
+        g_ = 0
+        for st_ in s_["stanzas"]:
+            for vi_, v_ in enumerate(st_["verses"]):
+                for a2 in v_.get("a2") or []:
+                    absorbed_map[a2] = v_["a"]
+                    if v_["a"] in anchor_map:
+                        anchor_map[a2] = anchor_map[v_["a"]]
+            g_ += len(st_["verses"])
     hymn_map = {}
     for hid, hm in hymn_meta.items():
         ids = hm.get("stanza_ids") or []
@@ -339,7 +460,7 @@ def main():
     dump(os.path.join(out, "facets.json"), FA)
     dump(os.path.join(out, "alignments.json"), AL)
     dump(os.path.join(out, "stanza-refs.json"), SR)
-    dump(os.path.join(out, "anchor-map.json"), {"stanza": anchor_map, "hymn": hymn_map})
+    dump(os.path.join(out, "anchor-map.json"), {"stanza": anchor_map, "hymn": hymn_map, "absorbed": absorbed_map})
     # canon structure of the whole book in document order (parts, headings), for the calendar's canon assembly
     structure = {"version": "sharagnots-structure-1", "source": "output/site_build/w10/unicode_sequence.json",
                  "stanzas": {e["id"]: {"pt": e["part"]["part_key"], "pc": e["part"]["category"], "pr": e["part"]["part_run"],
@@ -360,7 +481,26 @@ def main():
         if fn.endswith(".jpg") and not os.path.exists(os.path.join(pdst, fn)):
             shutil.copyfile(os.path.join(args.viewer, "pages", fn), os.path.join(pdst, fn))
             copied += 1
+    # ---- D1 audit files (project output, not shipped)
+    os.makedirs(D1_OUT, exist_ok=True)
+    changed, expansions = {}, {}
+    for s_ in corpus:
+        for st_ in s_["stanzas"]:
+            for v_ in st_["verses"]:
+                if v_.get("a2") or v_.get("x"):
+                    changed[v_["a"]] = {"merged": bool(v_.get("a2")), "completed": bool(v_.get("x")), "krapar": s_.get("src") != "scan",
+                                        "text": v_["text"], "a2": v_.get("a2") or [], "pages": v_.get("p")}
+                if v_.get("x"):
+                    expansions[v_["a"]] = {"printed": v_.get("pt"), "x": v_["x"], "pages": v_.get("p"), "text": v_["text"]}
+    dump(os.path.join(D1_OUT, "tail_audit.json"), {"count": len(tail_audit), "by_class": dict(collections.Counter(r["class"] for r in tail_audit)), "records": tail_audit})
+    dump(os.path.join(D1_OUT, "expansions.json"), {"count": len(expansions), "by_rule": dict(collections.Counter(e["x"]["r"] for e in expansions.values())),
+                                                    "by_confidence": dict(collections.Counter(e["x"]["k"] for e in expansions.values())), "records": expansions})
+    dump(os.path.join(D1_OUT, "changed_stanzas.json"), changed)
+    dump(os.path.join(D1_OUT, "cue_low_confidence_not_applied.json"), cue_low)
+    dump(os.path.join(D1_OUT, "omit_ai_ids.json"), sorted(k for k, c in changed.items() if c["merged"] and not c["krapar"]))
     report = {
+        "d1_tails_found": len(tail_audit), "d1_tails_by_class": dict(collections.Counter(r["class"] for r in tail_audit)),
+        "d1_cue_completions": {k: v for k, v in sorted(stats.items()) if k.startswith("cue_") or k.startswith("neume_")},
         "krapar_sections": len(K), "krapar_verses": total_k, "krapar_verses_linked": stats["linked"],
         "krapar_verses_unlinked": stats["unlinked"], "linked_by_global_fallback": stats["fallback_global"],
         "krapar_verse_link_pct": round(100 * stats["linked"] / total_k, 2),

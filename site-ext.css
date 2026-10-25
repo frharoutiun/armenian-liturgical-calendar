@@ -180,3 +180,7 @@ details.canon-part > summary { cursor: pointer; padding: 9px 12px; background: r
 .cal-hy-primary .cal-verses sup { font-size: .65em; color: var(--ink-faint, #777); margin-right: 2px; }
 .chant-seg + .chant-seg { margin-top: 8px; padding-top: 6px; border-top: 1px dotted var(--paper-line, #d8cfb8); }
 .chant-en { font-style: italic; margin-top: 2px; }
+
+/* D1: cue completion (the print gives only a cue; the rest of the refrain is completed from the same hymn) */
+.cue-completed { margin: 4px 0 2px; font-size: .88rem; opacity: .85; }
+.cue-added, .canon-exp { opacity: .72; border-bottom: 1px dotted currentColor; }

@@ -243,11 +243,19 @@ async function fillCanon(root) {
   if (!look) return;
   let ai = {};
   try { const r = await fetch("data/ai-en.json"); if (r.ok) ai = (await r.json()).items || {}; } catch (e) { /* optional */ }
+  const absorbed = (window.LCS.anchorMap && window.LCS.anchorMap.absorbed) || {};
   nodes.forEach((n) => {
-    const id = n.getAttribute("data-sid"), vs = look(id);
+    const id = n.getAttribute("data-sid");
+    if (absorbed[id]) { n.remove(); return; }       // a stanza cut by a column / page break: shown once, with the verse that carries it
+    const vs = look(id);
     if (!vs || !vs.length) return;
     const v = vs[0];
-    if (v.text) n.querySelector(".canon-hy").textContent = vs.map((x) => x.text).join(" ");
+    if (v.text) {
+      const hy = n.querySelector(".canon-hy"), full = vs.map((x) => x.text).join(" ");
+      if (vs.length === 1 && v.x && v.x.n && full.length > v.x.n) {   // cue completed from the same hymn's refrain: the added words are shown lighter
+        hy.innerHTML = `${esc(full.slice(0, full.length - v.x.n))}<span class="canon-exp" title="The print gives only a cue here (${esc(v.x.c)}); the refrain is completed from the same hymn (${esc(v.x.r)}, ${esc(v.x.k)} confidence)">${esc(full.slice(full.length - v.x.n))}</span>`;
+      } else hy.textContent = full;
+    }
     let en = "";
     const aiT = ai[id] && (typeof ai[id] === "string" ? ai[id] : ai[id].t);
     if (v.en) en += `<div class="canon-en-src">${esc(vs.map((x) => x.en || "").join(" ").trim())} <span class="cal-note">(Krapar Sharagnots English)</span></div>`;
