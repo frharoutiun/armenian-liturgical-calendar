@@ -8,11 +8,10 @@
   the National Council of the Churches of Christ in the United States of America. Used by permission. All rights reserved. Cached in `data/scripture/shards/`
   because the ESV has no Apocrypha, as on the ACHR site. `tools/check_publish.sh` fails the deploy if English appears in any canonical-book shard.
 * **Scripture (Armenian)**: Arak29 (arak29.org), Classical Armenian Bible, 1895 Constantinople edition, via the Armenian Bible Society (Yerevan) 1997 reprint of the 1929 American Bible Society (Vienna) reprint.
-  Stored as plain verse text only in `data/scripture/arak29/` (Arak29's morphology, glosses and footnote markup are not copied; raw pages are not in this repository). Arak29's pages carry a 2026 copyright
-  footer and state no terms; the text will be removed on request of the rights holders. The 1895 text itself is old; the edition and its digitisation are Arak29's.
+  Stored as plain verse text only in `data/scripture/arak29/` (Arak29's morphology, glosses and footnote markup are not copied; raw pages are not in this repository). Used with permission (permission granted and confirmed by the project owner on 2026-10-25). The 1895 text itself is old; the edition and its digitisation are Arak29's, and are credited on the site.
 * **Scripture (English beside chants)**: King James Version (public domain), taken from the parallel column of the same Arak29 pages (`data/calendar/chants_layer.json`).
 * **Hymnal code, data and design**: frharoutiun/Armenian-Church-Tools (sharagan/), the owner's own work (vendored snapshot in vendor/krapar-upstream/).
-* **Sharagnots text**: the 1888 Etchmiadzin Sharagnots (printed scan) and a typed Unicode text supplied by Fr Ghevond Ajemian (2026-10-20). Since 2026-10-24 the Unicode text is the displayed text of the supplement sections (our transcription is a secondary field); permission for wider redistribution should be confirmed with him.
+* **Sharagnots text**: the 1888 Etchmiadzin Sharagnots (printed scan) and a typed Unicode text supplied by Fr Ghevond Ajemian (2026-10-20). Since 2026-10-24 the Unicode text is the displayed text of the supplement sections (our transcription is a secondary field); used with permission (permission granted and confirmed by the project owner on 2026-10-25), credited on the site.
 * **Prayers by Fr Arshen** (where shown): attributed to him; used with his permission.
 * **AI products** are labelled in the interface: hymn translations ("AI translation (Claude)"), five non-biblical lections ("English translation: AI generated"),
   and audio (AI-generated speech, ElevenLabs).

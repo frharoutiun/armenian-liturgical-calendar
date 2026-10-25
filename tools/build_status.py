@@ -29,21 +29,21 @@ rows = [
   ("Chants (psalm, mesedi, alleluia)", "Shown as full verses in Armenian (Arak29) with the English verse (KJV, public domain) and placed before the reading each introduces (psalm, first reading, mesedi, second reading, alleluia, gospel). The placement follows the owner's rule of the Jashots order and verse matching is automatic: items marked needs review are not confirmed."),
   ("Sharagnots text", "Krapar sections: the verified Krapar text. Supplement sections: the typed Unicode edition prepared by Fr Ghevond Ajemian, checked against the printed scan, with word corrections that the scan proved; stanzas without a Unicode counterpart show our own transcription and are labelled 'transcription only, not yet proofread'."),
   ("AI English translations of hymns", f"{ai_n} stanzas translated so far (labelled 'AI translation (Claude)', not reviewed by a person)."),
-  ("Scripture audio", ("%s clips (AI-generated speech)" % audio_n) if audio_n else "Hosted in a separate repository; readings without a clip show 'audio pending'."),
+  ("Reading audio", "Works as on achrct.org: one Listen control per reading plays the short spoken introduction (and the Gospel caption; never chapter and verse), then the human-read ESV audio from Crossway; Apocrypha passages use our own AI-generated speech. 'Listen to all readings' plays the day's readings in order. The introductions are AI-generated speech (%s clips, ElevenLabs)." % audio_n if audio_n else "Hosted in a separate repository."),
 ]
 ai_labelled = [
   "Hymn English translations: 'AI translation (Claude)'.",
   "Five non-biblical lections: 'English translation: AI generated'.",
-  "All scripture audio: AI-generated speech (ElevenLabs).",
+  "Audio: the short spoken introductions and the Apocrypha passages are AI-generated speech (ElevenLabs); the canonical passages are the human-read ESV recording from Crossway (esv.org), as on achrct.org.",
   "Jashots page transcription (second layer) and unproofread Sharagnots stanzas: AI-assisted transcription of the printed scans; the printed scan is the source of truth.",
   "Chant and reading matching (Armenian verse to English verse, chant to Bible verse, service order) is automatic and is marked 'needs review' where it is not certain.",
   "Hymn-to-page links and the parts of each day's canon: resolved by rules from the Tonatsoyts and the structure of the Sharagnots; parts filled from generic sections by mode, weekday or season are marked 'to be confirmed'.",
 ]
 sources = [
   "Calendar rules: the Tonatsoyts (Hador 1 and 2), implemented as the calgen rules engine. English commemoration names: published forms (Vemkar / ACHR) where available, otherwise 'composed' and marked.",
-  "Hymnal: frharoutiun/Armenian-Church-Tools (Krapar Sharagnots) and the Unicode text of the 1888 Etchmiadzin Sharagnots supplied by Fr Ghevond Ajemian, anchored to our scan of the printed book.",
+  "Hymnal: frharoutiun/Armenian-Church-Tools (Krapar Sharagnots) and the Unicode text of the 1888 Etchmiadzin Sharagnots supplied by Fr Ghevond Ajemian (used with permission), anchored to our scan of the printed book.",
   "English scripture: English Standard Version via the ACHR website's scripture service (as on achrct.org); RSVCE (BibleGateway) for the Apocrypha only; King James Version (public domain) beside chants.",
-  "Armenian scripture: Arak29 (arak29.org), Classical Armenian Bible, 1895 Constantinople edition, via the Armenian Bible Society (Yerevan) 1997 reprint; plain verse text only (Arak29's morphology and glosses are not reproduced). On request of the rights holders the text will be removed. Jashots (Ճաշոց) transcription as second layer.",
+  "Armenian scripture: Arak29 (arak29.org), Classical Armenian Bible, 1895 Constantinople edition, via the Armenian Bible Society (Yerevan) 1997 reprint; plain verse text only (Arak29's morphology and glosses are not reproduced); used with permission. Jashots (Ճաշոց) transcription as second layer.",
   "Transliteration: the parish Maroon Book convention (TR).",
 ]
 badges = [

@@ -4,6 +4,7 @@
 //   church's own licence; never stored in this repository). Apocrypha/deuterocanon: cached RSVCE shards (the ESV has none).
 //   data/scripture/index.json + shards/<book>.json   (W3)     audio: <audio repo>/audio/index.json (W5)     data/ai-en.json (W2)
 import { buildLookup, findCitations, segmentsOf, bibleGatewayUrl, normBook } from "./scripture-match.mjs";
+import { GAP_TEXTS_MS, GAP_PASSAGE_MS, GAP_READINGS_MS, STALL_MS, RATE_EL, SPEECH_RATE, SPEECH_TIMEOUT_MS, PASSAGE_TIMEOUT_MS, LABELS, pickVoice, readingPlan, clipUrl } from "./listen.mjs";
 
 const ACHR_API = window.LC_ESV_API || "https://www.achrct.org/api/scripture";
 const APOCRYPHA = new Set(["azariah", "baruch", "judith", "wisdom", "sirach", "tobit", "1maccabees", "2maccabees", "3maccabees", "4maccabees", "1esdras", "2esdras", "prayerofmanasseh", "susanna", "beldragon", "belandthedragon"]);
@@ -136,36 +137,38 @@ const bgLink = (seg) => `https://www.biblegateway.com/passage/?search=${encodeUR
 const isApoc = (seg) => APOCRYPHA.has(normBook(seg.book));
 
 // One block per reading; canonical segments are filled in afterwards so the Armenian text and hymns never wait on the network.
-function englishBlock(recs, correctedRef) {
+function englishBlock(recs, correctedRef, audio) {
   const box = document.createElement("div");
   box.className = "cal-en";
   recs.forEach((r) => {
     const part = document.createElement("div");
     part.className = "cal-en-part";
+    const pi = audio ? expectPart(audio) : -1;
     if (isApoc(r.segment)) {
+      if (audio) apocPart(audio, pi, r);
       if (r.en && r.en.length) part.innerHTML = '<div class="cal-sub">English (RSVCE)</div><p class="cal-verses">' + r.en.map((v) => `<sup>${esc(v.r.split(":").pop())}</sup>${esc(v.t)}`).join(" ") + "</p>";
       else part.innerHTML = `<div class="cal-sub">English (RSVCE)</div><p class="cal-pending">English text pending. <a href="${esc(bibleGatewayUrl({ book: r.segment.book, segments: [r.segment] }))}" target="_blank" rel="noopener">Read this passage on BibleGateway (RSVCE)</a></p>`;
     } else {
       const ref = correctedRef || esvQuery(r.segment);
       part.innerHTML = `<div class="cal-sub">English (ESV): ${esc(ref)}</div><p class="cal-pending cal-loading">Loading ESV text from achrct.org…</p>`;
-      fillEsv(part, correctedRef || r.segment, ref);
+      fillEsv(part, correctedRef || r.segment, ref, audio, pi);
     }
     box.appendChild(part);
   });
   return box;
 }
 // Canonical reading with a confirmed English range: ask for that range once, whatever the Armenian segments were.
-function correctedBlock(ref) {
+function correctedBlock(ref, audio) {
   const box = document.createElement("div");
   box.className = "cal-en";
   const part = document.createElement("div");
   part.className = "cal-en-part";
   part.innerHTML = `<div class="cal-sub">English (ESV): ${esc(ref)}</div><p class="cal-pending cal-loading">Loading ESV text from achrct.org…</p>`;
-  fillEsv(part, ref, ref);
+  fillEsv(part, ref, ref, audio, audio ? expectPart(audio) : -1);
   box.appendChild(part);
   return box;
 }
-function fillEsv(part, seg, ref) {
+function fillEsv(part, seg, ref, audio, pi) {
   fetchEsv(ref).then((d) => {
     const body = document.createElement("div");
     body.className = "cal-esv";
@@ -173,13 +176,9 @@ function fillEsv(part, seg, ref) {
     const t = document.createElement("div"); t.className = "cal-verses"; t.innerHTML = cleanHtml(d.html); body.appendChild(t);
     if (d.copyright) noteCopy(d.copyright);
     part.querySelector(".cal-loading").replaceWith(body);
-    if (d.audioAvailable && d.audioUrl && /^https:\/\/audio\.esv\.org\//.test(d.audioUrl)) {
-      const au = document.createElement("div"); au.className = "cal-audio";
-      au.setAttribute("data-clips", JSON.stringify([d.audioUrl]));
-      au.innerHTML = '<button type="button" class="nav-btn cal-play" aria-label="Play the human-read ESV audio">&#9654; ESV audio</button>';
-      body.appendChild(au);
-    }
+    if (audio) settlePart(audio, pi, { kind: "esv", audioUrl: d.audioAvailable ? d.audioUrl : null, introduction: d.introduction, introductionCaption: d.introductionCaption });
   }).catch(() => {
+    if (audio) settlePart(audio, pi, null);
     const el = part.querySelector(".cal-loading");
     if (el) { el.classList.remove("cal-loading"); el.innerHTML = `English text could not be loaded right now (offline, or the achrct.org service is busy). <a href="${esc(bgLink(seg))}" target="_blank" rel="noopener">Read this passage on BibleGateway (ESV)</a> · <a href="https://www.esv.org/${encodeURIComponent(ref)}/" target="_blank" rel="noopener">esv.org</a>`; }
   });
@@ -222,19 +221,166 @@ function armenianHtml(recs, reading, hasPrimary) {
   return `<details class="cal-hy"><summary>${hasPrimary ? "Jashots printed-page transcription (second layer)" : "Armenian reading (Ճաշոց, Jashots)"}</summary>${parts.map((p) => `<div class="script-original hy-text" lang="hy">${esc(p.hy.text).replace(/\n/g, "<br>")}</div>`).join("")}<div class="cal-note">AI-assisted transcription of the printed Jashots; proofreading in progress. ${btns}</div></details>`;
 }
 
-async function audioHtml(recs, reading) {
-  const ai = await getAudio();
-  if (!ai) return "";
-  const urls = [];
-  recs.forEach((r) => {
-    const k = r.exactKey || r.key;
-    const e = k && ai.by_citation && ai.by_citation[k];
-    if (!e) return;
-    [e.intro, e.reference, ...(e.text || [])].forEach((id) => { const c = id && ai.clips[id]; if (c) urls.push({ url: AUDIO_BASE + c.file.replace(/^\.?\//, ""), id }); });
-  });
-  if (!urls.length) return "";
-  return `<div class="cal-audio" data-clips='${esc(JSON.stringify(urls.map((u) => u.url)))}'><button type="button" class="nav-btn cal-play" aria-label="Play AI-generated speech">&#9654; AI speech</button> <span class="cal-note">${urls.length} clip${urls.length > 1 ? "s" : ""}</span></div>`;
+// ---- reading audio: exactly as on achrct.org (see listen.mjs and F1_ACHR_AUDIO_SPEC.md) ----
+// Each reading gets one "Listen" control. It speaks the short introduction (and, for Gospels, the caption) from our hosted
+// ElevenLabs clips, waits, then plays the Crossway human ESV recording (or, for Apocrypha, our own voiced passage clips).
+function newAudioBox() {
+  const box = document.createElement("div");
+  box.className = "cal-audio cal-listen";
+  box.dataset.state = "pending";
+  box.innerHTML = `<span class="cal-note cal-audio-wait">${LABELS.preparing}</span>`;
+  box._parts = []; box._expected = 0; box._settled = 0; box._plan = null;
+  return box;
 }
+function expectPart(box) { return box._expected++; }
+function settlePart(box, idx, part) {
+  box._parts[idx] = part; box._settled++;
+  if (box._settled >= box._expected) finalizeAudio(box);
+}
+async function apocPart(box, idx, rec) {
+  const ai = await getAudio();
+  const e = ai && ai.by_citation && ai.by_citation[rec.exactKey || rec.key];
+  settlePart(box, idx, e ? { kind: "apoc", introText: e.intro_text, introClip: e.intro, clips: e.text || [] } : null);
+}
+async function finalizeAudio(box) {
+  const ai = (await getAudio()) || {};
+  box._plan = readingPlan(ai, box._parts);
+  if (box._plan.available) {
+    box.dataset.state = "ready";
+    box.innerHTML = `<button type="button" class="nav-btn cal-listen-btn">${LABELS.listen}</button><audio controls hidden class="scripture-reading-player" preload="none"></audio>`;
+  } else {
+    box.dataset.state = "none";
+    box.innerHTML = `<p class="cal-note cal-audio-none">${LABELS.unavailable}</p>`;
+  }
+}
+const LA = { token: 0, clip: null, voice: undefined, all: false };
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+function setListening(box, on) {
+  const b = box.querySelector(".cal-listen-btn"), pl = box.querySelector(".scripture-reading-player");
+  if (b) b.textContent = on ? LABELS.stop : LABELS.listen;
+  if (box.dataset.state === "ready" || box.dataset.state === "listening") box.dataset.state = on ? "listening" : "ready";
+  if (pl && !on) { pl.pause(); pl.hidden = true; }
+}
+function setAll(on) {
+  LA.all = on;
+  document.querySelectorAll(".cal-listall-btn").forEach((b) => { b.textContent = on ? LABELS.stopAll : LABELS.all; });
+}
+function stopAll() {
+  LA.token++;
+  try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) { /* none */ }
+  if (LA.clip) LA.clip.pause();
+  document.querySelectorAll(".cal-listen").forEach((b) => setListening(b, false));
+  setAll(false);
+}
+// Resolves when the element has finished, failed, been paused, or never started playing within 8 s.
+function playOn(el, src, rate, volume) {
+  return new Promise((resolve) => {
+    let done = false, timer;
+    const fin = () => {
+      if (done) return; done = true; clearTimeout(timer);
+      el.removeEventListener("ended", fin); el.removeEventListener("error", fin); el.removeEventListener("pause", fin); el.removeEventListener("playing", started);
+      resolve();
+    };
+    const started = () => clearTimeout(timer);
+    timer = setTimeout(fin, STALL_MS);
+    el.addEventListener("ended", fin, { once: true }); el.addEventListener("error", fin, { once: true }); el.addEventListener("pause", fin, { once: true }); el.addEventListener("playing", started, { once: true });
+    el.src = src; el.currentTime = 0; el.playbackRate = rate; el.volume = volume;
+    el.addEventListener("loadedmetadata", () => { el.playbackRate = rate; el.volume = volume; }, { once: true });
+    el.play().catch(fin);
+  });
+}
+function voiceOnce() {
+  if (LA.voice !== undefined) return Promise.resolve(LA.voice);
+  return new Promise((resolve) => {
+    const ss = window.speechSynthesis;
+    if (!ss) { LA.voice = null; resolve(null); return; }
+    const done = () => { LA.voice = pickVoice(ss.getVoices()); resolve(LA.voice); };
+    if (ss.getVoices().length) { done(); return; }
+    ss.addEventListener("voiceschanged", done, { once: true }); setTimeout(done, 1000);
+  });
+}
+function speak(text) {   // fallback when a text has no recorded clip
+  return new Promise((resolve) => {
+    const ss = window.speechSynthesis;
+    if (!ss || typeof SpeechSynthesisUtterance === "undefined") { resolve(); return; }
+    voiceOnce().then((v) => {
+      let d = false; const fin = () => { if (!d) { d = true; resolve(); } };
+      try { ss.cancel(); const u = new SpeechSynthesisUtterance(text); if (v) u.voice = v; u.rate = SPEECH_RATE; u.onend = fin; u.onerror = fin; ss.speak(u); setTimeout(fin, SPEECH_TIMEOUT_MS); } catch (e) { fin(); }
+    });
+  });
+}
+async function listenReading(box, token) {
+  const plan = box._plan;
+  if (!plan || !plan.available) return;
+  const alive = () => LA.token === token;
+  const ai = (await getAudio()) || {};
+  setListening(box, true);
+  if (!LA.clip) LA.clip = new Audio();
+  for (let i = 0; i < plan.intro.length; i++) {
+    if (i > 0) { await sleep(GAP_TEXTS_MS); if (!alive()) return; }
+    const st = plan.intro[i], url = clipUrl(AUDIO_BASE, ai, st.clip);
+    if (url) await playOn(LA.clip, url, RATE_EL, 1); else await speak(st.text);
+    if (!alive()) return;
+  }
+  await sleep(GAP_PASSAGE_MS);
+  if (!alive()) return;
+  const player = box.querySelector(".scripture-reading-player");
+  for (const p of plan.passages) {
+    if (!alive()) return;
+    const url = p.url || clipUrl(AUDIO_BASE, ai, p.clip);
+    if (!url || !player) continue;
+    player.hidden = false;
+    await playOn(player, url, p.rate, 1);
+  }
+  if (alive()) setListening(box, false);
+}
+async function waitReady(det) {
+  const t0 = Date.now();
+  while (Date.now() - t0 < PASSAGE_TIMEOUT_MS) {
+    const box = det.querySelector(".cal-listen");
+    if (box && (box.dataset.state === "ready" || box.dataset.state === "none")) return box;
+    await sleep(150);
+  }
+  return null;
+}
+async function listenAll(root) {
+  stopAll();
+  const token = LA.token;
+  setAll(true);
+  const main = [...root.querySelectorAll("#panel-readings > .cal-readings details.cal-reading")];
+  const other = [...root.querySelectorAll("#panel-readings details.cal-other[open] details.cal-reading")];
+  const list = main.concat(other);
+  for (let i = 0; i < list.length; i++) {
+    if (LA.token !== token) return;
+    const det = list[i];
+    det.open = true;
+    det.scrollIntoView({ block: "start", behavior: "smooth" });
+    const box = await waitReady(det);
+    if (LA.token !== token) return;
+    if (box && box.dataset.state === "ready") {
+      await listenReading(box, token);
+      if (LA.token !== token) return;
+      if (i < list.length - 1) { await sleep(GAP_READINGS_MS); }
+    }
+  }
+  if (LA.token === token) setAll(false);
+}
+document.addEventListener("click", (ev) => {
+  const t = ev.target && ev.target.closest ? ev.target : null;
+  if (!t) return;
+  const one = t.closest(".cal-listen-btn");
+  if (one) {
+    const box = one.closest(".cal-listen");
+    if (box.dataset.state === "listening") { stopAll(); return; }
+    stopAll();
+    listenReading(box, LA.token);
+    return;
+  }
+  const all = t.closest(".cal-listall-btn");
+  if (all) { if (LA.all) stopAll(); else listenAll(document); }
+});
+window.addEventListener("pagehide", () => { try { stopAll(); } catch (e) { /* ignore */ } });
+window.LCListen = { stopAll, listenAll };
 
 async function readingBody(reading) {
   const recs = await gather(reading);
@@ -248,19 +394,20 @@ async function readingBody(reading) {
   const grid = document.createElement("div"); grid.className = "rd-grid";
   const colHy = document.createElement("div"); colHy.className = "rd-col rd-hy-col";
   const colEn = document.createElement("div"); colEn.className = "rd-col rd-en-col";
+  const audioBox = newAudioBox();
   const prim = arakHtml(entry, reading, arakAttr);
   if (prim) colHy.insertAdjacentHTML("beforeend", prim);
-  if (eref && parsed && !apocBook) colEn.appendChild(correctedBlock(esvQuery(eref)));
+  if (eref && parsed && !apocBook) colEn.appendChild(correctedBlock(esvQuery(eref), audioBox));
   else if (eref && parsed && apocBook) {
     const rrecs = await gather({ passage: { ...parsed, book: recs[0].segment.book } });
-    colEn.appendChild(englishBlock(rrecs.length ? rrecs : recs));
-  } else if (recs.length) colEn.appendChild(englishBlock(recs));
+    colEn.appendChild(englishBlock(rrecs.length ? rrecs : recs, null, audioBox));
+  } else if (recs.length) colEn.appendChild(englishBlock(recs, null, audioBox));
   colHy.insertAdjacentHTML("beforeend", armenianHtml(recs, reading, !!prim));
   grid.append(colHy, colEn);
   wrap.appendChild(grid);
   wrap.insertAdjacentHTML("beforeend", versBadge(reading, entry));
-  const au = await audioHtml(recs, reading);
-  if (au) wrap.insertAdjacentHTML("beforeend", au);
+  if (!audioBox._expected) { audioBox.dataset.state = "none"; audioBox.innerHTML = `<p class="cal-note cal-audio-none">${LABELS.unavailable}</p>`; }
+  wrap.appendChild(audioBox);
   if (reading.jashots && reading.jashots.introEn) wrap.insertAdjacentHTML("beforeend", `<p class="cal-note rd-intro">Introduction: ${esc(reading.jashots.introEn)}</p>`);
   // the status dot in the row's summary follows the final (Arak29-checked) numbering status
   const v = reading.versification || {};
@@ -269,18 +416,6 @@ async function readingBody(reading) {
   return wrap;
 }
 
-// ---- audio player (sequential clips) ----
-document.addEventListener("click", (ev) => {
-  const b = ev.target.closest && ev.target.closest(".cal-play");
-  if (!b) return;
-  const box = b.closest(".cal-audio");
-  let clips; try { clips = JSON.parse(box.getAttribute("data-clips")); } catch (e) { return; }
-  if (box._audio) { box._audio.pause(); box._audio = null; b.innerHTML = "&#9654; Play"; return; }
-  let i = 0; const a = new Audio(); box._audio = a; b.innerHTML = "&#10073;&#10073; Stop";
-  const next = () => { if (i >= clips.length) { box._audio = null; b.innerHTML = "&#9654; Play"; return; } a.src = clips[i++]; a.play().catch(() => { box._audio = null; b.innerHTML = "&#9654; Play"; box.insertAdjacentHTML("beforeend", ' <span class="cal-note">Audio could not be loaded.</span>'); }); };
-  a.addEventListener("ended", next); a.addEventListener("error", () => { box._audio = null; b.innerHTML = "&#9654; Play"; });
-  next();
-});
 // ---- hymn AI translation ----
 async function hymnExtra(h) {
   // Only a resolved hymn gets its AI translation shown; an ambiguous one must not borrow a candidate's text.
@@ -308,7 +443,7 @@ async function afterRender(day, root) {
   const msg = "Canonical English scripture is the ESV, loaded live from the ACHR website (achrct.org) under the church's Crossway licence; it is not stored on this site. "
     + (apoc && attr.english ? attr.english.copyright + " " : "")
     + (arak ? "Armenian scripture verses: " + arak.armenian_text + " English verses shown beside chants are the King James Version (public domain). " : "Armenian reading text is from the Jashots. ")
-    + "Hymn text of the Sharagnots supplement is the Unicode edition prepared by Fr Ghevond Ajemian, checked against the printed scan; Krapar sections are from the Krapar Sharagnots. Audio of announcements is AI-generated speech. This is a draft: items marked needs review are not confirmed.";
+    + "Hymn text of the Sharagnots supplement is the Unicode edition prepared by Fr Ghevond Ajemian, checked against the printed scan; Krapar sections are from the Krapar Sharagnots. The Armenian Bible text (Arak29) and the Sharagnots Unicode text are used with permission. Audio: the short spoken introductions are AI-generated speech; the canonical passages are the human-read ESV audio from Crossway. This is a draft: items marked needs review are not confirmed.";
   art.insertAdjacentHTML("beforeend", `<p class="cal-foot cal-rsv-note">${esc(msg)}</p>`);
 }
 

@@ -22,6 +22,7 @@ PY
 python3 tools/build_status.py || exit 1
 echo "== tests"; node tests/test_calendar.mjs >/dev/null || { echo "calendar tests FAILED"; exit 1; }
 node tests/test_hymns.mjs >/dev/null || { echo "hymn tests FAILED"; exit 1; }
+node tests/test_listen.mjs >/dev/null || { echo "listen (reading audio) tests FAILED"; exit 1; }
 node tests/test_cues.mjs >/dev/null || { echo "cue-line tests FAILED"; exit 1; }
 node tests/test_scripture_match.mjs || { echo "scripture-match tests FAILED"; exit 1; }
 python3 -m unittest tests.test_hymnal_data 2>&1 | tail -1 | grep -q OK || { echo "hymnal data tests FAILED"; exit 1; }
