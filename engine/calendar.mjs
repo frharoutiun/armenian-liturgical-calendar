@@ -212,7 +212,7 @@ export async function createCalendar(opts = {}) {
       const segs = (lay && lay.segments) || [];
       const seg = segs.find((x) => x.status === 'matched') || segs.find((x) => x.status === 'ambiguous') || null;
       Object.assign(c, {
-        precedes_reading: it.precedes_reading_index, precedes_reading_key: it.precedes_reading, service_order: it.service_order, group: g.id, order_basis: it.order_basis, order_rule: it.order_rule,
+        precedes_reading: it.precedes_reading_index, precedes_reading_key: it.precedes_reading, service_order: it.service_order, group: g.id, opening: it.opening || null, order_basis: it.order_basis, order_rule: it.order_rule,
         layerKey: it.layerKey || null, segments: segs,
         armenian_full: seg ? seg.armenian_full : null, english_full: seg ? seg.english_full : null, english_source: seg ? seg.english_source : null,
         refs: seg ? [seg.armenian_ref, seg.english_ref_kjv && 'English numbering: ' + seg.english_ref_kjv].filter(Boolean) : [],

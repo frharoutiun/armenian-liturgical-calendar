@@ -29478,5 +29478,125 @@
   "389|Ճաշու՝ սաղմոս Բ. Տէր ասաց ցիս": "CH-969584311d",
   "389|Տէր ասաց ցիս (թէ կիրակամուտ լինիցի)": "CH-98702c69ec",
   "389|Առաջին ալէ. Առաքեաց զբան իւր: Ինն ժամուն՝ Ալէլուիա ալէլու:": "CH-2e4f270c43"
+ },
+ "opening_rules": {
+  "schema": "chant-opening-rules/1.0",
+  "armenian_prefix": "Ալէլուիա, ալէլուիա:",
+  "english_prefix": "Alleluia, alleluia:",
+  "rules": [
+   {
+    "id": "R1-PSALM-FIRST",
+    "kind": "psalm",
+    "when": "first chant of its service group (the Synaxis Psalm, before the first reading)",
+    "armenian_prefix": "Ալէլուիա, ալէլուիա:",
+    "english_prefix": "Alleluia, alleluia:",
+    "confidence": "high",
+    "evidence": "Arshen: 'The Synaxis Psalm' opens with the Alleluia line in 77 of 77 sets; Jashots prints the psalm verse without the word, the Alleluia line is the Lectionary's convention"
+   },
+   {
+    "id": "R1-MESEDI-SECOND",
+    "kind": "mesedi",
+    "when": "the second chant, before the apostolic reading ('The Second Synaxis Psalm')",
+    "armenian_prefix": null,
+    "english_prefix": null,
+    "confidence": "high",
+    "evidence": "Arshen: 'The Second Synaxis Psalm' has no Alleluia line in 13 of 13 sets and always follows a first psalm in the same set (pp. 350, 352, 359, 362, 371, 376, 423, 429, 431, 434, 462, 465, 472)"
+   },
+   {
+    "id": "R1-PSALM-LATER",
+    "kind": "psalm",
+    "when": "a psalm that is not the first chant of its group (e.g. the Gospel Psalm, the water-blessing psalm)",
+    "armenian_prefix": "Ալէլուիա, ալէլուիա:",
+    "english_prefix": "Alleluia, alleluia:",
+    "confidence": "medium",
+    "evidence": "Arshen: the Alleluia line also opens 'The Gospel Psalm' (6 of 6) and the psalm of the Blessing of Water (p.10, Psalm 28 (29)); only the SECOND synaxis psalm (our 'mesedi') has none. The rule is therefore by the chant's label, not by its position"
+   },
+   {
+    "id": "R1-MESEDI-FIRST",
+    "kind": "mesedi",
+    "when": "a mesedi that is the first chant of its group (no psalm before it)",
+    "armenian_prefix": null,
+    "english_prefix": null,
+    "confidence": "low",
+    "evidence": "Arshen has no set in which the second psalm stands first; label-based, unconfirmed"
+   },
+   {
+    "id": "R1-ALLELUIA-VERSE",
+    "kind": "alleluia",
+    "when": "an Alleluia chant with a printed verse",
+    "armenian_prefix": "Ալէլուիա, ալէլուիա:",
+    "english_prefix": "Alleluia, alleluia:",
+    "confidence": "high",
+    "evidence": "Arshen: Synaxis/Gospel Alleluia verse opens with the Alleluia line in 58 of 60 sets; Jashots prints «Ալէլուիա(յ).» before 71 of 327 alleluia verses"
+   },
+   {
+    "id": "R1-ALLELUIA-TONE",
+    "kind": "alleluia",
+    "when": "an Alleluia 'by the mode' (generic verse, «՚ի ձայնէն»)",
+    "armenian_prefix": "Ալէլուիա, ալէլուիա:",
+    "english_prefix": "Alleluia, alleluia:",
+    "confidence": "medium",
+    "evidence": "Arshen prints only the rubric 'Resurrection Sundays: Tone of the Day' (27 sets) / 'Martyrs: Tone of the Day' (1) with no verse and no Alleluia line; the Jashots prints «Ալէլուիա. Յարութեան ՚ի ձայնէն» (record 29); the Zhamagirk's generic lists print the verse alone. Prefix shown, flagged unconfirmed"
+   },
+   {
+    "id": "R1-GOSPEL-PSALM",
+    "kind": "psalm",
+    "when": "a psalm before the Gospel (vigil/field blessing sets)",
+    "armenian_prefix": "Ալէլուիա, ալէլուիա:",
+    "english_prefix": "Alleluia, alleluia:",
+    "confidence": "medium",
+    "evidence": "Arshen: 'The Gospel Psalm' opens with the Alleluia line in 6 of 6 sets; not produced by the current chant order (kept for the vigil sets)"
+   }
+  ],
+  "exceptions": [
+   {
+    "id": "R1-X-ARSHEN-P379",
+    "page": 379,
+    "what": "Gospel/Synaxis Alleluia with Psalm 32 (33):5-6 prints no Alleluia line (Pentecost-type set)",
+    "applied": false,
+    "why": "n=1 of 50; the same verse never recurs, so it cannot be tied to a rule"
+   },
+   {
+    "id": "R1-X-ARSHEN-P503",
+    "page": 503,
+    "what": "'The Gospel Alleluia' with Psalm 4:7 in the Vespers / Great Blessing of the Fields set prints no Alleluia line",
+    "applied": false,
+    "why": "n=1; the same verse is printed WITH the line at p.513, so it is service-specific or a printing quirk; unconfirmed"
+   }
+  ],
+  "notes": [
+   "The Alleluia line is printed as 'Alleluia, alleluia:' in 108 places and 'Alleluia; alleluia:' in 33 (typographic variation by book section; no liturgical difference found).",
+   "The displayed prefix is a separate labelled field; the Armenian source text and the sourced English verse are never altered.",
+   "Jashots prokeimenon (Ճաշու սաղմոս) verses never begin with the word Alleluia (0 of 514)"
+  ],
+  "evidence_summary": {
+   "counts": {
+    "alleluia|alleluia": 58,
+    "alleluia|none": 2,
+    "alleluia|tone_rubric": 27,
+    "gospel_psalm|alleluia": 6,
+    "psalm1|alleluia": 77,
+    "psalm2|none": 13
+   },
+   "exception_pages": [
+    379,
+    503
+   ],
+   "second_psalm_pages": [
+    350,
+    352,
+    359,
+    362,
+    371,
+    376,
+    423,
+    429,
+    431,
+    434,
+    462,
+    465,
+    472
+   ]
+  }
  }
 }

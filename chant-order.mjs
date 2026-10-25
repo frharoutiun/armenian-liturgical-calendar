@@ -21,6 +21,27 @@ export function lookupChant(layer, c) {
   return k && layer.chants ? layer.chants[k] || null : null;
 }
 
+// Opening of a chant (R1, from Fr. Arshen's Lectionary; rules table in layer.opening_rules, evidence in output/site_build/R1_CHANT_OPENINGS.md):
+//   a psalm (first chant, or the Gospel / water-blessing psalm) -> "Alleluia, alleluia:" prefix (R1-PSALM-FIRST / R1-PSALM-LATER)
+//   the second synaxis psalm (our 'mesedi')                     -> no prefix                   (R1-MESEDI-SECOND)
+//   alleluia verse                        -> prefix                             (R1-ALLELUIA-VERSE; by the mode: R1-ALLELUIA-TONE, unconfirmed)
+// The prefix is a SEPARATE displayed field (Armenian + English); the source verse text is never altered.
+export function openingFor(kind, chantNo, chant, layer) {
+  const R = layer && layer.opening_rules;
+  if (!R) return null;
+  const byId = (id) => (R.rules || []).find((x) => x.id === id);
+  const byMode = /ձայն/.test(String((chant && (chant.verbatim || chant.incipit)) || ''));
+  let id;
+  if (kind === 'psalm') id = chantNo === 1 ? 'R1-PSALM-FIRST' : 'R1-PSALM-LATER';
+  else if (kind === 'mesedi') id = chantNo === 1 ? 'R1-MESEDI-FIRST' : 'R1-MESEDI-SECOND';
+  else if (kind === 'alleluia') id = byMode ? 'R1-ALLELUIA-TONE' : 'R1-ALLELUIA-VERSE';
+  else return null;
+  const r = byId(id);
+  if (!r) return null;
+  return { rule_id: id, applies: !!r.armenian_prefix, armenian_prefix: r.armenian_prefix || null, english_prefix: r.english_prefix || null, confidence: r.confidence, evidence: r.evidence,
+    review_status: r.confidence === 'high' ? 'rule_applied' : 'unconfirmed', source: 'Fr. Arshen Aivazian, Lectionary (pp. in evidence); prefix wording: Zhamagirk (Armenian), Lectionary (English)' };
+}
+
 export function interleave(day, layer) {
   const groups = new Map();
   const gid = (r) => {
@@ -57,8 +78,8 @@ export function interleave(day, layer) {
         else put(rs.length, ch, 'no gospel in this group: alleluia placed last (position not explicit)', true);
       } else unplaced.push({ chant: ch.c, why: 'unknown chant kind' });
     }
-    let order = 0;
-    const emitChants = (pos) => (before.get(pos) || []).forEach((x) => items.push({ type: 'chant', order: ++order, kind: x.c.kind, service_order: order, precedes_reading: pos < rs.length ? rs[pos].r.citationKey : null,
+    let order = 0, chantNo = 0;
+    const emitChants = (pos) => (before.get(pos) || []).forEach((x) => items.push({ type: 'chant', order: ++order, kind: x.c.kind, opening: openingFor(x.c.kind, ++chantNo, x.c, layer), service_order: order, precedes_reading: pos < rs.length ? rs[pos].r.citationKey : null,
       precedes_reading_index: pos < rs.length ? rs[pos].i : null, chant: x.c, verbatim: x.c.verbatim, psalm: x.c.psalm, layerKey: x.layer ? x.layer.key : null, order_basis: 'rule', order_rule: x.rule, review_status: x.review ? 'needs_review' : 'rule_applied' }));
     rs.forEach((x, p) => { emitChants(p); items.push({ type: 'reading', order: ++order, service_order: order, readingIndex: x.i, citationKey: x.r.citationKey }); });
     emitChants(rs.length);
