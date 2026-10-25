@@ -50,6 +50,18 @@ const TYPOS = [
   { book: 'Joshua', from: { ch1: 24, v1: 29, ch2: 24, v2: 23 }, to: { v2: 33 }, why: 'printed «29 - 23»: the end verse is before the start; Joshua 24 ends at verse 33 (the death of Joshua, 24:29-33)' },
   { book: 'Mark', from: { ch1: 4, v1: 26, ch2: 4, v2: 24 }, to: { v2: 34 }, why: 'printed «26 - 24 (34)»: the printed brackets give the correction 34' },
   { book: 'Hebrews', from: { ch1: 10, v1: 32, ch2: 10, v2: 30 }, to: { v2: 39 }, why: 'printed «32-30»: the end verse is before the start; Hebrews 10:32-39 is the reading (chapter 10 ends at 39)' },
+  // G2: printed numerals the digitisation misread, repaired from the page's own incipit/end words (output/extraction page JSON, passes A and B agree) checked
+  // against the Armenian Bible (Arak29 1895); each is corroborated by the reconciled lectionary tables (G2_REPORT.md, table of repairs).
+  { book: '1 Thessalonians', from: { ch1: 4, v1: 12, ch2: 4, v2: 18 }, to: { v2: 17 }, why: 'printed «Դ. 12 ... վ. 18», incipit «Ոչ կամիմ եղբարք»: in the 1895 Armenian numbering 1 Thessalonians 4 ends at 17 and verse 12 begins «Ոչ կամիմ» (English 4:13-18)' },
+  { book: 'Isaiah', from: { ch1: 24, v1: 24, ch2: 24, v2: 26 }, to: { ch1: 44, ch2: 44 }, why: 'the page prints «ԽԴ. 24 ... վ. 26» (Խ = 40, read as Ի = 20): Isaiah 24 has only 23 verses; incipit «Այսպէս ասէ տէր», end «արդարացուցանէ»' },
+  { book: 'Isaiah', from: { ch1: 12, v1: 7, ch2: 12, v2: 7 }, to: { ch1: 18, ch2: 18 }, why: 'the page prints «ԺԸ. 7 ... վ. 7» (Ը = 8, read as Բ = 2): Isaiah 12 has only 6 verses; incipit «Ի ժամանակին յայնմիկ», end «լերինն սիոնի» (Isaiah 18:7)' },
+  { book: 'Song of', from: { ch1: 8, v1: 14, ch2: 8, v2: 24 }, to: { v2: 14 }, why: 'printed «Ը. 14 ... վ. 24 (14)»: Song of Songs 8 ends at 14; incipit «Փախիր եղբօրորդի» is the last verse (8:14)' },
+  { book: 'Song of', from: { ch1: 4, v1: 14, ch2: 4, v2: 24 }, to: { ch1: 8, ch2: 8, v2: 14 }, why: 'the digitised «Դ. 14 ... վ. 24» is «Ը. 14 ... վ. 14» (Ը = 8 read as Դ = 4; the end verse 24 is a printer\'s slip for 14): incipit «Փախիր եղբօրորդի» is Song of Songs 8:14' },
+  { book: 'Numbers', from: { ch1: 20, v1: 23, ch2: 20, v2: 30 }, to: { v2: 29 }, why: 'printed «Ի. 23 ... վ. 30»: in the 1895 Armenian numbering Numbers 20 ends at 29 and the end words «տունն իսրայելի» close verse 29' },
+  // K1: three more printed numerals that cannot exist; each is confirmed by the reconciled lectionary tables (feed v2) reading the corrected passage on the same day
+  { book: 'Isaiah', from: { ch1: 24, v1: 24, ch2: 24, v2: 26 }, to: { ch1: 44, ch2: 44 }, why: 'printed «ԻԴ. 24-26»: Isaiah 24 has 23 verses; the lectionary tables read Isaiah 44:24-26 on the same day (2026-08-31): «ԻԴ» for «ԽԴ»' },
+  { book: 'Isaiah', from: { ch1: 12, v1: 7, ch2: 12, v2: 7 }, to: { ch1: 18, ch2: 18 }, why: 'printed «ԺԲ. 7»: Isaiah 12 has 6 verses; the lectionary tables read Isaiah 18:7 on the same day (2026-10-12): «ԺԲ» for «ԺԸ»' },
+  { book: 'Song of Songs', from: { ch1: 4, v1: 14, ch2: 4, v2: 24 }, to: { ch1: 8, ch2: 8, v2: 14 }, why: 'printed «Դ. 14. Փախիր եղբօրորդի … վ. 24. անսխեղծ»: the start words «Փախիր, եղբօրորդի իմ» are Song 8:14 in the 1895 text; Song 4 has 16 verses; the lectionary tables read Song of Solomon 8:14 on the same day (2026-11-23)' },
 ];
 function typoFix(bookName, top) {
   const t = TYPOS.find((x) => String(bookName).startsWith(x.book) && FIELDS.every((f) => x.from[f] === top[f]));

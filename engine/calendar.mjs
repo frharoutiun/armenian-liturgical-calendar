@@ -204,7 +204,12 @@ export async function createCalendar(opts = {}) {
     const day = engineResolveDay(rb, t);
     const unresolved = [];
     const items = (day.parsed && day.parsed.items) || [];
-    const readings = [], chants = [];
+    const readings = [], chants = [], secondaryReadings = [];
+    // Collision of saint commemorations: when two or more Hador 1 'commemoration' records fall on one day, the readings are those of the FIRST (lowest
+    // ordinal = the principal saint of the Taregir date); the others are commemorated but their readings are not read. Evidence: 530 multi-record days of
+    // 2001-2040: the first commemoration's readings are in the lectionary tables on 96% of days, a later commemoration's on 0-13% (G2_REPORT.md).
+    const dayComm = items.filter((x) => x.role === 'day' && (x.readings || []).length > 0 && rb.H1.get(x.ordinal) && rb.H1.get(x.ordinal).kind === 'commemoration').map((x) => x.ordinal).sort((a, b) => a - b);
+    const secondaryComm = new Set(typeof process !== 'undefined' && process.env && process.env.CALGEN_NO_COLLISION === '1' ? [] : dayComm.slice(1));
     for (const it of items) {
       const itemViews = (it.readings || []).map((r0) => readingView(((r1) => repairReading(chapterVerses, bookEn(r1.book), r1))(repairBook(chapterVerses, r0)), it.role));
       // An Old Testament reading the Jashots index does not know (the opening Wisdom / Song of Songs reading printed with the 'Առակ' head) belongs to the
@@ -219,6 +224,8 @@ export async function createCalendar(opts = {}) {
         const sib = itemViews.find((x) => x.service && x.service.class === known[0]).service;
         v.service = { class: known[0], label: sib.label, basis: 'passage unknown to the Jashots index; every other reading of the same Hador 1 record is ' + sib.label, share: null, confident: false, level: 'record-block-inferred' };
       }
+      for (const v of itemViews) v.record = it.ordinal;   // the Hador 1 record this reading was parsed from (collision-day analysis)
+      if (secondaryComm.has(it.ordinal)) { for (const v of itemViews) { v.flags = [...new Set([...(v.flags || []), 'collision_secondary_commemoration'])]; secondaryReadings.push(v); } continue; }
       readings.push(...itemViews);
       for (const c of it.chants || []) chants.push({ recordOrdinal: it.ordinal, role: it.role, kind: c.kind, service: c.service, verbatim: c.verbatim, incipit: c.incipit, psalm: c.psalm_number, flags: c.flags || [] });
     }
@@ -230,11 +237,23 @@ export async function createCalendar(opts = {}) {
       const bk = bookByNormalizedName(sp.book); if (!bk) continue;
       const have = readings.some((v) => v.passage && passageOverlap({ book: bookKeyEn({ en: v.passage.book || '' }), ch1: v.passage.ch1, v1: v.passage.v1, ch2: v.passage.ch2, v2: v.passage.v2 }, sp));
       if (have) continue;
-      const pr = { verbatim: '', book: bk.en, book_hy: bk.hy, book_id: bk.id, kind: bk.cat, category: bk.cat, ch1: sp.ch1, v1: sp.v1, ch2: sp.ch2, v2: sp.v2, segments: [], status: 'complete', flags: ['lectionary_table_supplement'], qualifiers: [] };
+      const pr = { verbatim: '', book: bk.en, book_hy: bk.hy, book_id: bk.id, kind: bk.cat, category: bk.cat, ch1: sp.ch1, v1: sp.v1, ch2: sp.ch2, v2: sp.v2, segments: [], status: 'complete', flags: [sp.basis === 'source_attested' ? 'source_attested_supplement' : 'lectionary_table_supplement'], qualifiers: [] };
       const v = readingView(pr, 'day');
       v.service = sp.class === 'jashoo' ? { class: 'jashoo', label: 'Divine Liturgy (Synaxis)', level: 'record-supplement', confident: sp.freq >= 0.8, share: sp.freq, basis: `appointed with this Hador 1 record in ${sp.days_with} of ${sp.days_total} days of the 2001-2040 lectionary tables (not printed in Hador 1)` }
         : { class: sp.class === 'other' ? 'other' : 'unknown', label: sp.label || 'service not determined', level: 'record-supplement', confident: sp.freq >= 0.8, share: sp.freq, basis: `appointed with this Hador 1 record in ${sp.days_with} of ${sp.days_total} days of the 2001-2040 lectionary tables (not printed in Hador 1)` };
-      v.supplement = { source: 'lectionary tables 2001-2040', freq: sp.freq, daysWith: sp.days_with, daysTotal: sp.days_total };
+      v.supplement = { source: 'lectionary tables 2001-2040', freq: sp.freq, daysWith: sp.days_with, daysTotal: sp.days_total, basis: sp.basis || 'learned_from_reconciled', evidence: sp.evidence || null };
+      readings.push(v);
+    }
+    // Owner ruling (project-final-readings-decisions; Liturgical Text/holy_week_readings.pdf): the Divine Liturgy of Holy Saturday is 1 Corinthians 15:1-11 and
+    // Matthew 28:1-20. Hador 1 prints only the Epistle for this Liturgy; the Gospel is added when the day has none of it.
+    if (day.easterOffset === -1) for (const rr of [{ book: 'Matthew', ch1: 28, v1: 1, ch2: 28, v2: 20 }]) {
+      const bk = bookByNormalizedName(rr.book); if (!bk) continue;
+      const rulingService = { class: 'jashoo', label: 'Divine Liturgy (Synaxis)', level: 'owner-ruling', confident: true, share: 1, basis: 'owner ruling: Divine Liturgy of Holy Saturday = 1 Corinthians 15:1-11 + Matthew 28:1-20' };
+      const have = readings.find((v) => v.passage && passageOverlap({ book: bookKeyEn({ en: v.passage.book || '' }), ch1: v.passage.ch1, v1: v.passage.v1, ch2: v.passage.ch2, v2: v.passage.v2 }, rr));
+      if (have) { if (!have.service || have.service.class !== 'jashoo') { have.service = rulingService; have.flags = [...new Set([...(have.flags || []), 'owner_ruling_holy_saturday'])]; } continue; }   // printed as a Vigil reading: it is also the Liturgy Gospel
+      const pr = { verbatim: '', book: bk.en, book_hy: bk.hy, book_id: bk.id, kind: bk.cat, category: bk.cat, ch1: rr.ch1, v1: rr.v1, ch2: rr.ch2, v2: rr.v2, segments: [], status: 'complete', flags: ['owner_ruling_holy_saturday'], qualifiers: [] };
+      const v = readingView(pr, 'day');
+      v.service = rulingService;
       readings.push(v);
     }
     // Full-verse chants (W9 layer) and their place before the reading they introduce (psalm > 1st reading > mesedi > 2nd reading > alleluia > gospel)
@@ -291,7 +310,7 @@ export async function createCalendar(opts = {}) {
       mode: { number: day.mode.number, armenian: day.mode.armenian, since: day.mode.since, basis: 'computed from the eight-week mode cycle' },
       table: day.table, status: day.status, provisional: needsReview || fasting.provisional,
       records: day.records || [], overlays: day.overlays || [],   // Hador 1 record ordinals the day is built from (the feed uses them for the non-biblical lections)
-      commemorations: comms, fasting, readings, chants, chantLayout: layout, hymns, canons, sharagnots: sharagnotsGroups(hymns), canon: canonObj,
+      commemorations: comms, fasting, readings, secondaryReadings, chants, chantLayout: layout, hymns, canons, sharagnots: sharagnotsGroups(hymns), canon: canonObj,
       labels: day.labels || [], annotations: day.annotations || [], unresolved,
       provenance: { claims: (day.claims || []).map((c) => ({ rule: c.rule, status: c.status, kind: c.kind, records: c.records, pages: c.source && c.source.pages })), records: day.records, overlays: day.overlays, hador2Rows: day.hador2Rows.map((r) => r.id), easterRule: day.easterRule },
     };
