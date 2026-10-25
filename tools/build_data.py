@@ -26,6 +26,7 @@ import argparse, collections, hashlib, json, os, re, shutil, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import stanza_fixes as SF   # D1: split stanzas, cue completion, neume marks
+import display_clean as DC  # A1: artifacts (stray '/', rubric markers, bullets, line-break hyphens ...) out of the DISPLAYED text; raw display text kept in `dr`
 SITE = os.path.dirname(HERE)
 PROJECT = "/Users/frharoutiun/Documents/Church/Coding/06 - Donatsooyts Digitization"
 DEFAULT_ANCHORED = os.path.join(PROJECT, "output", "sharagnots_anchored")
@@ -117,6 +118,8 @@ def main():
     args = ap.parse_args()
 
     K = load(os.path.join(KRAPAR, "corpus.json"))
+    LEX = DC.Lexicon.from_corpus(K)                    # words attested in the verified Krapar text: a line-break hyphen is joined only when the joined word is in it
+    dc_queue = []                                      # artifacts we did not dare to fix (reported, not hidden)
     SI = load(os.path.join(KRAPAR, "search-index.json"))
     WF = load(os.path.join(KRAPAR, "word-forms.json"))
     FA = load(os.path.join(KRAPAR, "facets.json"))
@@ -149,6 +152,7 @@ def main():
     links = {}          # (sec, stanzaIdx, verseIdx) -> (stanza index in A, score)
     claimed = set()
     stats = collections.Counter()
+    dc_stats = {}
     for s in K:
         for si, st in enumerate(s["stanzas"]):
             cand = []   # per verse: list of (score, idx)
@@ -224,6 +228,9 @@ def main():
         return ws(" ".join(ws(W10[A[j]["id"]]["text"]) for j in piece_ids(i)))
 
     printed = {i: merged_text(i) for i in range(len(A)) if i not in absorbed}
+    def _contains(text, tgt):
+        w = [SF.fold(x) for x in SF.split_words(text)]
+        return any(w[k:k + len(tgt)] == tgt for k in range(len(w) - len(tgt) + 1))
     try:
         W1 = {r["stanza_id"]: r for r in load(W1_EXPANDED)["records"] if r.get("applied")}
     except OSError:
@@ -253,11 +260,33 @@ def main():
                 if r:
                     r["k"] = "medium" if r["rule"].endswith("truncated_cue") else "low"
             if r and r["k"] == "low":
+                # F2: a whole-word cue is also taken when the SAME hymn prints the very same words (cue + completion) contiguously in another stanza:
+                # the refrain is then attested in the hymn itself (151 of the 181 proposals)
+                tgt = [SF.fold(w) for w in SF.split_words(r["cue"] + " " + r["added"])]
+                att = [A[j]["id"] for j in idxs if j != i and j not in absorbed and _contains(printed[j], tgt)]
+                if att:
+                    r["k"] = "medium"; r["rule"] += "+attested_in_hymn"; r["attested_by"] = att[:3]
+                    stats["cue_attested_applied"] += 1
+            if r and r["k"] == "low":
                 cue_low.append({"id": sid, "pages": A[i]["scan_pages"], "printed_end": printed[i][-60:], "cue": r["cue"], "proposed_completion": r["added"], "holder": r.get("holder"), "rule": r["rule"]})
                 stats["cue_low_not_applied"] += 1
                 r = None
             if r:
                 completion[i] = r
+        # A1: a whole single-word cue (« ... յուդայի եկայք: ») is taken only when the same hymn completes other stanzas from the same refrain holder
+        sib = {completion[i]["holder"] for i in idxs if i in completion and completion[i].get("holder")}
+        for k, i in enumerate(idxs):
+            if i in claimed or i in completion or not sib:
+                continue
+            prev = [(A[j]["id"], printed[j]) for j in reversed(idxs[max(0, k - 6):k])] + [(A[j]["id"], printed[j]) for j in idxs[k + 1:k + 5]]
+            r = SF.find_single_word_expansion(printed[i], prev, sib, W10[A[i]["id"]].get("ours_transcription") or "")
+            if r and r.pop("uncorroborated", False):
+                cue_low.append({"id": A[i]["id"], "pages": A[i]["scan_pages"], "printed_end": printed[i][-60:], "cue": r["cue"], "proposed_completion": r["added"], "holder": r.get("holder"), "rule": r["rule"] + "+uncorroborated"})
+                stats["cue_single_word_uncorroborated"] += 1
+            elif r:
+                r["k"] = "medium"
+                completion[i] = r
+                stats["cue_single_word_applied"] += 1
 
     # ---- build merged corpus
     gname_to_code = {v["name"]: k for k, v in FA["genreInfo"].items()}
@@ -310,7 +339,7 @@ def main():
         pages = sorted({p for i in idxs for p in A[i]["scan_pages"]})
         title = sec_title.get(sid) or ""
         first_h = hymn_meta.get(next(iter(by_hymn)), {})
-        heading = title or ("ՇԱՐԱԿԱՆ / " + collapse_spaced_letters(first_h.get("incipit", "")))
+        heading = DC.clean_heading(title or ("ՇԱՐԱԿԱՆ / " + collapse_spaced_letters(first_h.get("incipit", ""))))[0]
         sec = {
             "id": next_id,
             "titleEn": "1888 Sharagnots, scan p. " + (str(pages[0]) if len(pages) == 1 else "%d–%d" % (pages[0], pages[-1])),
@@ -372,9 +401,10 @@ def main():
                     v["text"] = full
                     v["x"] = {"c": c["cue"], "a": added, "n": len(added), "f": c.get("holder"), "r": c["rule"], "k": c["k"]}
                     stats["cue_completed_" + c["k"]] += 1
+                DC.clean_verse(v, LEX, dc_stats, dc_queue)       # A1: display artifacts
                 verses.append(v)
             st = {"type": label, "hymnTypes": [code] if code else [], "modes": [mode] if mode else [], "verses": verses,
-                  "src": "scan", "hy": hid, "incipit": hm.get("incipit", "")}
+                  "src": "scan", "hy": hid, "incipit": DC.clean_incipit(hm.get("incipit", ""), LEX)[0]}
             sec["stanzas"].append(st)
             for t in st["hymnTypes"]:
                 if t not in sec["hymnTypes"]:
@@ -466,7 +496,7 @@ def main():
                  "stanzas": {e["id"]: {"pt": e["part"]["part_key"], "pc": e["part"]["category"], "pr": e["part"]["part_run"],
                                        "pi": 1 if e["part"]["inherited_category"] else 0, "sec": e["section_id"], "hy": e["hymn_id"]}
                              for e in W10SEQ["sequence"] if e["kind"] == "stanza"},
-                 "headings": [{"after": None, "text": e["text"], "u": e["unit"], "t": e["unit_type"], "p": e["scan_pages"], "sec": e["section_id"], "hy": e["hymn_id"], "anchor": e["anchor_stanza"]}
+                 "headings": [{"after": None, "text": DC.clean_heading(e["text"])[0], "u": e["unit"], "t": e["unit_type"], "p": e["scan_pages"], "sec": e["section_id"], "hy": e["hymn_id"], "anchor": e["anchor_stanza"]}
                               for e in W10SEQ["sequence"] if e["kind"] == "heading"],
                  "order": [e["id"] if e["kind"] == "stanza" else "H:" + (e["unit"] or e["anchor_stanza"]) for e in W10SEQ["sequence"]]}
     dump(os.path.join(out, "sharagnots-structure.json"), structure)
@@ -497,9 +527,13 @@ def main():
                                                     "by_confidence": dict(collections.Counter(e["x"]["k"] for e in expansions.values())), "records": expansions})
     dump(os.path.join(D1_OUT, "changed_stanzas.json"), changed)
     dump(os.path.join(D1_OUT, "cue_low_confidence_not_applied.json"), cue_low)
+    A1_OUT = os.path.join(PROJECT, "output", "site_build", "a1")
+    os.makedirs(A1_OUT, exist_ok=True)
+    dump(os.path.join(A1_OUT, "display_clean_queue.json"), dc_queue)
     dump(os.path.join(D1_OUT, "omit_ai_ids.json"), sorted(k for k, c in changed.items() if c["merged"] and not c["krapar"]))
     report = {
         "d1_tails_found": len(tail_audit), "d1_tails_by_class": dict(collections.Counter(r["class"] for r in tail_audit)),
+        "a1_display_clean": dict(sorted(dc_stats.items())), "a1_hyphen_unattested": len([q for q in dc_queue if q[0] == "hyphen_unattested"]),
         "d1_cue_completions": {k: v for k, v in sorted(stats.items()) if k.startswith("cue_") or k.startswith("neume_")},
         "krapar_sections": len(K), "krapar_verses": total_k, "krapar_verses_linked": stats["linked"],
         "krapar_verses_unlinked": stats["unlinked"], "linked_by_global_fallback": stats["fallback_global"],

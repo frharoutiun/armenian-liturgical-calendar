@@ -234,3 +234,52 @@ def complete_with_w1(text, w1, holder_text):
         return {"cue": " ".join(cw), "added": " ".join(comp), "full": " ".join(keep + comp), "holder": None, "n_cue_words": n,
                 "rule": "w1_cue+" + spelling, "spelling": spelling}
     return None
+
+
+def find_single_word_expansion(text, holders, sibling_holders, ours=None):
+    """A1: the cue is ONE whole word (« ... յուդայի եկայք: ») that is exactly the first word of the refrain printed in full at the end of a
+    holder stanza of the same hymn. find_expansion() never takes a single whole word (too common), so this rule asks for more evidence:
+      * the displayed text ends with a terminal sign right after that word (a printed cue),
+      * exactly one refrain tail starts with that word in the nearest holders (every matching tail must be a prefix of the longest),
+      * the tail is at least three words long and its last word is not itself cut short,
+      * the same hymn already completes other stanzas from the SAME holder (sibling_holders): the hymn demonstrably uses that shared refrain,
+      * `ours` (our diplomatic scan transcription of the stanza) must show it: after the cue word it continues with the start of the same refrain
+        («յուդայի . եկայք հաւատացեալք երկըրպա :»), i.e. the print itself carries more of the refrain than the displayed text.
+    -> dict like find_expansion (rule 'same_hymn_refrain+single_word_cue') or None; {'uncorroborated': ...} when only the last test fails."""
+    tw = split_words(text)
+    if len(tw) < 8 or not has_terminal(text) or not sibling_holders:      # a body of at least 8 words: short verses ("Ողորմեա ինձ Աստուած:") are complete
+        return None
+    cue = tw[-1]
+    cf = fold(cue)
+    if len(cf) < 4:
+        return None
+    found = {}
+    for hid, htext in holders:
+        if hid not in sibling_holders:
+            continue
+        hw = split_words(htext)
+        hf = [fold(w) for w in hw]
+        pos = [p for p in range(max(0, len(hw) - MAX_REFRAIN), len(hw)) if hf[p] == cf]
+        if len(pos) != 1 or pos[0] > len(hw) - 4:                          # the word occurs once in the refrain area and leaves >= 3 words after it
+            continue
+        found.setdefault(tuple(hf[pos[0]:]), (hid, hw[pos[0]:]))
+    if not found:
+        return None
+    pick = _pick(found)
+    if pick is None:
+        return None
+    hid, tail = pick
+    lastf = fold(tail[-1])
+    if len(lastf) <= 3 and lastf not in COMPLETE_SHORT:
+        return None
+    added = " ".join(tail[1:])
+    r = {"cue": cue, "added": added, "full": " ".join(tw[:-1] + tail), "holder": hid, "n_cue_words": 1,
+         "rule": "same_hymn_refrain+single_word_cue"}
+    if ours is not None:
+        ow = [fold(w) for w in re.split(r"[\s,.;։:·]+", ours) if fold(w)]
+        pos = [i for i, w in enumerate(ow) if w == cf]
+        after = ow[pos[-1] + 1:] if pos else []
+        tf = [fold(w) for w in tail[1:]]
+        if not after or not all(a.startswith(t) or t.startswith(a) for a, t in zip(after[:2], tf)):
+            r["uncorroborated"] = True
+    return r
