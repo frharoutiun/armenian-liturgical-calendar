@@ -9,12 +9,12 @@ export const meta = { id: 'fasting', description: 'fasting from record titles, H
 export const OPTIONS = { lentSaturdayFast: false, holyThursdayDominical: false };
 
 const mk = (status, rule, rule_status, basis, source, extra) => ({ status, rule, rule_status, basis, source, ...(extra || {}) });
-// K2 (2026-10-25): printed evidence for the period rules. Counts from pipeline/s131_fast_printed_evidence.py (output/site_build/k2/printed_evidence.json): the printed yearly directories of
+// K2 (2026-10-25): printed evidence for the period rules. Counts from the K2 printed-directory evidence check: the printed yearly calendars of
 // 2013, 2016, 2018, 2019, 2020, 2022, 2025, 2026 print a fast name (Պահք / «... պահոց») in the heading of EVERY day the engine marks as a fast by these rules ([days, printed]) and on no day it marks
 // as not fast by the Easter-time / octave rules. This settles the extent of the five-day fasts that the Hador 1 records only imply (so they are rules, not interpretations).
 export const PRINTED = { 'R-FAST-VARDAVAR': [30, 30], 'R-FAST-ASSUMPTION': [30, 30], 'R-FAST-CROSS': [26, 26], 'R-FAST-VARAG': [30, 30], 'R-FAST-JAMES': [26, 26], 'R-FAST-HISNAK': [25, 25],
   'R-FAST-ARACHAVORATS': [29, 29], 'R-FAST-WEDFRI-EASTERTIDE': [64, 0], 'R-FAST-WEDFRI-NATIVITY-OCTAVE': [9, 0], 'R-B03-ELIJAH-FAST-DAY': [18, 18], 'R-B04-GREGORY-FAST-DAY': [18, 18] };
-const printedEv = (rule) => { const e = PRINTED[rule]; return e ? { printed_directories: { years: '2013-2026 (8 directories)', days: e[0], print_fast_name: e[1], note: 'fast days print a fast name; not-fast days print none' } } : {}; };
+const printedEv = (rule) => { const e = PRINTED[rule]; return e ? { validated_against_print: { years: '2013-2026 (8 yearly printed calendars)', days: e[0], print_fast_name: e[1], note: 'fast days print a fast name; not-fast days print none' } } : {}; };
 const fixedFeastOn = (m, d) => FIXED.find((f) => f.m === m && f.d === d);
 function opt(ctx, k) { return ctx && ctx.opts && ctx.opts[k] !== undefined ? ctx.opts[k] : OPTIONS[k]; }
 
@@ -80,9 +80,9 @@ function fastingForCore(ctx, t, day) {
   }
 
   // 3b. K2: no Sunday is a fast day. Hador 1 record 391 speaks of the days «kept like Sunday» (կիւրակէ պահելի) "besides the natural Sundays" («Բաց ՚ի բնական կիւրակէից»): the natural Sundays are the model, never fasted;
-  // the 8 printed yearly directories print a fast name on no Sunday except the Lent Sundays' own title «Քառասնորդական պահոց» (which the owner ruling F-C2 / R-E treats as not fasting);
+  // the 8 printed yearly calendars print a fast name on no Sunday except the Lent Sundays' own title «Քառասնորդական պահոց» (which the owner ruling F-C2 / R-E treats as not fasting);
   // the reconciled 2001-2040 feed has no fast Sunday in 14,610 days. Sundays inside a fasting period (Nativity fast, Hisnak weeks, Arachavorats) were left open before ("review FAST-Q3").
-  if (isSun) return mk('not_fast', 'R-FAST-SUNDAY', 'rule', 'Sunday is never a fast day: Hador 1 record 391 takes the natural Sunday as the model of the days «kept like Sunday»; the printed directories (2013-2026) and the 2001-2040 reconciled feed print no fast Sunday, also inside the Nativity, Hisnak and Arachavorats fasts. (Hador 2 rows that carry the word Պահոց on a Sunday name the Sunday of the fast, not a fast day.)',
+  if (isSun) return mk('not_fast', 'R-FAST-SUNDAY', 'rule', 'Sunday is never a fast day: Hador 1 record 391 takes the natural Sunday as the model of the days «kept like Sunday»; the printed calendars (2013-2026) and the 2001-2040 reconciled feed print no fast Sunday, also inside the Nativity, Hisnak and Arachavorats fasts. (Hador 2 rows that carry the word Պահոց on a Sunday name the Sunday of the fast, not a fast day.)',
     { records: [391], quote: 'Բաց ՚ի բնական կիւրակէից՝ այլ կիւրակէ պահելի աւուրքն են սոքա', owner: 'H7 (dominical days never fasting)' });
 
   // 4. Arachavorats fast: Monday-Friday after its Barekendan Sunday (Hador 1 record 33 "Ուրբաթ (Առաջաւորաց պահոց)"; Hador 2 rows "Պահք Առաջաւորաց").
@@ -101,7 +101,7 @@ function fastingForCore(ctx, t, day) {
   for (const [, base, rule, title, recs, quote, names] of wk) {
     if (base == null) continue;
     const k = Math.round((t - base) / DAY);
-    if (k >= 1 && k <= 5) return mk('fast', rule, 'rule', `${title}: Monday to Friday after its Barekendan Sunday (Hador 1 ${recs.join(', ')}: records of these weekdays are titled "պահոց"). The five-day extent is read from the weekday-titled records and confirmed by the printed directories, which print a fast name on every one of these days and on no Saturday or other day (K2).`, prov(names, { records: recs, quote, ...printedEv(rule) }));
+    if (k >= 1 && k <= 5) return mk('fast', rule, 'rule', `${title}: Monday to Friday after its Barekendan Sunday (Hador 1 ${recs.join(', ')}: records of these weekdays are titled "պահոց"). The five-day extent is read from the weekday-titled records and confirmed by the printed calendars, which print a fast name on every one of these days and on no Saturday or other day (K2).`, prov(names, { records: recs, quote, ...printedEv(rule) }));
   }
 
   // 6. Nativity (Christmas-Theophany) fast: Dec 30 - Jan 4 (records 382-388; Hador 2 rows "Պահք Ծննդեան" on Dec 30, "Պահոց" Dec 31 - Jan 4); Jan 5 is the eve (liturgy at the ninth hour).

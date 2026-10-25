@@ -26,9 +26,9 @@ export function ctxFor(rb, year) { const k = rb; let m = ctxCache.get(k); if (!m
 // A block claim may carry a `fast` object (e.g. the Elijah or Gregory fasts, stated in Hador 1 rubrics); used when fasting.mjs has no verdict for the date.
 // K2: closing rule of the fasting chain. Every fasting period of the Tonatsoyts is enumerated by fasting.mjs (Great Lent and Holy Week, Arachavorats, Nativity, Hisnak, James, Cross, Varag, Vardavar, Assumption,
 // Elijah, Gregory, the Wednesdays and Fridays) and Sundays are never fast days; a day that none of these (nor a block claim, nor a Hador 2 fast row) claims is not a fast day.
-// Verified: of the 1,112 such days in the 8 printed directories (2013-2026) none prints a fast name; of 7,452 such days in 2001-2040 the reconciled feed marks 7,449 not fast (the other 3, 2036-08-04/05/07, are an
-// artefact of that feed: the Taregir row of 2036 puts the Assumption fast on Aug 11-15, see output/site_build/K2_REPORT.md).
-export const NO_FAST_PERIOD = { status: 'not_fast', rule: 'R-FAST-NONE', rule_status: 'rule', basis: 'No fasting period of the Tonatsoyts and no Wednesday/Friday rule applies to this day, and no row of the Taregir marks it as a fast: not a fast day.', source: { verified_against: 'printed directories 2013-2026 (1,112 such days, none prints a fast name); reconciled feed 2001-2040 (7,449 of 7,452 not fast)' } };
+// Verified: of the 1,112 such days in the 8 printed calendars (2013-2026) none prints a fast name; of 7,452 such days in 2001-2040 the reconciled feed marks 7,449 not fast (the other 3, 2036-08-04/05/07, are an
+// artefact of that feed: the Taregir row of 2036 puts the Assumption fast on Aug 11-15, see the K2 report).
+export const NO_FAST_PERIOD = { status: 'not_fast', rule: 'R-FAST-NONE', rule_status: 'rule', basis: 'No fasting period of the Tonatsoyts and no Wednesday/Friday rule applies to this day, and no row of the Taregir marks it as a fast: not a fast day.', source: { verified_against: 'printed calendars 2013-2026 (1,112 such days, none prints a fast name); reconciled feed 2001-2040 (7,449 of 7,452 not fast)' } };
 function claimFast(claims) {
   const c = claims.find((x) => x.fast && x.fast.status);
   return c ? { status: c.fast.status, basis: c.basis, rule: c.rule, rule_status: c.status, source: c.source, name: c.fast.name, extent: c.fast.extent, from_block: c.block } : null;
