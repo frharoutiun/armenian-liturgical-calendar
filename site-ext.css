@@ -28,6 +28,8 @@
   background: rgba(120, 70, 160, 0.16); border: 1px solid rgba(120, 70, 160, 0.5); vertical-align: 1px;
 }
 .ai-translation { font-style: italic; }
+/* E1: the English published with the Krapar Sharagnots (also machine-generated, labelled as such) is told apart from ours by colour */
+.ai-label-krapar { background: rgba(40, 120, 120, 0.16); border-color: rgba(40, 120, 120, 0.55); }
 
 /* scan overlay */
 .scan-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0, 0, 0, 0.55); display: flex; align-items: stretch; justify-content: center; padding: 12px; }

@@ -431,7 +431,14 @@ async function hymnExtra(h) {
   const hits = Object.keys(map.stanza).filter((a) => map.stanza[a][0] === loc[0] && map.stanza[a][1] === loc[1] && items[a]).slice(0, 2);
   if (!hits.length) return "";
   const label = (ai && ai.label) || "AI translation (Claude)";
-  return hits.map((a) => `<div class="cal-ai"><span class="ai-label" title="Machine translation, not reviewed by a person">${esc(label)}</span> ${esc(typeof items[a] === "string" ? items[a] : items[a].t)}</div>`).join("");
+  // ONE English per stanza (E1): the English published with the Krapar Sharagnots where the stanza is a Krapar verse, else ours.
+  const corpus = window.LCS.corpus && window.LCS.corpus();
+  const verseOf = (a) => { const m = map.stanza[a], sec = corpus && m && corpus[m[0]]; if (!sec) return null; let rem = m[2]; for (const st of sec.stanzas) { if (rem < st.verses.length) return st.verses[rem]; rem -= st.verses.length; } return null; };
+  return hits.map((a) => {
+    const v = verseOf(a);
+    if (v && v.en) return `<div class="cal-ai"><span class="ai-label ai-label-krapar" title="Machine translation published with the Krapar Sharagnots hymnal; not reviewed by a person">AI translation (Krapar Sharagnots)</span> ${esc(v.en)}</div>`;
+    return `<div class="cal-ai"><span class="ai-label" title="Machine translation, not reviewed by a person">${esc(label)}</span> ${esc(typeof items[a] === "string" ? items[a] : items[a].t)}</div>`;
+  }).join("");
 }
 
 async function afterRender(day, root) {

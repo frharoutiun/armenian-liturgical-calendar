@@ -316,8 +316,10 @@ async function fillCanon(root) {
     }
     let en = "";
     const aiT = ai[id] && (typeof ai[id] === "string" ? ai[id] : ai[id].t);
-    if (v.en) en += `<div class="canon-en-src">${esc(vs.map((x) => x.en || "").join(" ").trim())} <span class="cal-note">(Krapar Sharagnots English)</span></div>`;
-    if (aiT) en += `<div class="cal-ai"><span class="ai-label" title="Machine translation, not reviewed by a person">AI translation (Claude)</span> ${esc(aiT)}</div>`;
+    // ONE English per stanza (E1 decision): Krapar stanzas show the English published with the Krapar Sharagnots, labelled as the
+    // machine translation it is; stanzas outside the Krapar corpus show our Claude translation. The other one is not shown.
+    if (v.en && vs.every((x) => x.en)) en += `<div class="canon-en-src"><span class="ai-label ai-label-krapar" title="Machine translation published with the Krapar Sharagnots hymnal; not reviewed by a person">AI translation (Krapar Sharagnots)</span> ${esc(vs.map((x) => x.en).join(" ").trim())}</div>`;
+    else if (aiT) en += `<div class="cal-ai"><span class="ai-label" title="Machine translation, not reviewed by a person">AI translation (Claude)</span> ${esc(aiT)}</div>`;
     n.querySelector(".canon-en").innerHTML = en;
   });
 }
@@ -413,7 +415,7 @@ function renderDay(day) {
         ${(c.sections || []).slice(0, 1).map((s) => `<button type="button" class="cal-link" data-page="${esc((s.pages && s.pages[0]) || "")}">scan p.${esc((s.pages && s.pages[0]) || "?")}</button>`).join(" ")}</li>`).join("") + `</ul>`;
     }
   }
-  pShar += `<details class="sources" id="src-sharagnots"><summary>Sources and licences for these hymns</summary><div class="src-body"><p>Krapar sections: the Sharagnots of the Armenian Church in the corrected-spelling form of the Krapar Sharagnots corpus, with its English translations (frharoutiun.github.io/Armenian-Church-Tools/sharagan/).</p><p>Scan-supplement sections: the Unicode edition of the Sharagnots prepared by Fr Ghevond Ajemian, checked against the 1888 Etchmiadzin print; every hymn has a button that opens its scan page, which is the source of truth. A printed cue completed from the same hymn's refrain is shown in a lighter tone.</p><p>Translations marked <span class="ai-label">AI translation (Claude)</span> are machine translations that nobody has reviewed.</p></div></details>`;
+  pShar += `<details class="sources" id="src-sharagnots"><summary>Sources and licences for these hymns</summary><div class="src-body"><p>Krapar sections: the Sharagnots of the Armenian Church in the corrected-spelling form of the Krapar Sharagnots corpus, with the English that was published with it (frharoutiun.github.io/Armenian-Church-Tools/sharagan/). That English is machine-generated too, so it is labelled <span class="ai-label ai-label-krapar">AI translation (Krapar Sharagnots)</span>.</p><p>Scan-supplement sections: the Unicode edition of the Sharagnots prepared by Fr Ghevond Ajemian, checked against the 1888 Etchmiadzin print; every hymn has a button that opens its scan page, which is the source of truth. A printed cue completed from the same hymn's refrain is shown in a lighter tone.</p><p>Every stanza shows one English. Krapar stanzas show the Krapar Sharagnots English; scan-supplement stanzas show <span class="ai-label">AI translation (Claude)</span>. Both are machine translations that nobody has reviewed. (Chosen after a comparison of the two on the same stanzas: see docs/DATA.md.)</p></div></details>`;
 
   let pNotes = "";
   if ((day.unresolved || []).length) pNotes += `<details class="cal-unresolved" open><summary>Unresolved or provisional (${day.unresolved.length})</summary><ul>` + day.unresolved.map((u) => `<li><strong>${esc(u.field)}</strong>: ${esc(u.reason)}</li>`).join("") + `</ul></details>`;

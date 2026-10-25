@@ -21,7 +21,12 @@ structure + scan pages; the reading text keeps the book's inserted ը and uses O
    the schwa-stripped form (rule `schwa-strip-1.0`) and the form without any ը; the app also retries a failing Armenian query without the
    inserted ը. Words with no known lemma become their own lemma (no morphological analysis is claimed for them).
 5. **AI translations**: `data/ai-en.json` `{"label": "AI translation (Claude)", "items": {"AS-...": "text" | {"t": "text"}}}`, keyed by the anchored
-   stanza id; attached to verses with that `a`. The UI always shows the label. Upstream human translations (`en`) are never replaced.
+   stanza id; attached to verses with that `a`. The UI always shows the label. **One English per stanza (decision E1, 2026-10-25):** a Krapar verse
+   (`en` present) shows the English published with the Krapar Sharagnots, labelled "AI translation (Krapar Sharagnots)" (the owner confirmed it is
+   machine-generated too); a verse without `en` (scan supplement) shows ours, "AI translation (Claude)". Our translation of a Krapar verse stays in
+   `ai-en.json` but is not displayed (evidence: output/site_build/E1_REPORT.md: on 4,569 Krapar stanzas the two are about equal in wording, Krapar's is
+   complete and written for the displayed Armenian, ours has 108 cut-offs, 52 too-short and about 66 clear mismatches where the translated reading is a
+   different stanza from the displayed Krapar one).
 6. **Scan viewer**: `pages/pNNN.jpg` (1100 px wide copies of the 513 scan pages), `data/scan-geometry.json` (column/line boxes). The yellow
    band is an estimate (it can be a line or two off); the page itself is the source of truth.
 7. **Calendar links**: `data/anchor-map.json` maps anchored stanza id -> [section, stanza, verse index] and catalog hymn id (`SH...`) ->

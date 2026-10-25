@@ -73,9 +73,12 @@ HELPERS = r'''
   }
   function englishBlockHtml(verse, pairs, groupPrefix, scripturePairs, activeTab, whole) {
     if (verse.en) {
+      // E1 decision: ONE English per stanza. Krapar verses show the English published with the Krapar Sharagnots (machine-generated:
+      // labelled honestly); stanzas outside the Krapar corpus show our Claude translation below.
+      var KLABEL = '<span class="ai-label ai-label-krapar" title="Machine translation published with the Krapar Sharagnots hymnal; not reviewed by a person">AI translation (Krapar Sharagnots)</span> ';
       return whole
-        ? '<div class="whole-verse-en">' + escapeHtml(verse.en) + '</div>'
-        : '<div class="verse-english">' + renderEnglishVerseHtml(verse.text, verse.en, pairs, groupPrefix, scripturePairs, activeTab) + '</div>';
+        ? '<div class="whole-verse-en">' + KLABEL + escapeHtml(verse.en) + '</div>'
+        : '<div class="verse-english">' + KLABEL + renderEnglishVerseHtml(verse.text, verse.en, pairs, groupPrefix, scripturePairs, activeTab) + '</div>';
     }
     if (verse.ai && verse.ai.t) {
       return '<div class="' + (whole ? "whole-verse-en" : "verse-english") + ' ai-translation">'
@@ -152,7 +155,7 @@ sub('''        if (entry.verse.en && entry.verse.en.toLowerCase().indexOf(qLower
     '''        var enText = entry.verse.en || (entry.verse.ai && entry.verse.ai.t) || "";
         if (enText && enText.toLowerCase().indexOf(qLower) !== -1) {''', "P4a")
 sub('''    if (verse.en) html += '<div class="result-en">' + escapeHtml(verse.en) + '</div>';''',
-    '''    if (verse.en) html += '<div class="result-en">' + escapeHtml(verse.en) + '</div>';
+    '''    if (verse.en) html += '<div class="result-en"><span class="ai-label ai-label-krapar" title="Machine translation published with the Krapar Sharagnots hymnal; not reviewed by a person">AI translation (Krapar Sharagnots)</span> ' + escapeHtml(verse.en) + '</div>';
     else if (verse.ai && verse.ai.t) html += '<div class="result-en"><span class="ai-label">' + escapeHtml(verse.ai.label || "AI translation (Claude)") + '</span> ' + escapeHtml(verse.ai.t) + '</div>';''', "P4b")
 
 # P5 --- schwa-insensitive Armenian search

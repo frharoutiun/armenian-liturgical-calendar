@@ -13,6 +13,6 @@
 * **Hymnal code, data and design**: frharoutiun/Armenian-Church-Tools (sharagan/), the owner's own work (vendored snapshot in vendor/krapar-upstream/).
 * **Sharagnots text**: the 1888 Etchmiadzin Sharagnots (printed scan) and a typed Unicode text supplied by Fr Ghevond Ajemian (2026-10-20). Since 2026-10-24 the Unicode text is the displayed text of the supplement sections (our transcription is a secondary field); used with permission (permission granted and confirmed by the project owner on 2026-10-25), credited on the site.
 * **Prayers by Fr Arshen** (where shown): attributed to him; used with his permission.
-* **AI products** are labelled in the interface: hymn translations ("AI translation (Claude)"), five non-biblical lections ("English translation: AI generated"),
+* **AI products** are labelled in the interface: hymn translations ("AI translation (Krapar Sharagnots)" for Krapar sections, the English published with that hymnal; "AI translation (Claude)" for the rest; one English per stanza, see docs/DATA.md), five non-biblical lections ("English translation: AI generated"),
   and audio (AI-generated speech, ElevenLabs).
 * **Fonts**: GHEA Mariam and EB Garamond (SIL OFL), see fonts/.

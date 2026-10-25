@@ -28,6 +28,7 @@ node tests/test_scripture_match.mjs || { echo "scripture-match tests FAILED"; ex
 python3 -m unittest tests.test_hymnal_data 2>&1 | tail -1 | grep -q OK || { echo "hymnal data tests FAILED"; exit 1; }
 python3 -m unittest tests.test_stanza_fixes 2>&1 | tail -1 | grep -q OK || { echo "stanza fix tests FAILED"; exit 1; }
 python3 -m unittest tests.test_mode_evidence 2>&1 | tail -1 | grep -q OK || { echo "mode evidence tests FAILED"; exit 1; }
+python3 -m unittest tests.test_english_choice 2>&1 | tail -1 | grep -q OK || { echo "english choice tests FAILED"; exit 1; }
 git add -A
 ./tools/check_publish.sh || exit 1
 if git diff --cached --quiet; then echo "nothing to commit"; else

@@ -1,6 +1,6 @@
 # Status (generated)
 
-Build 2026-10-25 11:24 UTC, commit 0f623ba
+Build 2026-10-25 11:39 UTC, commit b14140a
 
 - **Calendar engine (any date, 1583-9999)**: Complete: runs in your browser from the calgen rules of the Tonatsoyts. Rules not yet demonstrated are labelled provisional; open questions are shown (Lenten Saturdays, the Elijah / St Gregory fast days).
 - **Hymnal (Krapar Sharagnots + scan supplement)**: 116 verified Krapar sections plus 765 supplement sections from the 1888 Sharagnots (8497 stanzas), each with a button to the printed scan page.
@@ -8,11 +8,11 @@ Build 2026-10-25 11:24 UTC, commit 0f623ba
 - **Armenian reading text**: Primary: the Armenian Bible (Classical Armenian, 1895 Constantinople edition) from Arak29, matched verse by verse to the readings of the Tonatsoyts. Each reading shows a numbering check against the English (agree / differs / needs review). The Jashots transcription (AI-assisted, from the printed page) stays as a second layer because the lectionary wording sometimes differs from the Bible text.
 - **Chants (psalm, mesedi, alleluia)**: Shown as full verses in Armenian (Arak29) with the English verse (KJV, public domain) and placed before the reading each introduces (psalm, first reading, mesedi, second reading, alleluia, gospel). The placement follows the owner's rule of the Jashots order and verse matching is automatic: items marked needs review are not confirmed.
 - **Sharagnots text**: Krapar sections: the verified Krapar text. Supplement sections: the typed Unicode edition prepared by Fr Ghevond Ajemian, checked against the printed scan, with word corrections that the scan proved; stanzas without a Unicode counterpart show our own transcription and are labelled 'transcription only, not yet proofread'.
-- **AI English translations of hymns**: 8497 stanzas translated so far (labelled 'AI translation (Claude)', not reviewed by a person).
+- **AI English translations of hymns**: One English per stanza, never reviewed by a person: 4654 Krapar stanzas show the English published with the Krapar Sharagnots (labelled 'AI translation (Krapar Sharagnots)'); 3964 scan-supplement stanzas carry 'AI translation (Claude)' (shown only where there is no Krapar English).
 - **Reading audio**: Hosted in a separate repository.
 
 ## AI-generated content
-- Hymn English translations: 'AI translation (Claude)'.
+- Hymn English translations: 'AI translation (Krapar Sharagnots)' for Krapar sections, 'AI translation (Claude)' elsewhere; one English per stanza.
 - Five non-biblical lections: 'English translation: AI generated'.
 - Audio: the short spoken introductions and the Apocrypha passages are AI-generated speech (ElevenLabs); the canonical passages are the human-read ESV recording from Crossway (esv.org), as on achrct.org.
 - Jashots page transcription (second layer) and unproofread Sharagnots stanzas: AI-assisted transcription of the printed scans; the printed scan is the source of truth.

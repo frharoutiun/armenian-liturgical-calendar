@@ -14,7 +14,11 @@ audio_n = None
 au = os.environ.get("LC_AUDIO_INDEX")
 if au and os.path.exists(au):
     a = json.load(open(au)); audio_n = a.get("clip_count")
-ai_n = len((ai or {}).get("items") or {})
+corpus = load("data/corpus.json", [])
+_items = (ai or {}).get("items") or {}
+krapar_en_n = sum(1 for sec in corpus for st in sec.get("stanzas", []) for v in st.get("verses", []) if v.get("en"))
+# stanzas that show our Claude translation: no Krapar English and a translation exists
+ai_n = sum(1 for sec in corpus for st in sec.get("stanzas", []) for v in st.get("verses", []) if not v.get("en") and v.get("a") in _items)
 now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 try:
     commit = subprocess.check_output(["git", "-C", SITE, "rev-parse", "--short", "HEAD"], stderr=subprocess.DEVNULL).decode().strip()
@@ -28,11 +32,11 @@ rows = [
   ("Armenian reading text", "Primary: the Armenian Bible (Classical Armenian, 1895 Constantinople edition) from Arak29, matched verse by verse to the readings of the Tonatsoyts. Each reading shows a numbering check against the English (agree / differs / needs review). The Jashots transcription (AI-assisted, from the printed page) stays as a second layer because the lectionary wording sometimes differs from the Bible text."),
   ("Chants (psalm, mesedi, alleluia)", "Shown as full verses in Armenian (Arak29) with the English verse (KJV, public domain) and placed before the reading each introduces (psalm, first reading, mesedi, second reading, alleluia, gospel). The placement follows the owner's rule of the Jashots order and verse matching is automatic: items marked needs review are not confirmed."),
   ("Sharagnots text", "Krapar sections: the verified Krapar text. Supplement sections: the typed Unicode edition prepared by Fr Ghevond Ajemian, checked against the printed scan, with word corrections that the scan proved; stanzas without a Unicode counterpart show our own transcription and are labelled 'transcription only, not yet proofread'."),
-  ("AI English translations of hymns", f"{ai_n} stanzas translated so far (labelled 'AI translation (Claude)', not reviewed by a person)."),
+  ("AI English translations of hymns", f"One English per stanza, never reviewed by a person: {krapar_en_n} Krapar stanzas show the English published with the Krapar Sharagnots (labelled 'AI translation (Krapar Sharagnots)'); {ai_n} scan-supplement stanzas carry 'AI translation (Claude)' (shown only where there is no Krapar English)."),
   ("Reading audio", "Works as on achrct.org: one Listen control per reading plays the short spoken introduction (and the Gospel caption; never chapter and verse), then the human-read ESV audio from Crossway; Apocrypha passages use our own AI-generated speech. 'Listen to all readings' plays the day's readings in order. The introductions are AI-generated speech (%s clips, ElevenLabs)." % audio_n if audio_n else "Hosted in a separate repository."),
 ]
 ai_labelled = [
-  "Hymn English translations: 'AI translation (Claude)'.",
+  "Hymn English translations: 'AI translation (Krapar Sharagnots)' for Krapar sections, 'AI translation (Claude)' elsewhere; one English per stanza.",
   "Five non-biblical lections: 'English translation: AI generated'.",
   "Audio: the short spoken introductions and the Apocrypha passages are AI-generated speech (ElevenLabs); the canonical passages are the human-read ESV recording from Crossway (esv.org), as on achrct.org.",
   "Jashots page transcription (second layer) and unproofread Sharagnots stanzas: AI-assisted transcription of the printed scans; the printed scan is the source of truth.",
