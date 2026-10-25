@@ -6,11 +6,11 @@ mode, fasting, readings, hymns, from the calgen rules engine).
 
 Run locally:   `./run.sh`   then open http://localhost:4190/        (do not open index.html as a file: it loads JSON)
 Rebuild data:  `python3 tools/build_data.py && python3 tools/apply_patches.py`
-Tests:         `python3 -m unittest tests.test_hymnal_data`
+Tests:         `python3 -m unittest tests.test_hymnal_data`; `node tests/test_calendar.mjs`, `node tests/test_hymns.mjs`, `node tests/test_arak29.mjs`
 Docs:          `docs/DATA.md` (data combination rules), `docs/ENGINE_API.md` (calendar engine), `docs/CALENDAR_API.md` (hooks)
 
 Credits: hymnal code, data and design by frharoutiun/Armenian-Church-Tools (sharagan/); fonts GHEA Mariam and EB Garamond (OFL, see fonts/).
-AI translations are labelled "AI translation (Claude)". Scripture: ESV loaded live from the ACHR endpoint (not stored here); RSVCE cached for the Apocrypha only.
+AI translations are labelled "AI translation (Claude)". Scripture: ESV loaded live from the ACHR endpoint (not stored here); RSVCE cached for the Apocrypha only; Armenian verses from Arak29 (1895 Classical Armenian Bible, plain text, attribution in docs/LICENSES.md); KJV (public domain) beside chants. Draft: items marked needs review are unconfirmed.
 
 Live site: https://frharoutiun.github.io/armenian-liturgical-calendar/   (GitHub Pages, repo frharoutiun/armenian-liturgical-calendar)
 Redeploy:  `tools/deploy.sh "message"` (tests + publish check + push + live verification). Scripture audio is in a separate repository

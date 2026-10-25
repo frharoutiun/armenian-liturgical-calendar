@@ -170,3 +170,13 @@ details.canon-part > summary { cursor: pointer; padding: 9px 12px; background: r
 .svc-title { margin: 0 0 6px; font-size: 1.12rem; color: var(--wine); padding-bottom: 3px; border-bottom: 2px solid var(--paper-line); }
 .canon-index .cal-link span { opacity: .75; font-size: .85em; margin-left: 3px; }
 .canon-index .idx-warn { background: rgba(200, 140, 20, .14); }
+
+/* Armenian text from the Bible (Arak29) and the Armenian-vs-English numbering check */
+.vers-badge { margin: 6px 0 10px; padding: 6px 10px; border-radius: 6px; font-size: .88rem; border: 1px solid var(--paper-line, #d8cfb8); }
+.vers-ok { background: rgba(60, 120, 60, .08); border-color: rgba(60, 120, 60, .35); }
+.vers-diff { background: rgba(176, 120, 20, .12); border-color: rgba(176, 120, 20, .5); }
+.vers-warn { background: rgba(160, 50, 50, .08); border-color: rgba(160, 50, 50, .4); }
+.cal-hy-primary { margin: 8px 0 12px; }
+.cal-hy-primary .cal-verses sup { font-size: .65em; color: var(--ink-faint, #777); margin-right: 2px; }
+.chant-seg + .chant-seg { margin-top: 8px; padding-top: 6px; border-top: 1px dotted var(--paper-line, #d8cfb8); }
+.chant-en { font-style: italic; margin-top: 2px; }

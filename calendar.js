@@ -116,9 +116,9 @@ function renderHymnGroups(day) {
   return groups.map((g) => `<div class="hy-group${g.review ? " hy-group-review" : ""}"><h4 class="hy-group-title">${g.review ? esc(g.title) : '<span class="script-original" lang="hy">' + esc(g.title) + "</span>"}${g.review ? ' <span class="cal-note">The book names these hymns, but the Sharagnots page is not settled yet.</span>' : ""}</h4><ul class="cal-hymns">${g.items.join("")}</ul></div>`).join("");
 }
 
-// ---- chants (contract: output/site_build/W9_CHANTS_CONTRACT.md; field names assumed until it lands) ----------------------
-// Per chant: kind, service, service_order, precedes_reading (reading index, or its citation key), armenian_full, english_full,
-// refs, review_status. Text is shown exactly as supplied; when no full verse is matched only the incipit appears, with a note.
+// ---- chants (contract: output/site_build/W9_CHANTS_CONTRACT.md) -----------------------------------------------------------
+// The engine attaches to each day.chants[i]: precedes_reading (index into day.readings), service_order, segments[] (full Armenian verse + KJV),
+// review_status. When no full verse is matched only the printed opening appears, with a note.
 const CHANT_KIND = { psalm: "Psalm", mesedi: "Mesedi (Մեսեդի)", meseti: "Mesedi (Մեսեդի)", alleluia: "Alleluia", halleluia: "Alleluia", prokeimenon: "Psalm" };
 const pre = (c) => (c.precedes_reading != null ? c.precedes_reading : c.precedesReading != null ? c.precedesReading : c.precedes);
 function chantsBefore(chants, i, reading, placed) {
@@ -126,15 +126,23 @@ function chantsBefore(chants, i, reading, placed) {
   const out = chants.filter((c) => { const p = pre(c); if (p == null || placed.has(c)) return false; const hit = typeof p === "number" ? p === i : typeof p === "object" ? (p.index === i || keys.includes(String(p.key))) : (String(p) === String(i) && /^\d+$/.test(String(p))) || keys.includes(String(p)); if (hit) placed.add(c); return hit; });
   return out.sort((x, y) => (x.service_order || 0) - (y.service_order || 0));
 }
+const SEG_ROLE = { incipit: "", kc: "Connecting verse (կց.)", pokh: "Alternate (փոխ.)" };
+function renderChantSeg(sg) {
+  const refs = [sg.armenian_ref && String(sg.armenian_ref).replace(/ \(Arak29[^)]*\)/, ""), sg.english_ref_kjv && "English numbering: " + sg.english_ref_kjv].filter(Boolean);
+  const rv = sg.review_status === "needs_review" || sg.status === "ambiguous" ? chip("review: " + (sg.status === "ambiguous" ? "several verses begin like this" : "pairing not confirmed"), "warn") : "";
+  let h = `<div class="chant-seg">${SEG_ROLE[sg.role] ? `<div class="cal-note">${esc(SEG_ROLE[sg.role])}</div>` : ""}`;
+  h += `<div class="chant-hy script-original" lang="hy">${esc(sg.armenian_full).replace(/\n/g, "<br>")}</div>`;
+  if (sg.english_full) h += `<div class="chant-en">${esc(sg.english_full)} <span class="cal-note">(${esc(String(sg.english_source || "KJV").replace(/ as printed in Arak29.*$/, ""))})</span></div>`;
+  return h + `<div class="cal-note">${esc(refs.join(" · "))} ${rv}</div></div>`;
+}
 function renderChant(c) {
   const kindKey = String(c.kind || "").toLowerCase();
-  const refs = [].concat(c.refs || c.references || []).filter(Boolean);
-  const full = c.armenian_full, en = c.english_full;
-  const review = c.review_status && !/^(confirmed|verified|ok)$/i.test(c.review_status) ? chip("review: " + String(c.review_status).replace(/_/g, " "), "warn") : "";
-  let h = `<div class="cal-chant"><div class="chant-head"><span class="chant-kind">${esc(CHANT_KIND[kindKey] || c.kind || "Chant")}</span>${c.psalm ? " " + chip("Psalm " + c.psalm) : ""}${refs.length ? ` <span class="cal-note">${esc(refs.join("; "))}</span>` : ""}${c.service ? ` <span class="cal-note">${esc(c.service_label || c.service)}</span>` : ""} ${review}</div>`;
-  if (full) h += `<div class="chant-hy script-original" lang="hy">${esc(full).replace(/\n/g, "<br>")}</div>`;
-  else h += `<div class="chant-hy script-original" lang="hy">${esc(c.verbatim || c.incipit || "")}</div><div class="cal-note">Full verse not matched yet; only the opening is shown.</div>`;
-  if (en) h += `<div class="chant-en">${esc(en)}${c.english_source ? ` <span class="cal-note">(${esc(c.english_source)})</span>` : ""}</div>`;
+  const review = c.review_status === "needs_review" ? chip("review: position or verse not confirmed", "warn") : "";
+  const segs = (c.segments || []).filter((x) => x.armenian_full && (x.status === "matched" || x.status === "ambiguous"));
+  let h = `<div class="cal-chant"><div class="chant-head"><span class="chant-kind">${esc(CHANT_KIND[kindKey] || c.kind || "Chant")}</span>${c.psalm ? " " + chip("Psalm " + c.psalm + " (Armenian numbering)") : ""}${c.service ? ` <span class="cal-note">${esc(c.service_label || c.service)}</span>` : ""} ${review}</div>`;
+  if (segs.length) h += segs.slice(0, 3).map(renderChantSeg).join("");
+  else if (c.armenian_full) h += renderChantSeg({ armenian_full: c.armenian_full, english_full: c.english_full, english_source: c.english_source, armenian_ref: (c.refs || [])[0] });
+  else h += `<div class="chant-hy script-original" lang="hy">${esc(c.verbatim || c.incipit || "")}</div><div class="cal-note">Full verse not matched yet; only the printed opening is shown.</div>`;
   return h + `</div>`;
 }
 

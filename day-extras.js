@@ -11,12 +11,21 @@ const AUDIO_BASE = (window.LC_AUDIO_BASE || "https://frharoutiun.github.io/armen
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const j = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(u + ": HTTP " + r.status); return r.json(); });
 
-let indexP = null, audioP = null, aiP = null, attrP = null;
-const shardP = {};
+let indexP = null, audioP = null, aiP = null, attrP = null, arakAttrP = null;
+const shardP = {}, arakP = {};
 const getIndex = () => indexP || (indexP = j("data/scripture/index.json").then((d) => ({ citations: d.citations, lookup: buildLookup(d.citations), ranges: parsedRanges(d.citations) })));
 const getAttr = () => attrP || (attrP = j("data/scripture/attribution.json").catch(() => null));
 const getAudio = () => audioP || (audioP = j(AUDIO_BASE + "audio/index.json").catch(() => null));
 const getAi = () => aiP || (aiP = j("data/ai-en.json").catch(() => ({ items: {} })));
+const getArakAttr = () => arakAttrP || (arakAttrP = j("data/scripture/arak29/attribution.json").catch(() => null));
+// Armenian Bible text (Arak29, 1895 Constantinople edition), keyed by the engine's citation key; one shard per book.
+const getArak = (slug) => arakP[slug] || (arakP[slug] = j("data/scripture/arak29/t/" + slug + ".json").then((d) => d.citations).catch(() => null));
+async function arakEntry(reading) {
+  const a = reading.arak29;
+  if (!a) return null;
+  const sh = await getArak(a.shard);
+  return (sh && sh[a.key]) || null;
+}
 const getShard = (name) => shardP[name] || (shardP[name] = j("data/scripture/shards/" + name + ".json").then((d) => d.citations));
 
 function parsedRanges(citations) {
@@ -64,9 +73,26 @@ async function gather(reading) {
   return out;
 }
 
+// "Isaiah 52:7-10", "Acts 5:31-6:7", "Psalm 132:9" -> a passage the existing lookup understands (null when the string is not simple).
+function parseRef(ref) {
+  const m = /^(.+?) (\d+)(?::(\d+))?(?:-(\d+)(?::(\d+))?)?$/.exec(String(ref || "").trim());
+  if (!m) return null;
+  const ch1 = +m[2], v1 = m[3] != null ? +m[3] : null;
+  let ch2 = ch1, v2 = v1;
+  if (m[4] != null) { if (m[5] != null) { ch2 = +m[4]; v2 = +m[5]; } else v2 = +m[4]; }
+  return { book: m[1], ch1, v1, ch2, v2 };
+}
+// Verses the ESV omits or numbers differently from the KJV (Arak29's English column is the KJV, so matching is done in KJV numbering).
+const ESV_OMITS = { Matthew: ["17:21", "18:11", "23:14"], Mark: ["7:16", "9:44", "9:46", "11:26", "15:28"], Luke: ["17:36", "23:17"], John: ["5:4"], Acts: ["8:37", "15:34", "24:7", "28:29"], Romans: ["16:24"], "1 John": ["5:7"] };
+function omittedIn(p) {
+  const list = (p && ESV_OMITS[p.book]) || [];
+  return list.filter((r) => { const [c, v] = r.split(":").map(Number); return cmp([c, v], [p.ch1, p.v1 == null ? 0 : p.v1]) >= 0 && cmp([c, v], [p.ch2, p.v2 == null ? 9999 : p.v2]) <= 0; });
+}
 const ROMAN = { iii: "3", ii: "2", i: "1" };
 function esvQuery(seg) {
+  if (typeof seg === "string") return seg;
   const book = String(seg.book).replace(/^(iii|ii|i)\s+/i, (m, r) => ROMAN[r.toLowerCase()] + " ");
+  if (seg.ch2 == null || (seg.v1 != null && seg.v2 == null)) return seg.v1 != null ? `${book} ${seg.ch1}:${seg.v1}` : `${book} ${seg.ch1}`;   // the Tonatsoyts does not print where the reading ends: the endpoint rejects whole chapters, so only the first verse is requested (the badge says the range is unconfirmed)
   const same = seg.ch1 === seg.ch2;
   let r = `${book} ${seg.ch1}`;
   if (seg.v1 != null) { r += ":" + seg.v1; if (!same) r += "-" + seg.ch2 + ":" + seg.v2; else if (seg.v2 !== seg.v1) r += "-" + seg.v2; }
@@ -103,7 +129,7 @@ const bgLink = (seg) => `https://www.biblegateway.com/passage/?search=${encodeUR
 const isApoc = (seg) => APOCRYPHA.has(normBook(seg.book));
 
 // One block per reading; canonical segments are filled in afterwards so the Armenian text and hymns never wait on the network.
-function englishBlock(recs) {
+function englishBlock(recs, correctedRef) {
   const box = document.createElement("div");
   box.className = "cal-en";
   recs.forEach((r) => {
@@ -113,12 +139,23 @@ function englishBlock(recs) {
       if (r.en && r.en.length) part.innerHTML = '<div class="cal-sub">English (RSVCE)</div><p class="cal-verses">' + r.en.map((v) => `<sup>${esc(v.r.split(":").pop())}</sup>${esc(v.t)}`).join(" ") + "</p>";
       else part.innerHTML = `<div class="cal-sub">English (RSVCE)</div><p class="cal-pending">English text pending. <a href="${esc(bibleGatewayUrl({ book: r.segment.book, segments: [r.segment] }))}" target="_blank" rel="noopener">Read this passage on BibleGateway (RSVCE)</a></p>`;
     } else {
-      const ref = esvQuery(r.segment);
+      const ref = correctedRef || esvQuery(r.segment);
       part.innerHTML = `<div class="cal-sub">English (ESV): ${esc(ref)}</div><p class="cal-pending cal-loading">Loading ESV text from achrct.org…</p>`;
-      fillEsv(part, r.segment, ref);
+      fillEsv(part, correctedRef || r.segment, ref);
     }
     box.appendChild(part);
   });
+  return box;
+}
+// Canonical reading with a confirmed English range: ask for that range once, whatever the Armenian segments were.
+function correctedBlock(ref) {
+  const box = document.createElement("div");
+  box.className = "cal-en";
+  const part = document.createElement("div");
+  part.className = "cal-en-part";
+  part.innerHTML = `<div class="cal-sub">English (ESV): ${esc(ref)}</div><p class="cal-pending cal-loading">Loading ESV text from achrct.org…</p>`;
+  fillEsv(part, ref, ref);
+  box.appendChild(part);
   return box;
 }
 function fillEsv(part, seg, ref) {
@@ -141,7 +178,31 @@ function fillEsv(part, seg, ref) {
   });
 }
 
-function armenianHtml(recs, reading) {
+const rangeLabel = (e) => (e ? String(e).replace(/^[^\d]*(?=\d)/, "") : "");
+const fmtRange = (r) => String(r || "").replace(/^(\d+):(\d+)-\1:(\d+)$/, "$1:$2-$3");
+// Visible check of Armenian vs English verse numbering: it is never silent.
+function versBadge(reading, entry) {
+  const v = reading.versification || { status: "match" };
+  const st = entry ? entry.status : v.status;
+  const ar = fmtRange(entry && entry.armenian_range ? entry.armenian_range : "");
+  const en = (entry && entry.english_ref_should_be) || v.englishRefShouldBe || "";
+  const p = parseRef(en);
+  const omit = omittedIn(p);
+  const omitNote = omit.length ? ` The ESV omits or numbers differently the KJV verse${omit.length > 1 ? "s" : ""} ${omit.join(", ")}; the English below is the church's ESV for this range.` : "";
+  if (v.compound && st !== "differs") return `<div class="vers-badge vers-warn"><strong>Numbering not compared</strong>: this is a compound citation (several passages); the English is requested passage by passage.${esc(omitNote)}</div>`;
+  if (st === "match") return `<div class="vers-badge vers-ok"><strong>Verse numbers agree</strong>: Armenian ${esc(ar || "")} = English ${esc(rangeLabel(en))}.${esc(omitNote)}</div>`;
+  if (st === "differs") return `<div class="vers-badge vers-diff"><strong>Numbering differs</strong>: Armenian ${esc(ar || v.armenianPrinted || "")} corresponds to English ${esc(en)}; the English below is for that range.${esc(omitNote)}</div>`;
+  return `<div class="vers-badge vers-warn"><strong>Numbering not confirmed (needs review)</strong>: ${esc((entry && entry.note) || v.note || "the Armenian and English verse numbers could not be paired with certainty")}. The English below follows the printed citation and may not cover exactly the same verses.</div>`;
+}
+function arakHtml(entry, reading, attr) {
+  if (!entry || !entry.verses || !entry.verses.length) return "";
+  let lastCh = null;
+  const verses = entry.verses.map((x) => { const [c, v] = String(x.r).split(":"); const lab = c !== lastCh ? c + ":" + v : v; lastCh = c; return `<sup>${esc(lab)}</sup>${esc(x.t)}`; }).join(" ");
+  const src = attr && attr.armenian_text ? "Armenian Bible, 1895 Constantinople edition, text from Arak29 (arak29.org)." : "Armenian Bible, 1895 edition (Arak29).";
+  return `<div class="cal-hy-primary"><div class="cal-sub">Armenian (Աստուածաշունչ, ${esc(entry.armenian_printed || "")})</div><p class="script-original hy-text cal-verses" lang="hy">${verses}</p><div class="cal-note">${esc(src)}</div></div>`;
+}
+
+function armenianHtml(recs, reading, hasPrimary) {
   const parts = [];
   recs.forEach((r) => {
     const want = reading.service && reading.service.class;
@@ -151,7 +212,7 @@ function armenianHtml(recs, reading) {
   if (!parts.length) return "";
   const pages = [...new Set(parts.flatMap((p) => p.hy.pdf_pages || []))];
   const btns = pages.length ? "Source: Jashots, scan p." + pages.slice(0, 4).join(", ") + "." : "";
-  return `<details class="cal-hy"><summary>Armenian reading (Ճաշոց, Jashots)</summary>${parts.map((p) => `<div class="script-original hy-text" lang="hy">${esc(p.hy.text).replace(/\n/g, "<br>")}</div>`).join("")}<div class="cal-note">AI-assisted transcription of the printed Jashots; proofreading in progress. ${btns}</div></details>`;
+  return `<details class="cal-hy"><summary>${hasPrimary ? "Jashots printed-page transcription (second layer, may differ from the Bible text)" : "Armenian reading (Ճաշոց, Jashots)"}</summary>${parts.map((p) => `<div class="script-original hy-text" lang="hy">${esc(p.hy.text).replace(/\n/g, "<br>")}</div>`).join("")}<div class="cal-note">AI-assisted transcription of the printed Jashots; proofreading in progress. ${btns}</div></details>`;
 }
 
 async function audioHtml(recs, reading) {
@@ -170,9 +231,21 @@ async function audioHtml(recs, reading) {
 
 async function readingBody(reading) {
   const recs = await gather(reading);
+  const [entry, arakAttr] = await Promise.all([arakEntry(reading).catch(() => null), getArakAttr()]);
   const wrap = document.createElement("div");
-  if (recs.length) wrap.appendChild(englishBlock(recs));
-  wrap.insertAdjacentHTML("beforeend", armenianHtml(recs, reading) + (await audioHtml(recs, reading))
+  const confirmed = entry && entry.english_ref_should_be && entry.status !== "needs_review" && !(reading.versification && reading.versification.compound);
+  const eref = confirmed ? entry.english_ref_should_be : null;
+  const parsed = eref && parseRef(eref);
+  const apocBook = recs.length && isApoc(recs[0].segment);
+  wrap.insertAdjacentHTML("beforeend", versBadge(reading, entry));
+  const prim = arakHtml(entry, reading, arakAttr);
+  if (prim) wrap.insertAdjacentHTML("beforeend", prim);
+  if (eref && parsed && !apocBook) wrap.appendChild(correctedBlock(esvQuery(eref)));
+  else if (eref && parsed && apocBook) {
+    const rrecs = await gather({ passage: { ...parsed, book: recs[0].segment.book } });
+    wrap.appendChild(englishBlock(rrecs.length ? rrecs : recs));
+  } else if (recs.length) wrap.appendChild(englishBlock(recs));
+  wrap.insertAdjacentHTML("beforeend", armenianHtml(recs, reading, !!prim) + (await audioHtml(recs, reading))
     + (reading.jashots && reading.jashots.introEn ? `<div class="cal-note">Introduction: ${esc(reading.jashots.introEn)}</div>` : ""));
   return wrap;
 }
@@ -212,8 +285,11 @@ async function afterRender(day, root) {
   const art = root.querySelector("#sec-notes") || root.querySelector("article");
   if (!attr || !art || root.querySelector(".cal-rsv-note")) return;
   const apoc = [...root.querySelectorAll(".cal-en-part")].some((p) => /RSVCE/.test(p.textContent));
+  const arak = await getArakAttr();
   const msg = "Canonical English scripture is the ESV, loaded live from the ACHR website (achrct.org) under the church's Crossway licence; it is not stored on this site. "
-    + (apoc && attr.english ? attr.english.copyright + " " : "") + "Armenian reading text is from the Jashots; audio of announcements is AI-generated speech.";
+    + (apoc && attr.english ? attr.english.copyright + " " : "")
+    + (arak ? "Armenian scripture verses: " + arak.armenian_text + " English verses shown beside chants are the King James Version (public domain). " : "Armenian reading text is from the Jashots. ")
+    + "Hymn text of the Sharagnots supplement is the Unicode edition prepared by Fr Ghevond Ajemian, checked against the printed scan; Krapar sections are from the Krapar Sharagnots. Audio of announcements is AI-generated speech. This is a draft: items marked needs review are not confirmed.";
   art.insertAdjacentHTML("beforeend", `<p class="cal-foot cal-rsv-note">${esc(msg)}</p>`);
 }
 

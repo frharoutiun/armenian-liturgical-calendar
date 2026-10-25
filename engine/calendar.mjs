@@ -10,6 +10,7 @@ import * as core from './calgen/engine/core.mjs';
 import { loadRulebook } from './calgen/engine/ctx.mjs';
 import { createHymnResolver } from './hymns.mjs';
 import { refineCanonParts, assembleCanon } from './canon.mjs';
+import { interleave } from '../chant-order.mjs';
 
 export const SCHEMA = 'liturgical-day/1.0';
 export const MIN_YEAR = 1583, MAX_YEAR = 9999;
@@ -30,6 +31,11 @@ export function parseCivilDate(input) {
   if (y < MIN_YEAR || y > MAX_YEAR) return { error: `The calendar covers years ${MIN_YEAR} to ${MAX_YEAR}.` };
   if (m < 1 || m > 12 || d < 1 || d > dim(y, m)) return { error: `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')} is not a real date.` };
   return { y, m, d, iso: `${String(y).padStart(4, '0')}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}` };
+}
+
+// Shard name of the Armenian Bible text for a book (data/scripture/arak29/t/<slug>.json); the same rule builds the files.
+export function arak29Slug(book) {
+  return String(book || '').replace(/\s*\(.*$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
 // ---------- loaders ----------
@@ -97,12 +103,13 @@ export async function createCalendar(opts = {}) {
   const loadData = await makeLoader(dataBase);
   await initEngine();
   const rb = await loadRulebook(loadRb);
-  const [readingsIdx, hymnIdx, recCanons, recService, hymnOpenings, canonParts, canonMarks] = await Promise.all([
+  const [readingsIdx, hymnIdx, recCanons, recService, hymnOpenings, canonParts, canonMarks, chantsLayer, versif] = await Promise.all([
     loadData('readings_index.json').catch(() => ({ keys: {} })), loadData('hymn_index.json').catch(() => ({ hymns: [], sections: [] })), loadData('record_canons.json').catch(() => ({ records: {} })),
     loadData('record_service.json').catch(() => ({ keys: {} })), loadData('hymn_openings.json').catch(() => ({ rows: [] })), loadData('canon_parts.json').catch(() => ({ canons: {} })), loadData('canon_marks.json').catch(() => ({ marks: {} })),
+    loadData('chants_layer.json').catch(() => ({ chants: {}, lookup: {} })), loadData('versification.json').catch(() => ({ map: {} })),
   ]);
   const refinedCanons = refineCanonParts(canonParts, canonMarks.marks);
-  const idxByBook = new Map();
+  const idxByBook = new Map(), idxNorm = new Map();
   for (const [k, e] of Object.entries(readingsIdx.keys || {})) {
     const m = /^(.*?) (\d+(?::\d+)?(?:-\d+(?::\d+)?)?)$/.exec(k); if (!m) continue;
     const cm = /^(\d+)(?::(\d+))?(?:-(\d+)(?::(\d+))?)?$/.exec(m[2]); if (!cm) continue;
@@ -111,10 +118,13 @@ export async function createCalendar(opts = {}) {
     const cit = { book: m[1], ch1, v1, ch2, v2 };
     const b = normBook(m[1]); if (!idxByBook.has(b)) idxByBook.set(b, []);
     idxByBook.get(b).push({ key: k, e, iv: intervals(cit) });
+    idxNorm.set(b + ' ' + m[2], e);   // 'I Corinthians' (index) and '1 Corinthians' (calgen) are the same book
   }
   function indexEntry(r) {
     const k = citeKey(r);
     if (k && readingsIdx.keys[k]) return { exact: true, entries: [readingsIdx.keys[k]] };
+    const nk = k && normBook(r.book) + ' ' + k.slice(String(r.book).length + 1);
+    if (nk && idxNorm.has(nk)) return { exact: true, entries: [idxNorm.get(nk)] };
     const A = intervals(r), list = idxByBook.get(normBook(r.book)) || [];
     const hit = list.filter((x) => overlapFraction(A, x.iv) >= 0.5 || overlapFraction(x.iv, A) >= 0.5).sort((a, b) => b.e.n - a.e.n).slice(0, 4);
     return hit.length ? { exact: false, entries: hit.map((x) => x.e) } : null;
@@ -162,12 +172,21 @@ export async function createCalendar(opts = {}) {
     return { class: cls, label: top[1], basis: `observed ${top[2]} of ${e.n} appearances of this passage in the 2001-2040 lectionary tables`, share: Math.round(share * 100) / 100, confident: share >= 0.8, alternatives: e.classes.slice(1, 3).map((c) => ({ class: c[0], label: c[1], n: c[2] })) };
   }
 
+  function versifView(k, r) {
+    const v = k && versif.map && versif.map[k];
+    const multi = !!(r.segments && r.segments.length > 1);
+    if (!v) return { status: 'match', note: multi ? 'compound citation: verse numbers not compared segment by segment' : null, compound: multi };
+    return { status: v.status, englishRefShouldBe: v.english_ref_should_be || null, armenianPrinted: v.armenian_printed || null, note: v.note || v.reason || null, compound: multi };
+  }
   function readingView(r, role) {
     const k = citeKey(r), ie = indexEntry(r), e = ie && ie.entries[0];
     return {
       verbatimArmenian: r.verbatim, passage: { book: r.book, ch1: r.ch1, v1: r.v1, ch2: r.ch2, v2: r.v2, segments: r.segments }, citationKey: k, citationEn: e ? (ie.exact ? e.citation_en : ie.entries.map((x) => x.citation_en).join(' + ')) : null, citationIndexMatch: ie ? (ie.exact ? 'exact' : 'overlapping passages (the tables split or merge the range differently)') : 'none', book: r.book || null, bookHy: r.book_hy || null, kind: r.kind || null, recordOrdinal: r.ordinal, role: role || null,
       qualifiers: r.qualifiers || [], status: r.status, endPrinted: r.end_source === 'printed', flags: r.flags || [], needsPageCheck: !!(r.flags && r.flags.length) || !!r.reason, reason: r.reason || null,
       service: serviceFor(r),
+      // Armenian Bible text (Arak29, 1895) is looked up in this shard by this key; versification is the Armenian-vs-English numbering check
+      arak29: k ? { shard: arak29Slug(r.book), key: k } : null,
+      versification: versifView(k, r),
       jashots: ie && ie.entries.some((x) => x.chains.length) ? { chains: ie.entries.flatMap((x) => x.chains), introEn: e.intro_en, introHy: e.intro_hy, exact: ie.exact, source: 'FINAL readings tables (Jashots catalog chain ids)' } : null,
     };
   }
@@ -183,6 +202,21 @@ export async function createCalendar(opts = {}) {
     for (const it of items) {
       for (const r of it.readings || []) readings.push(readingView(r, it.role));
       for (const c of it.chants || []) chants.push({ recordOrdinal: it.ordinal, role: it.role, kind: c.kind, service: c.service, verbatim: c.verbatim, incipit: c.incipit, psalm: c.psalm_number, flags: c.flags || [] });
+    }
+    // Full-verse chants (W9 layer) and their place before the reading they introduce (psalm > 1st reading > mesedi > 2nd reading > alleluia > gospel)
+    const layout = interleave({ readings, chants }, chantsLayer);
+    for (const g of layout.groups) for (const it of g.items) {
+      if (it.type !== 'chant' || !it.chant) continue;
+      const c = it.chant, lay = it.layerKey && chantsLayer.chants[it.layerKey];
+      const segs = (lay && lay.segments) || [];
+      const seg = segs.find((x) => x.status === 'matched') || segs.find((x) => x.status === 'ambiguous') || null;
+      Object.assign(c, {
+        precedes_reading: it.precedes_reading_index, precedes_reading_key: it.precedes_reading, service_order: it.service_order, group: g.id, order_basis: it.order_basis, order_rule: it.order_rule,
+        layerKey: it.layerKey || null, segments: segs,
+        armenian_full: seg ? seg.armenian_full : null, english_full: seg ? seg.english_full : null, english_source: seg ? seg.english_source : null,
+        refs: seg ? [seg.armenian_ref, seg.english_ref_kjv && 'English numbering: ' + seg.english_ref_kjv].filter(Boolean) : [],
+        review_status: it.review_status === 'needs_review' || (seg && seg.review_status === 'needs_review') || (seg && seg.status === 'ambiguous') ? 'needs_review' : (seg ? 'auto_accepted' : 'no_full_verse'),
+      });
     }
     const hymnsRaw = [];
     for (const o of [...day.records, ...day.overlays]) { const rec = rb.H1.get(o); for (const h of (rec && rec.hymns) || []) hymnsRaw.push({ source: `hador1 #${o}`, type: h.canon_type, incipit: h.incipit, mode: h.mode_verbatim }); }
@@ -220,7 +254,7 @@ export async function createCalendar(opts = {}) {
       easter: core.iso(core.easter(p.y)), easterOffset: day.easterOffset,
       mode: { number: day.mode.number, armenian: day.mode.armenian, since: day.mode.since, basis: 'computed from the eight-week mode cycle' },
       table: day.table, status: day.status, provisional: needsReview || fasting.provisional,
-      commemorations: comms, fasting, readings, chants, hymns, canons, sharagnots: sharagnotsGroups(hymns), canon: assembleCanon(refinedCanons, hr, { weekday: day.weekday, modeArmenian: day.mode && day.mode.armenian, easterOffset: day.easterOffset, fastStatus: f && f.status }),
+      commemorations: comms, fasting, readings, chants, chantLayout: layout, hymns, canons, sharagnots: sharagnotsGroups(hymns), canon: assembleCanon(refinedCanons, hr, { weekday: day.weekday, modeArmenian: day.mode && day.mode.armenian, easterOffset: day.easterOffset, fastStatus: f && f.status }),
       labels: day.labels || [], annotations: day.annotations || [], unresolved,
       provenance: { claims: (day.claims || []).map((c) => ({ rule: c.rule, status: c.status, kind: c.kind, records: c.records, pages: c.source && c.source.pages })), records: day.records, overlays: day.overlays, hador2Rows: day.hador2Rows.map((r) => r.id), easterRule: day.easterRule },
     };
