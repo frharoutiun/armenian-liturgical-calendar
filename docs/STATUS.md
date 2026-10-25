@@ -1,9 +1,9 @@
 # Status (generated)
 
-Build 2026-10-25 01:49 UTC, commit 421a7bd
+Build 2026-10-25 03:08 UTC, commit 0914a4f
 
 - **Calendar engine (any date, 1583-9999)**: Complete: runs in your browser from the calgen rules of the Tonatsoyts. Rules not yet demonstrated are labelled provisional; open questions are shown (Lenten Saturdays, the Elijah / St Gregory fast days).
-- **Hymnal (Krapar Sharagnots + scan supplement)**: 116 verified Krapar sections plus 812 supplement sections from the 1888 Sharagnots (8497 stanzas), each with a button to the printed scan page.
+- **Hymnal (Krapar Sharagnots + scan supplement)**: 116 verified Krapar sections plus 765 supplement sections from the 1888 Sharagnots (8497 stanzas), each with a button to the printed scan page.
 - **English scripture**: Canonical books: ESV, loaded live in your browser from the ACHR website's scripture service (Crossway text under the church's licence; not stored on this site), with the same reading introductions and human-read Crossway audio. If that service is unreachable a link to BibleGateway is shown. Apocrypha (Wisdom, Judith, Baruch, Maccabees, Prayer of Azariah): RSVCE cached here.
 - **Armenian reading text**: Primary: the Armenian Bible (Classical Armenian, 1895 Constantinople edition) from Arak29, matched verse by verse to the readings of the Tonatsoyts. Each reading shows a numbering check against the English (agree / differs / needs review). The Jashots transcription (AI-assisted, from the printed page) stays as a second layer because the lectionary wording sometimes differs from the Bible text.
 - **Chants (psalm, mesedi, alleluia)**: Shown as full verses in Armenian (Arak29) with the English verse (KJV, public domain) and placed before the reading each introduces (psalm, first reading, mesedi, second reading, alleluia, gospel). The placement follows the owner's rule of the Jashots order and verse matching is automatic: items marked needs review are not confirmed.
