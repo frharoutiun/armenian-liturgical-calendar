@@ -2,7 +2,7 @@
 
 Build 2026-10-25 12:10 UTC, commit 418f783
 
-- **Calendar engine (any date, 1583-9999)**: Complete: runs in your browser from the calgen rules of the Tonatsoyts. Rules not yet demonstrated are labelled provisional; open questions are shown (Lenten Saturdays, the Elijah / St Gregory fast days).
+- **Calendar engine (any date, 1583-9999)**: Complete: runs in your browser from the calgen rules of the Tonatsoyts. Rules not yet demonstrated are labelled provisional; every day states whether it is a fast, a feast or neither (Lenten Saturdays and Sundays are not fasts by the owner's ruling; the five-day fasts are confirmed by the printed directories).
 - **Hymnal (Krapar Sharagnots + scan supplement)**: 116 verified Krapar sections plus 765 supplement sections from the 1888 Sharagnots (8497 stanzas), each with a button to the printed scan page.
 - **English scripture**: Canonical books: ESV, loaded live in your browser from the ACHR website's scripture service (Crossway text under the church's licence; not stored on this site), with the same reading introductions and human-read Crossway audio. If that service is unreachable a link to BibleGateway is shown. Apocrypha (Wisdom, Judith, Baruch, Maccabees, Prayer of Azariah): RSVCE cached here.
 - **Armenian reading text**: Primary: the Armenian Bible (Classical Armenian, 1895 Constantinople edition) from Arak29, matched verse by verse to the readings of the Tonatsoyts. Each reading shows a numbering check against the English (agree / differs / needs review). The Jashots transcription (AI-assisted, from the printed page) stays as a second layer because the lectionary wording sometimes differs from the Bible text.

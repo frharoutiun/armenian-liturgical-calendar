@@ -40,11 +40,23 @@ ok('Nativity/Theophany Jan 6: Hador 1 feast, linked hymns, no invented content',
   assert.ok(r.hymns.some((h) => ['linked_exact', 'linked_section'].includes(h.status) && h.resolved && h.links[0].hymnId));
   for (const h of r.hymns) if (!h.resolved) assert.equal(h.links.length, 0);
 });
-ok('owner fasting rulings: pre-Lent Wed/Fri fast; Jan 5 never fast; Lenten Saturday provisional', () => {
+ok('owner fasting rulings: pre-Lent Wed/Fri fast; Jan 5 never fast; Lenten Saturdays and Sundays not fast and no longer provisional', () => {
   assert.equal(cal.resolveDay('2027-01-15').fasting.status, 'fast');            // Friday before Lent
   for (const y of [2026, 2027, 2028, 2029, 2030, 2031]) assert.notEqual(cal.resolveDay(`${y}-01-05`).fasting.status, 'fast', `${y}-01-05`);
   const sat = cal.resolveDay('2027-02-13'); assert.equal(sat.weekday, 'Sat');
-  if (sat.fasting.rule === 'R-FAST-LENT-SATURDAY') { assert.equal(sat.fasting.provisional, true); assert.ok(sat.fasting.openQuestions.length); }
+  assert.equal(sat.fasting.rule, 'R-FAST-LENT-SATURDAY'); assert.equal(sat.fasting.status, 'not_fast');
+  assert.equal(sat.fasting.provisional, false); assert.equal(sat.fasting.openQuestions.length, 0);   // K2: the owner decided (2026-10-25), not an open question any more
+  const sun = cal.resolveDay('2027-02-14'); assert.equal(sun.fasting.status, 'feast');            // Feb 14 = Teaunendaraj, fixed feast on a Lent Sunday
+  assert.equal(cal.resolveDay('2027-02-21').fasting.status, 'not_fast');                          // a Lent Sunday
+});
+ok('K2 fasting: every day has a definite status (no "Not determined"); Sundays never fast; Annunciation in Holy Week = fast + feast kept; Assumption fast 2036; Elijah/Gregory fasts are rules', () => {
+  for (const d of ['2026-10-26', '2026-10-24', '2027-05-04', '2027-06-17', '2030-09-03']) { const f = cal.resolveDay(d).fasting; assert.notEqual(f.status, 'unknown', d); assert.ok(f.label !== 'Not determined', d); }
+  assert.equal(cal.resolveDay('2026-10-26').fasting.rule, 'R-FAST-NONE');                          // an ordinary Monday outside every fast
+  for (const d of ['2027-01-03', '2026-01-04', '2028-12-31']) { const f = cal.resolveDay(d); assert.equal(f.weekday, 'Sun'); assert.equal(f.fasting.status, 'not_fast', d); }   // Sundays inside the Nativity/Hisnak fasts
+  const an = cal.resolveDay('2036-04-07').fasting; assert.equal(an.status, 'fast'); assert.equal(an.rule, 'R-FAST-ANNUNCIATION-HOLYWEEK'); assert.equal(an.feastKept, true);
+  for (const d of ['2036-08-04', '2036-08-05', '2036-08-07']) assert.equal(cal.resolveDay(d).fasting.status, 'not_fast', d);       // the Taregir puts the Assumption fast on Aug 11-15 in 2036
+  for (const d of ['2036-08-11', '2036-08-15']) assert.equal(cal.resolveDay(d).fasting.status, 'fast', d);
+  for (const d of ['2027-05-17', '2027-05-18', '2027-05-20', '2027-06-07', '2027-06-08', '2027-06-10']) { const f = cal.resolveDay(d).fasting; assert.equal(f.status, 'fast', d); assert.equal(f.provisional, false, d); assert.equal(f.ruleStatus, 'rule', d); }
 });
 ok('weekday correctness across centuries (civil arithmetic, no time zone)', () => {
   const known = [['1583-01-01', 'Sat'], ['1600-02-29', 'Tue'], ['1900-01-01', 'Mon'], ['2000-02-29', 'Tue'], ['2024-02-29', 'Thu'], ['9999-12-31', 'Fri']];

@@ -11,7 +11,7 @@ Invalid input returns `{schema, error}`; nothing is guessed.
 ## Record (`schema: liturgical-day/1.0`)
 `date, weekday, year, civil, easter, easterOffset, mode{number,armenian,since}, table, status('placed'|'unresolved'|'no_readings_appointed'), provisional`
 - `commemorations[]`: `armenian, bookHeadingArmenian, english, englishStatus('sourced'|'composed'|null), englishProvenance, role, kind, recordOrdinal, rule, ruleStatus, series[]`. `sourced` = a published English name (Vemkar / ACHR); `composed` = built from components, not a published name.
-- `fasting`: `status, label, rule, ruleStatus, basis, provisional, openQuestions[]` (Lenten Saturdays and the Elijah / St Gregory fast days are flagged as open questions).
+- `fasting`: `status, label, rule, ruleStatus, basis, provisional, openQuestions[]` (every day has a definite status; `openQuestions` is empty for fasting since 2026-10-25: Lenten Saturdays and Sundays are not fasts by the owner's ruling, the Elijah / St Gregory fasts are confirmed by Hador 1 and the printed directories; `feastKept` is true for the Annunciation inside Holy Week, a fast with the feast kept).
 - `readings[]`: `verbatimArmenian` (Hador 1), `passage` {book,ch,v}, `citationKey`, `citationEn`, `citationIndexMatch('exact'|'overlapping...'|'none')`, `service{class,label,basis,share,confident,alternatives,level}`, `jashots{chains[{chain_id,pdf_pages,printed_page}],introEn,introHy}`, `flags`, `needsPageCheck`.
   Service class is printed in Hador 1 when present; otherwise learned from the 2001-2040 tables per (Hador 1 record, passage) and flagged `confident:false` when ambiguous.
 - `chants[]`: psalm / meseti / alleluia lines from Hador 1.
