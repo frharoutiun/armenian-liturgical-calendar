@@ -105,10 +105,10 @@ export async function createCalendar(opts = {}) {
   const loadData = await makeLoader(dataBase);
   await initEngine();
   const rb = await loadRulebook(loadRb);
-  const [readingsIdx, hymnIdx, recCanons, recService, hymnOpenings, canonParts, canonMarks, chantsLayer, versif, cueLines] = await Promise.all([
+  const [readingsIdx, hymnIdx, recCanons, recService, hymnOpenings, canonParts, canonMarks, chantsLayer, versif, cueLines, hymnAliases] = await Promise.all([
     loadData('readings_index.json').catch(() => ({ keys: {} })), loadData('hymn_index.json').catch(() => ({ hymns: [], sections: [] })), loadData('record_canons.json').catch(() => ({ records: {} })),
     loadData('record_service.json').catch(() => ({ keys: {} })), loadData('hymn_openings.json').catch(() => ({ rows: [] })), loadData('canon_parts.json').catch(() => ({ canons: {} })), loadData('canon_marks.json').catch(() => ({ marks: {} })),
-    loadData('chants_layer.json').catch(() => ({ chants: {}, lookup: {} })), loadData('versification.json').catch(() => ({ map: {} })), loadData('cue_lines.json').catch(() => ({ cues: [] })),
+    loadData('chants_layer.json').catch(() => ({ chants: {}, lookup: {} })), loadData('versification.json').catch(() => ({ map: {} })), loadData('cue_lines.json').catch(() => ({ cues: [] })), loadData('hymn_aliases.json').catch(() => ({ aliases: [] })),
   ]);
   const refinedCanons = refineCanonParts(canonParts, canonMarks.marks);
   refinedCanons.canons = applyCueLines(refinedCanons.canons, cueLines);
@@ -133,7 +133,7 @@ export async function createCalendar(opts = {}) {
     return hit.length ? { exact: false, entries: hit.map((x) => x.e) } : null;
   }
   const sectionById = new Map((hymnIdx.sections || []).map((s) => [s.id, s]));
-  const hymnResolver = createHymnResolver(hymnIdx, hymnOpenings, { partsOfType });
+  const hymnResolver = createHymnResolver(hymnIdx, hymnOpenings, { partsOfType, aliases: hymnAliases.aliases });
 
   // One entry per hymn the day appoints. The Hador 1 record and the Hador 2 row often name the same hymn: merge those.
   function hymnsFromResolution(list) {
@@ -142,7 +142,7 @@ export async function createCalendar(opts = {}) {
       const k = h.resolved ? 'H:' + h.resolved.hymnId : 'U:' + armKey(h.incipit) + '|' + normMode(h.mode) + '|' + h.status;
       if (merged.has(k)) { const m = merged.get(k); if (!m.sources.includes(h.source)) m.sources.push(h.source); continue; }
       const link = h.resolved ? [{ hymnId: h.resolved.hymnId, sectionId: h.resolved.sectionId, sectionTitle: h.resolved.sectionTitle, incipit: h.resolved.incipit, mode: h.resolved.mode, pages: [h.resolved.page], category: null }] : [];
-      const o = { source: h.source, sources: [h.source], type: h.type, incipit: h.incipit, mode: h.mode, status: h.status, resolved: h.resolved, candidates: h.candidates, basis: h.basis, confidence: h.confidence, needsReview: !!h.needsReview, method: h.method || null, specIncipit: h.specIncipit || null, links: link, note: h.resolved ? '' : h.basis };
+      const o = { source: h.source, sources: [h.source], type: h.type, incipit: h.incipit, mode: h.mode, status: h.status, ...(h.kind ? { kind: h.kind } : {}), resolved: h.resolved, candidates: h.candidates, basis: h.basis, confidence: h.confidence, needsReview: !!h.needsReview, method: h.method || null, specIncipit: h.specIncipit || null, links: link, note: h.resolved ? '' : h.basis };
       merged.set(k, o); order.push(o);
     }
     return order;

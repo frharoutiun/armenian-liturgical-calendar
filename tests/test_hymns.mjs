@@ -147,4 +147,19 @@ ok('H3: every hymn linked by category/mode names category, mode, section and pag
   }
   assert.ok(n >= 6);
 });
+ok('F2: an opening printed more than once resolves to the occurrence the Echmiadzin TOC lists (Jan 6 «Լոյս ՚ի լուսոյ»: the Orhnutyun of Nativity day 2, p43, not the repeat at p285)', () => {
+  const h = cal.resolveDay('2027-01-06').hymns.find((y) => armKey(y.incipit).startsWith(armKey('Լոյս ՚ի լու')));
+  assert.ok(h && h.resolved && h.resolved.page === 43); assert.match(h.basis, /Echmiadzin TOC/);
+});
+ok('F2: an opening not printed in the rubric\'s spelling is found through the TOC\'s wording (alias), and says so', () => {
+  const h = cal.resolveDay('2027-02-09').hymns.find((y) => y.type === 'Հարց' && /համագոյից/.test(armKey(y.incipit).replace(/ը/g, '')) || armKey(y.incipit).startsWith(armKey('Որ համագոյից')));
+  assert.ok(h && h.resolved); assert.match(h.basis, /not printed in this spelling/);
+});
+ok('F2: a rubric direction («զերեք Ողորմեայսն ասասցես», «զՈղորմեայն ասա») is not an opening: kind direction, nothing to resolve', () => {
+  let n = 0; for (const iso of ['2026-03-30', '2026-12-24']) for (const h of cal.resolveDay(iso).hymns) if (h.kind === 'direction') { n++; assert.equal(h.resolved, null); assert.match(h.basis, /direction of the rubric/); }
+  assert.ok(n >= 1);
+});
+ok('F2: hymn index carries the TOC listing and the aliases file is loaded', () => {
+  assert.ok(idx.hymns.filter((h) => h.ref_listed && h.ref_listed.length).length > 800);
+});
 console.log(`${n} hymn tests passed`);

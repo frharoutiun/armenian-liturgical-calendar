@@ -292,10 +292,12 @@ def reference_modes(hymns):
                 return pg + y0 + (y1 - y0) * (pg - x0) / (x1 - x0)
         return pg + pts[-1][1]
     res = collections.defaultdict(lambda: collections.defaultdict(set))
+    alias = {}   # (hymn id, alias key) -> {'src','part','pages'}: the list's own wording of the opening, tied to the hymn it stands for
     for hid, es in ent_by_h.items():
         for e in es:
             if any(abs(fpage(pg) - b) <= 5 for pg in (hy[hid].get('pages') or []) for b in e['pages']):
                 res[hid]['E'].add(e['mode'])
+                alias[(hid, arm_key(e['incipit']))] = {'src': 'E', 'part': e['part'], 'pages': e['pages'], 'mode': e['mode']}
     byp = collections.defaultdict(list)
     for h in hymns:
         for pg in h.get('pages') or []:
@@ -315,11 +317,13 @@ def reference_modes(hymns):
                      for hid, h in cand.items() if compat(e, h)), reverse=True)
         if sc and sc[0][0] >= 0.7 and (len(sc) == 1 or sc[0][0] - sc[1][0] >= 0.04):
             res[sc[0][1]]['E'].add(e['mode'])
+            alias[(sc[0][1], w)] = {'src': 'E', 'part': e['part'], 'pages': e['pages'], 'mode': e['mode']}
     for e in ents:
         if e['src'] in ('J', 'L'):
             for h in key_match(e):
                 if compat(e, h):
                     res[h['id']][e['src']].add(e['mode'])
+    reference_modes.aliases = alias
     return {hid: {src: next(iter(m)) for src, m in d.items() if len(m) == 1} for hid, d in res.items()}
 
 
@@ -423,7 +427,16 @@ def reconcile_modes(hymns):
         if checks:
             h['mode_checks'] = checks
         c[status] += 1
-    return {'mode_status': dict(c), 'krapar_modes': len(kr)}
+    al = getattr(reference_modes, 'aliases', {})
+    write_json(os.path.join(OUT, 'hymn_aliases.json'), {'schema': 'hymn-aliases/1.0', 'source': 'Sharagan TOC Echmiadzin (page-aware match)',
+               'aliases': sorted([[k, hid, v['part'], v['mode'], v['pages']] for (hid, k), v in al.items() if len(k) >= 5])})
+    listed = collections.defaultdict(list)
+    for (hid, k), v in al.items():
+        listed[hid].append(v['part'])
+    for h in hymns:
+        if h['id'] in listed:
+            h['ref_listed'] = sorted(set(listed[h['id']]))[:3]   # the Echmiadzin TOC lists this hymn at (about) this place, under this part/occasion
+    return {'mode_status': dict(c), 'krapar_modes': len(kr), 'aliases': len(al)}
 
 
 def build_hymn_openings():

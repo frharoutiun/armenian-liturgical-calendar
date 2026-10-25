@@ -30,6 +30,7 @@ for (let i = 0; i < ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0 ? 
   let ok = true;
   for (const h of hs) {
     st[h.status] = (st[h.status] || 0) + 1;
+    if (!h.resolved && h.kind === 'direction') { st.direction = (st.direction || 0) + 1; continue; }   // a rubric direction names no hymn: nothing to resolve
     if (!h.resolved) { ok = false; const k = (h.incipit || '') + '|' + (h.mode || '') + '|' + (h.type || ''); const q = queue.get(k) || { type: h.type, incipit: h.incipit, mode: h.mode, status: h.status, basis: h.basis, candidates: h.candidates, days: [], sources: new Set() }; if (q.days.length < 5) q.days.push(iso); q.sources.add(h.source); queue.set(k, q); }
     if ((h.links || []).length > 1) multiPage++;
   }

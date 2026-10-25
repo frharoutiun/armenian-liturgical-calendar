@@ -18,6 +18,8 @@ const TYPE_STEMS = [['հանգստեան', 'հանգստեան'], ['մարտիր
 const typeStem = (type) => { const k = armKey(type); for (const [a, b] of TYPE_STEMS) if (k.includes(a)) return b; return null; };
 export const lev = (a, b, max) => { if (Math.abs(a.length - b.length) > max) return max + 1; const d = []; for (let i = 0; i <= a.length; i++) { d[i] = [i]; } for (let j = 1; j <= b.length; j++) d[0][j] = j; for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; };
 
+// rubric directions that name no opening: «զերեք Ողորմեայսն ասասցես», «զՈղորմեայն ասա», «ըստ կարգին»
+const DIRECTION = /(?:^|\s)ասա(?:սցես|սցեն)?(?:\s|$)|ըստ\s+կարգի/i;
 const MARKERS = /ց\s*վերջ[ըն]?|իւր\s+սար(?:օ|ո)?ք[ըն]?|…|\.{2,}/gi;   // "to the end", "with its own arrangement", ellipses
 // "Ի գերեզման. և Եկին 'ի գերեզման. և Ձայն աւետաւոր" -> three openings
 // a rubric word that names a KIND of canon (martyrs', repose, penitence...) is not an opening: it must never be matched as one
@@ -45,6 +47,9 @@ export function createHymnResolver(hymnIdx, openings, helpers = {}) {
   // consonant skeleton of each title word: Զատիկ / Զատկի, Ծնունդ / Ծննդեան meet in the same skeleton
   const skel = (k) => k.replace(/[աեէըիոօւյ]/g, '');
   const secWords = new Map(); for (const s of sections.values()) if ((s.title || '').trim()) secWords.set(s.id, String(s.title).split(/[\s,;:.()\u00b7\u2022]+/).map((w) => skel(armKey(w))).filter((w) => w.length >= 3));
+  // F2: the Echmiadzin TOC's own wording of an opening (hymn_aliases.json: key, hymn id, part, mode, pages), tied to the hymn it stands for by incipit + page
+  const aliasByPrefix = new Map();
+  for (const row of helpers.aliases || []) { const k4 = row[0].slice(0, 4); if (k4.length < 4) continue; if (!aliasByPrefix.has(k4)) aliasByPrefix.set(k4, []); aliasByPrefix.get(k4).push(row); }
   const byPrefix = new Map();
   for (const h of hymns.concat(stanzaRows)) { const k = (h.key || '').slice(0, 4); if (k.length < 4) continue; if (!byPrefix.has(k)) byPrefix.set(k, []); byPrefix.get(k).push(h); }
   const stemDf = new Map();
@@ -54,6 +59,13 @@ export function createHymnResolver(hymnIdx, openings, helpers = {}) {
     const n = Math.min(fragKey.length, 12), pre = fragKey.slice(0, 4), out = [];
     const buckets = byPrefix.get(pre) || [];
     for (const h of buckets) { const hk = h.key; if (hk.startsWith(fragKey.slice(0, n)) || fragKey.startsWith(hk.slice(0, n))) out.push(h); }
+    if (!out.length && fragKey.length >= 6) {   // not printed as such: the reference list's wording of the opening names the hymn
+      const seen = new Set();
+      for (const [ak, hid, part] of aliasByPrefix.get(pre) || []) {
+        const m = Math.min(fragKey.length, ak.length, 12);
+        if (ak.slice(0, m) === fragKey.slice(0, m) && m >= 6 && !seen.has(hid) && hymnById.get(hid)) { seen.add(hid); out.push({ ...hymnById.get(hid), viaAlias: part }); }
+      }
+    }
     return out;
   }
 
@@ -111,6 +123,7 @@ export function createHymnResolver(hymnIdx, openings, helpers = {}) {
         if (near.length === 1) { base.resolved = { ...view(near[0]), basis: '' }; base.status = 'linked_section'; base.confidence = 0.6; base.basis = "no opening is printed in the rubric; the only hymn of the day's canon in this mode"; base.resolved.basis = base.basis; base.resolved.confidence = 0.6; out.push(base); continue; }
         if (near.length > 1) { base.status = 'ambiguous'; base.basis = `no opening is printed in the rubric; ${near.length} hymns of the day's canon are in this mode`; base.candidates = near.slice(0, 3).map((h) => view(h)); out.push(base); continue; }
       }
+      if (!it.cands.length && it.frag && DIRECTION.test(it.frag.text)) { base.kind = 'direction'; base.basis = `a direction of the rubric, not an opening: «${it.frag.text}»`; out.push(base); continue; }
       if (!it.cands.length) { base.basis = it.frag ? 'no Sharagnots hymn begins with this opening' : 'the rubric gives no usable opening (type/mode only)'; out.push(base); continue; }
       let pool = it.cands, via = 'incipit';
       const inSec = pool.filter((h) => daySections.includes(h.section));
@@ -138,6 +151,10 @@ export function createHymnResolver(hymnIdx, openings, helpers = {}) {
         const inCat = uniq.filter((h) => { const t = secKey.get(h.section) || ''; return ctx.categoryStems.some((c) => t.includes(c)); });
         if (inCat.length === 1) { uniq.splice(0, uniq.length, inCat[0]); narrowSteps.push("the day's category"); }
       }
+      if (uniq.length > 1) {   // F2: several hymns print this opening, and the Echmiadzin TOC lists it at only one of them: the others are repeats / cross-references
+        const listed = uniq.filter((h) => h.ref_listed && h.ref_listed.length);
+        if (listed.length === 1) { uniq.splice(0, uniq.length, listed[0]); narrowSteps.push('the only occurrence the Echmiadzin TOC lists'); }
+      }
       let primary = false;
       if (uniq.length > 1) {   // several of the day's canons hold the opening: the canon named by the day's own feast is the primary one
         const ranked = [...new Set(uniq.map((h) => h.section))].map((sid) => ({ sid, t: tscore.get(sid) || 0 })).sort((a, b) => b.t - a.t);
@@ -155,6 +172,7 @@ export function createHymnResolver(hymnIdx, openings, helpers = {}) {
         base.status = strong && !narrowed ? 'linked_exact' : 'linked_section';
         base.basis = (it.fuzzy ? 'opening matches a hymn of the day\'s canon up to spelling' : unique ? 'the only place in the Sharagnots where this opening is printed' : `opening found in the day's canon (${st ? `${st.cover} of the day's openings` : ''}${st && st.title >= 0.5 ? ', feast name in the canon title' : ''}${it.mode ? ', mode agrees' : ''})`) + (primary ? '; the canon named by the day\'s feast outranks the other canons holding this opening' : '') + (it.cands.length > 1 && !st ? '; chosen by mode' : '') + (elsewhere.length ? `; the same opening is also printed in ${elsewhere.length} other canon${elsewhere.length > 1 ? 's' : ''}` : '');
         if (narrowed) base.basis += `; ${nBefore} hymns share this opening, narrowed to one by ${narrowSteps.join(' and ')}`;
+        if (h.viaAlias) base.basis += `; the opening is not printed in this spelling: the Echmiadzin TOC lists it as «${h.viaAlias}» at this hymn`;
         base.resolved.basis = base.basis; base.confidence = narrowed ? 0.65 : strong ? (unique ? 0.95 : 0.85) : 0.65; base.resolved.confidence = base.confidence;
         base.candidates = elsewhere.slice(0, 2).map((c) => view(c));   // alternatives, shown only as 'also printed at'
       } else {
