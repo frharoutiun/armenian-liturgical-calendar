@@ -9,7 +9,8 @@ import { initEngine, resolveDay as engineResolveDay } from './calgen/engine/day.
 import * as core from './calgen/engine/core.mjs';
 import { loadRulebook } from './calgen/engine/ctx.mjs';
 import { createHymnResolver } from './hymns.mjs';
-import { refineCanonParts, assembleCanon } from './canon.mjs';
+import { refineCanonParts, assembleCanon, partsOfType } from './canon.mjs';
+import { linkGeneric, categoriesOfNames } from './generic.mjs';
 import { interleave } from '../chant-order.mjs';
 
 export const SCHEMA = 'liturgical-day/1.0';
@@ -130,7 +131,7 @@ export async function createCalendar(opts = {}) {
     return hit.length ? { exact: false, entries: hit.map((x) => x.e) } : null;
   }
   const sectionById = new Map((hymnIdx.sections || []).map((s) => [s.id, s]));
-  const hymnResolver = createHymnResolver(hymnIdx, hymnOpenings);
+  const hymnResolver = createHymnResolver(hymnIdx, hymnOpenings, { partsOfType });
 
   // One entry per hymn the day appoints. The Hador 1 record and the Hador 2 row often name the same hymn: merge those.
   function hymnsFromResolution(list) {
@@ -139,7 +140,7 @@ export async function createCalendar(opts = {}) {
       const k = h.resolved ? 'H:' + h.resolved.hymnId : 'U:' + armKey(h.incipit) + '|' + normMode(h.mode) + '|' + h.status;
       if (merged.has(k)) { const m = merged.get(k); if (!m.sources.includes(h.source)) m.sources.push(h.source); continue; }
       const link = h.resolved ? [{ hymnId: h.resolved.hymnId, sectionId: h.resolved.sectionId, sectionTitle: h.resolved.sectionTitle, incipit: h.resolved.incipit, mode: h.resolved.mode, pages: [h.resolved.page], category: null }] : [];
-      const o = { source: h.source, sources: [h.source], type: h.type, incipit: h.incipit, mode: h.mode, status: h.status, resolved: h.resolved, candidates: h.candidates, basis: h.basis, confidence: h.confidence, links: link, note: h.resolved ? '' : h.basis };
+      const o = { source: h.source, sources: [h.source], type: h.type, incipit: h.incipit, mode: h.mode, status: h.status, resolved: h.resolved, candidates: h.candidates, basis: h.basis, confidence: h.confidence, needsReview: !!h.needsReview, method: h.method || null, specIncipit: h.specIncipit || null, links: link, note: h.resolved ? '' : h.basis };
       merged.set(k, o); order.push(o);
     }
     return order;
@@ -227,7 +228,10 @@ export async function createCalendar(opts = {}) {
       for (const c of (rec && recCanons.records[rec.id]) || []) canons.push({ recordOrdinal: o, canonTitle: c.canon_title, confidence: c.confidence, reviewStatus: c.review_status, method: c.method, sectionIds: c.sections, sections: c.sections.map((id) => sectionById.get(id)).filter(Boolean).map((s) => ({ id: s.id, title: s.title, pages: s.pages })), mapped: c.mapped });
     }
         const nameList = [...day.records, ...day.overlays].map((o) => (rb.H1.get(o) || {}).name_armenian).concat(day.hador2Rows.map((r) => r.text), (day.commemorations || []).map((c) => c.armenian)).filter(Boolean);
-    const hr = hymnResolver.resolve(hymnsRaw, { names: nameList });
+    const hr = hymnResolver.resolve(hymnsRaw, { names: nameList, categoryStems: categoriesOfNames(nameList) });
+    // the day's whole canon first (it picks the generic canon by category, mode, weekday and season), then the named hymns the first pass could not place are tied to its parts
+    const canonObj = assembleCanon(refinedCanons, hr, { weekday: day.weekday, modeArmenian: day.mode && day.mode.armenian, easterOffset: day.easterOffset, fastStatus: day.fast && day.fast.status });
+    const genericLinks = linkGeneric(hr, canonObj, { modeArmenian: day.mode && day.mode.armenian, names: nameList, weekday: day.weekday }, hymnResolver);
     const hymns = hymnsFromResolution(hr.hymns);
     const comms = (day.commemorations || []).map((c) => {
       const tt = c.title || {};
@@ -254,7 +258,7 @@ export async function createCalendar(opts = {}) {
       easter: core.iso(core.easter(p.y)), easterOffset: day.easterOffset,
       mode: { number: day.mode.number, armenian: day.mode.armenian, since: day.mode.since, basis: 'computed from the eight-week mode cycle' },
       table: day.table, status: day.status, provisional: needsReview || fasting.provisional,
-      commemorations: comms, fasting, readings, chants, chantLayout: layout, hymns, canons, sharagnots: sharagnotsGroups(hymns), canon: assembleCanon(refinedCanons, hr, { weekday: day.weekday, modeArmenian: day.mode && day.mode.armenian, easterOffset: day.easterOffset, fastStatus: f && f.status }),
+      commemorations: comms, fasting, readings, chants, chantLayout: layout, hymns, canons, sharagnots: sharagnotsGroups(hymns), canon: canonObj,
       labels: day.labels || [], annotations: day.annotations || [], unresolved,
       provenance: { claims: (day.claims || []).map((c) => ({ rule: c.rule, status: c.status, kind: c.kind, records: c.records, pages: c.source && c.source.pages })), records: day.records, overlays: day.overlays, hador2Rows: day.hador2Rows.map((r) => r.id), easterRule: day.easterRule },
     };

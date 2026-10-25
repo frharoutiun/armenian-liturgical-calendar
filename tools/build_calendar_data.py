@@ -103,8 +103,94 @@ def build_hymn_index():
         for h in s.get('hymns') or []:
             hymns.append({'id': h['id'], 'section': s['id'], 'canon': head, 'seq': h.get('seq'), 'incipit': h.get('incipit'), 'key': arm_key(h.get('incipit')),
                           'category': (h.get('category') or {}).get('expanded') or (h.get('category') or {}).get('source'), 'mode': h.get('mode'), 'pages': h.get('pages'), 'n_stanzas': h.get('n_stanzas')})
-    write_json(os.path.join(OUT, 'hymn_index.json'), {'schema': 'hymn-index/1.1', 'source': 'output/sharagnots_anchored/index.json', 'hymns': hymns, 'sections': secs})
+    fixes = fix_modes_from_printed_headings(hymns, secs)
+    write_json(os.path.join(OUT, 'hymn_index.json'), {'schema': 'hymn-index/1.2', 'source': 'output/sharagnots_anchored/index.json', 'mode_fixes': fixes, 'hymns': hymns, 'sections': secs})
     return hymns, secs
+
+
+MODE_FIX = {}   # hymn id -> corrected mode (set by fix_modes_from_printed_headings, used by build_canon_parts)
+MARGIN_MODE = {'աձ': 'ԱՁ', 'ակ': 'ԱԿ', 'բձ': 'ԲՁ', 'բկ': 'ԲԿ', 'գձ': 'ԳՁ', 'գկ': 'ԳԿ', 'դձ': 'ԴՁ', 'դկ': 'ԴԿ'}
+ORDINAL_LETTER = {'Առաջին': 'Ա', 'Երկրորդ': 'Բ', 'Երրորդ': 'Գ', 'Չորրորդ': 'Դ'}
+MODE_HEADING = re.compile(r'^(?:\d+\.\s*)?(?:Հարց|Օրհնութիւն)\b[^:։]{0,22}?\b(Առաջին|Երկրորդ|Երրորդ|Չորրորդ)\s+ձայն')
+
+
+def fix_modes_from_printed_headings(hymns, secs):
+    """The index's `mode` of a hymn comes from our transcription and is often wrong in the generic by-mode canons: hymns printed under «Հարց Երրորդ ձայն»
+    (third mode) are tagged ԴՁ, those under «Հարց Առաջին ձայն» ԳՁ. Two independent witnesses are used, each recorded per hymn (`mode_index` = the old value,
+    `mode_basis` = why it changed):
+      1. the margin labels printed beside the hymns (գձ, դկ ...), which the Unicode edition (Fr Ghevond Ajemian) kept: a hymn that carries one takes it (346 hymns);
+      2. the printed heading words «Հարց|Օրհնութիւն <ordinal> ձայն» (reliable text, read case-insensitively): inside the span of such a heading the first letter of
+         the mode (Ա/Բ/Գ/Դ) is the heading's, the second (Ձ or Կ: the two runs of one heading) stays as indexed. A span is used only when no margin label inside it
+         contradicts the heading's letter (a heading whose span would run into another family is then left alone, never guessed)."""
+    seqp = os.path.join(PROJ, 'output/site_build/w10/unicode_sequence.json')
+    if not os.path.exists(seqp):
+        return {'by_heading': 0, 'by_margin_label': 0, 'hymns_with_margin_label': 0}
+    seq = json.load(open(seqp, encoding='utf-8'))['sequence']
+    by_id = {h['id']: h for h in hymns}
+    units = {u['u']: u for u in json.load(open(os.path.join(PROJ, 'output/sharagnots_unicode_proof/unicode_units.json'), encoding='utf-8'))['units']}
+    st = json.load(open(os.path.join(PROJ, 'output/sharagnots_anchored/stanzas.json'), encoding='utf-8'))['stanzas']
+    margin = {}
+    for x in sorted(st, key=lambda y: (y['hymn_id'], y.get('stanza_n') or 0)):
+        hid = x['hymn_id']
+        if hid in margin:
+            continue
+        for uid in x.get('unit_ids') or []:
+            u = units.get(int(str(uid).split('-')[-1]))
+            for t in (u or {}).get('tags') or []:
+                m = next((MARGIN_MODE[q] for q in t.split('/') if q in MARGIN_MODE), None)
+                if m and hid not in margin:
+                    margin[hid] = (m, t)
+    ANY_MODE = re.compile(r'(Առաջին|Երկրորդ|Երրորդ|Չորրորդ|Վերջ|Վառ|Աւագ)\s+(ձայն|կողմ)', re.I)
+    HEAD = re.compile(r'^(?:\d+\.\s*)?(?:Հարց|Օրհնութիւն)\b[^:։]{0,22}?\b(Առաջին|Երկրորդ|Երրորդ|Չորրորդ)\s+ձայն', re.I)
+    TITLE = re.compile(r'^\W*(?:Կ\s*Ա\s*Ն\s*Ո\s*Ն|ԿԱՆՈՆ|Կանոն|ՇԱՐԱԿԱՆ|Շարական)')
+    letter_of = {k.lower(): v for k, v in ORDINAL_LETTER.items()}
+    # 1. spans
+    spans, cur, seen = [], None, set()
+    for x in seq:
+        if x['kind'] == 'heading':
+            t = x.get('text') or ''
+            if len(t) < 60 and ANY_MODE.search(t):
+                m = HEAD.search(t)
+                cur = {'letter': letter_of[m.group(1).lower()], 'text': t.strip(), 'page': (x.get('scan_pages') or [None])[0], 'hymns': []} if m else None
+                if cur:
+                    spans.append(cur)
+            elif TITLE.search(t):
+                cur = None
+        elif x['kind'] == 'stanza' and cur:
+            hid = x.get('hymn_id')
+            if not hid or hid in seen:
+                continue
+            seen.add(hid)
+            h = by_id.get(hid)
+            pg = ((h or {}).get('pages') or [None])[0]
+            if h and h.get('mode') and pg is not None and cur['page'] is not None and cur['page'] <= pg <= cur['page'] + 12:
+                cur['hymns'].append(h)
+    n = skipped = 0
+    for sp in spans:
+        if any(h['id'] in margin and margin[h['id']][0][:1] != sp['letter'] for h in sp['hymns']):
+            skipped += 1
+            continue
+        for h in sp['hymns']:
+            mode = h['mode']
+            if mode[:1] != sp['letter'] and len(mode) == 2:
+                h['mode_index'] = mode
+                h['mode'] = sp['letter'] + mode[1]
+                h['mode_basis'] = f"printed heading «{sp['text']}» (p{sp['page']}): the index's {mode} is read as {h['mode']}"
+                n += 1
+    nm = 0
+    for hid, (m, t) in margin.items():
+        h = by_id.get(hid)
+        if not h:
+            continue
+        if h.get('mode') != m:
+            h.setdefault('mode_index', h.get('mode'))
+            h['mode'] = m
+            h['mode_basis'] = f"margin label «{t}» printed beside the hymn (kept by the Unicode edition): the index's {h['mode_index']} is read as {m}"
+            nm += 1
+        h['mode_margin'] = m
+    for h in hymns:
+        MODE_FIX[h['id']] = h.get('mode')
+    return {'by_heading': n, 'spans': len(spans), 'spans_skipped_margin_contradicts': skipped, 'by_margin_label': nm, 'hymns_with_margin_label': len(margin)}
 
 
 def build_hymn_openings():
@@ -173,7 +259,7 @@ def build_canon_parts():
         for h in sorted(s.get('hymns') or [], key=lambda x: x.get('seq') or 0):
             cat = h.get('category') or {}
             exp = cat.get('expanded')
-            canons[head]['hymns'].append({'id': h['id'], 'block': s['id'], 'incipit': h.get('incipit'), 'mode': h.get('mode'), 'page': (h.get('pages') or [None])[0], 'pages': h.get('pages'),
+            canons[head]['hymns'].append({'id': h['id'], 'block': s['id'], 'incipit': h.get('incipit'), 'mode': MODE_FIX.get(h['id'], h.get('mode')), 'page': (h.get('pages') or [None])[0], 'pages': h.get('pages'),
                                           'stanza_ids': h.get('stanza_ids'), 'cat_printed': cat.get('source'), 'cat': exp})
     # margin abbreviations kept by the Unicode document (Fr Ghevond Ajemian): a second, independent witness of where each part starts
     UNI = {'տ': 'der_hergnits', 'մ': 'metsatsutse', 'գ': 'harts', 'ո': 'voghormya', 'հ': 'harts', 'ճշ': 'jashoo', 'մկ': 'mankunk', 'հբ': 'hampartsi'}

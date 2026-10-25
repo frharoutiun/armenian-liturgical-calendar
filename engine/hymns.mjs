@@ -16,18 +16,20 @@ const STOP = new Set(['կանոն', 'սրբոյ', 'սրբոյն', 'սրբոց', 
 // generic canon categories named by the rubric's type word: the hymn is then in a section of that kind
 const TYPE_STEMS = [['հանգստեան', 'հանգստեան'], ['մարտիրոս', 'մարտիրոս'], ['աստուածածն', 'աստուածածն'], ['խաչ', 'խաչ'], ['ապաշխար', 'ապաշխար'], ['յարութ', 'յարութ'], ['հոգեգալ', 'հոգեգալ'], ['առաքելոց', 'առաքել'], ['հայրապետ', 'հայրապետ'], ['մարգարէ', 'մարգարէ'], ['կուսան', 'կուսան'], ['ճգնաւոր', 'ճգնաւոր']].map(([a, b]) => [armKey(a), armKey(b)]);
 const typeStem = (type) => { const k = armKey(type); for (const [a, b] of TYPE_STEMS) if (k.includes(a)) return b; return null; };
-const lev = (a, b, max) => { if (Math.abs(a.length - b.length) > max) return max + 1; const d = []; for (let i = 0; i <= a.length; i++) { d[i] = [i]; } for (let j = 1; j <= b.length; j++) d[0][j] = j; for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; };
+export const lev = (a, b, max) => { if (Math.abs(a.length - b.length) > max) return max + 1; const d = []; for (let i = 0; i <= a.length; i++) { d[i] = [i]; } for (let j = 1; j <= b.length; j++) d[0][j] = j; for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; };
 
 const MARKERS = /ց\s*վերջ[ըն]?|իւր\s+սար(?:օ|ո)?ք[ըն]?|…|\.{2,}/gi;   // "to the end", "with its own arrangement", ellipses
 // "Ի գերեզման. և Եկին 'ի գերեզման. և Ձայն աւետաւոր" -> three openings
 // a rubric word that names a KIND of canon (martyrs', repose, penitence...) is not an opening: it must never be matched as one
 const KIND_WORDS = new Set(['հանգստեան', 'ապաշխարութեան', 'մարտիրոսաց', 'աստուածածնի', 'խաչի', 'առաքելոց', 'հայրապետաց', 'մարգարէից', 'կուսանաց', 'ճգնաւորաց', 'յարութեան', 'հոգեգալստեան', 'հոգեգալուստ', 'ապաշխարութիւն', 'ողբ', 'երգ', 'միաբանական'].map(armKey));
 export function fragments(incipit) {
-  const s = String(incipit || '').replace(MARKERS, ' ').replace(/[()\[\]]/g, ' ');
+  // «Մարտիրոսաց ՚ի ձայնէն»: "the martyrs' hymn, from the mode" is a pointer to a generic canon (engine/generic.mjs), not an opening
+  const s = String(incipit || '').replace(MARKERS, ' ').replace(/(?:^|\s|[՚'’ʼ])ի\s+ձայնէն/gi, ' ').replace(/[()\[\]]/g, ' ');
   return s.split(/[.։:;]\s*|\s+(?:և|եւ)\s+/).map((x) => x.trim().replace(/^(?:և|եւ)\s+/, '')).map((x) => ({ text: x, key: armKey(x) })).filter((x) => x.key.length >= 4 && !KIND_WORDS.has(x.key));
 }
 
-export function createHymnResolver(hymnIdx, openings) {
+export function createHymnResolver(hymnIdx, openings, helpers = {}) {
+  const partsOfType = helpers.partsOfType || (() => []);
   const sections = new Map((hymnIdx.sections || []).map((s) => [s.id, s]));
   // group by the governing headed canon (hymn_index 1.1: untitled column blocks continue the canon above them)
   const hymns = (hymnIdx.hymns || []).map((h) => ({ ...h, block: h.section, section: h.canon || h.section, m: normMode(h.mode), page: (h.pages && h.pages[0]) || null }));
@@ -120,6 +122,22 @@ export function createHymnResolver(hymnIdx, openings) {
       // exact duplicates inside one section (same opening printed again): keep the first, noted
       const uniq = []; const seen = new Set();
       for (const h of pool) { const k = h.section + '|' + h.id + '|' + h.stanzaN; if (seen.has(k)) continue; seen.add(k); uniq.push(h); }
+      // several hymns still share the opening: narrow by what the rubric itself says (H3). Each step keeps the pool only when it leaves at least one hymn,
+      // and a decision is taken only when exactly one hymn is left.
+      const nBefore = uniq.length; const narrowSteps = [];
+      if (uniq.length > 1) {
+        const parts = partsOfType(it.spec.type);
+        if (parts.length) { const labelled = uniq.filter((h) => h.category && partsOfType(h.category).length); const fit = labelled.filter((h) => partsOfType(h.category).some((p) => parts.includes(p))); if (fit.length && fit.length < uniq.length && fit.length >= 1) { const keep = new Set(fit.map((h) => h.id + '/' + h.stanzaN)); const rest = uniq.filter((h) => !labelled.includes(h) || keep.has(h.id + '/' + h.stanzaN)); uniq.splice(0, uniq.length, ...rest); if (rest.length < nBefore) narrowSteps.push('hymn type'); } }
+      }
+      if (uniq.length > 1 && it.frag) {   // the rubric prints more of the opening than the first words: the printed hymn that shares most of it wins by a clear margin
+        const pl = (a, b) => { let i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++; return i; };
+        const sc = uniq.map((h) => ({ h, n: pl(it.frag.key, h.key) })).sort((a, b) => b.n - a.n);
+        if (sc[0].n >= Math.min(it.frag.key.length, 14) && sc[0].n - sc[1].n >= 3) { uniq.splice(0, uniq.length, sc[0].h); narrowSteps.push('longer shared opening'); }
+      }
+      if (uniq.length > 1 && (ctx.categoryStems || []).length) {   // the day's category (martyrs, apostles ...) names the canon the hymn belongs to
+        const inCat = uniq.filter((h) => { const t = secKey.get(h.section) || ''; return ctx.categoryStems.some((c) => t.includes(c)); });
+        if (inCat.length === 1) { uniq.splice(0, uniq.length, inCat[0]); narrowSteps.push("the day's category"); }
+      }
       let primary = false;
       if (uniq.length > 1) {   // several of the day's canons hold the opening: the canon named by the day's own feast is the primary one
         const ranked = [...new Set(uniq.map((h) => h.section))].map((sid) => ({ sid, t: tscore.get(sid) || 0 })).sort((a, b) => b.t - a.t);
@@ -130,12 +148,14 @@ export function createHymnResolver(hymnIdx, openings) {
         // distinct places this opening is printed (a hymn or a stanza inside one, counted once per canon)
         const elsewhere = [...new Map(it.cands.filter((c) => c.section !== h.section).map((c) => [c.section, c])).values()];
         const unique = !elsewhere.length && new Set(it.cands.map((c) => c.id + '/' + c.stanzaN)).size === 1;
+        const narrowed = nBefore > 1 && narrowSteps.length && uniq.length === 1;
         const stronglyDay = st && (st.cover >= 3 || st.title >= 1.0 || primary);
         const strong = (unique && (it.fuzzy ? false : (it.frag ? it.frag.key.length >= 6 : false))) || (!elsewhere.length && st && (st.cover >= 2 || st.title >= 0.5)) || (elsewhere.length && stronglyDay);
         base.resolved = { ...view(h), basis: '' };
-        base.status = strong ? 'linked_exact' : 'linked_section';
+        base.status = strong && !narrowed ? 'linked_exact' : 'linked_section';
         base.basis = (it.fuzzy ? 'opening matches a hymn of the day\'s canon up to spelling' : unique ? 'the only place in the Sharagnots where this opening is printed' : `opening found in the day's canon (${st ? `${st.cover} of the day's openings` : ''}${st && st.title >= 0.5 ? ', feast name in the canon title' : ''}${it.mode ? ', mode agrees' : ''})`) + (primary ? '; the canon named by the day\'s feast outranks the other canons holding this opening' : '') + (it.cands.length > 1 && !st ? '; chosen by mode' : '') + (elsewhere.length ? `; the same opening is also printed in ${elsewhere.length} other canon${elsewhere.length > 1 ? 's' : ''}` : '');
-        base.resolved.basis = base.basis; base.confidence = strong ? (unique ? 0.95 : 0.85) : 0.65; base.resolved.confidence = base.confidence;
+        if (narrowed) base.basis += `; ${nBefore} hymns share this opening, narrowed to one by ${narrowSteps.join(' and ')}`;
+        base.resolved.basis = base.basis; base.confidence = narrowed ? 0.65 : strong ? (unique ? 0.95 : 0.85) : 0.65; base.resolved.confidence = base.confidence;
         base.candidates = elsewhere.slice(0, 2).map((c) => view(c));   // alternatives, shown only as 'also printed at'
       } else {
         base.status = 'ambiguous';
@@ -146,5 +166,5 @@ export function createHymnResolver(hymnIdx, openings) {
     }
     return { hymns: out, daySections, secStats: [...secStats].map(([section, e]) => ({ section, ...e })) };
   }
-  return { resolve, hymnById, sections };
+  return { resolve, hymnById, sections, view: (h) => view(h) };
 }

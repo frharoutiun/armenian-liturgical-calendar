@@ -105,4 +105,46 @@ ok('H2: a margin naming two parts (ճշ․ մնկ) serves both; weekday canons a
     assert.ok(!/Sharagnots does not print/.test(p.note || ''), 'never assert that the book prints nothing');
   }
 });
+
+// ---- H3: hymns the Tonatsoyts names only by category and mode are found in the generic canons (category + mode + hymn type -> section -> hymn)
+const genericOf = (iso, typeStem) => cal.resolveDay(iso).hymns.find((h) => h.resolved && h.resolved.generic && armKey(h.type).includes(armKey(typeStem)));
+ok('H3 regression: Monday 2026-10-26 «Հարց մարտիրոսաց», mode ԳՁ -> the martyrs\' generic Harts of the THIRD mode (p457), printed heading «Հարց Երրորդ ձայն»', () => {
+  const r = cal.resolveDay('2026-10-26'); assert.equal(r.mode.armenian, 'ԳՁ');
+  const h = genericOf('2026-10-26', 'Հարց'); assert.ok(h, 'resolved');
+  assert.equal(h.resolved.page, 457); assert.equal(h.resolved.generic.category, 'martyrs'); assert.equal(h.resolved.generic.mode, 'ԳՁ');
+  assert.equal(h.status, 'linked_section'); assert.equal(h.needsReview, true); assert.match(h.basis, /generic_by_mode: category martyrs, mode ԳՁ/);
+  assert.equal(h.links.length, 1);
+});
+ok('H3: martyrs\' generic Harts by mode: ԱՁ p448 (printed «Առաջին ձայն»), ԲՁ p453, ԳՁ p457, ԴԿ p464; each page printed under its heading', () => {
+  assert.equal(genericOf('2027-09-28', 'Հարց').resolved.page, 448);   // Tue, ԱՁ
+  assert.equal(genericOf('2027-01-28', 'Հարց').resolved.page, 453);   // Thu, ԲՁ
+  assert.equal(genericOf('2027-10-21', 'Հարց').resolved.generic.mode, 'ԴԿ');
+});
+ok('H3: other categories: repose (ԱՁ p484, ԴԿ p498), penitence (week sections chosen by mode, ԱՁ p96), the Cross', () => {
+  assert.equal(genericOf('2027-12-17', 'Հարց').resolved.page, 484);
+  assert.equal(genericOf('2027-01-01', 'Հարց').resolved.page, 498);
+  assert.equal(genericOf('2027-10-06', 'Հարց').resolved.page, 96);
+  assert.equal(genericOf('2027-10-06', 'Հարց').resolved.generic.category, 'penitence');
+});
+ok('H3: «Մարտիրոսաց ՚ի ձայնէն» is a pointer, not an opening; «զX ասա» is a cross reference to that canon', () => {
+  assert.deepEqual(fragments("Մարտիրոսաց 'ի ձայնէն:").map((f) => f.text), []);
+  const h = genericOf('2026-01-22', 'Օրհնութիւն'); assert.ok(h && h.resolved.generic.category === 'martyrs');
+  const x = cal.resolveDay('2026-06-02').hymns.find((y) => y.resolved && y.resolved.generic && String(y.resolved.generic.sectionTitle || '').replace(/\s+/g, '').includes('ՀՌԻՓՍԻՄԵԱՆՑ'));
+  assert.ok(x, 'the Hampartsi named by «զՀռիփսիմեանցն ասա» is the one of the Hripsimian canon'); assert.equal(x.resolved.page, 311); assert.match(x.basis, /refers to this canon/);
+});
+ok('H3: the index\'s hymn modes are corrected from the printed margin labels and headings (third mode had been read as fourth), old value kept', () => {
+  const m = idx.hymns.filter((h) => h.mode_index);
+  assert.ok(m.length > 150 && idx.schema === 'hymn-index/1.2');
+  const h = idx.hymns.find((x) => x.pages[0] === 457 && armKey(x.incipit).startsWith(armKey('Որք ըզտանջանս')));
+  assert.equal(h.mode, 'ԳՁ'); assert.equal(h.mode_index, 'ԴՁ'); assert.match(h.mode_basis, /heading|margin/);
+  for (const x of m) assert.ok(x.mode_basis && x.mode && x.mode !== x.mode_index);
+});
+ok('H3: every hymn linked by category/mode names category, mode, section and page, is marked for review, and shows exactly one page; a category with no section in that mode stays unresolved', () => {
+  let n = 0;
+  for (const iso of ['2027-01-28', '2027-09-28', '2027-10-21', '2027-12-17', '2027-05-28', '2026-10-26']) for (const h of cal.resolveDay(iso).hymns) if (h.resolved && h.resolved.generic) {
+    n++; assert.ok(h.needsReview && h.method === 'generic_by_mode'); assert.equal(h.links.length, 1); assert.equal(h.links[0].pages.length, 1);
+    assert.ok(h.resolved.generic.mode && h.resolved.generic.sectionId && h.resolved.generic.sectionPage);
+  }
+  assert.ok(n >= 6);
+});
 console.log(`${n} hymn tests passed`);

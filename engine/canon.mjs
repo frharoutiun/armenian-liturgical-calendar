@@ -66,7 +66,7 @@ export function refineCanonParts(canonParts, marks) {
 const WEEKDAY_WORDS = [['երկուշաբ', 'Mon'], ['երեքշաբ', 'Tue'], ['չորեքշաբ', 'Wed'], ['հինգշաբ', 'Thu'], ['ուրբաթ', 'Fri'], ['շաբաթւ', 'Sat']].map(([a, b]) => [armKey(a), b]);
 const ORDINALS = [['առաջին', 1], ['երկրորդ', 2], ['երրորդ', 3], ['չորրորդ', 4], ['հինգերորդ', 5], ['վեցերորդ', 6]].map(([a, b]) => [armKey(a), b]);
 const KIND_STEMS = [['հանգստեան', 'հանգստեան'], ['մարտիրոս', 'մարտիրոս'], ['ապաշխար', 'ապաշխար'], ['աստուածածն', 'աստուածածն'], ['խաչ', 'խաչ'], ['առաքելոց', 'առաքել'], ['հայրապետ', 'հայրապետ'], ['մարգարէ', 'մարգարէ'], ['նախահարց', 'նախահարց']].map(([a, b]) => [armKey(a), armKey(b)]);
-const kindStemOf = (s) => { const k = armKey(s); for (const [a, b] of KIND_STEMS) if (k.includes(a)) return b; return null; };
+export const kindStemOf = (s) => { const k = armKey(s); for (const [a, b] of KIND_STEMS) if (k.includes(a)) return b; return null; };
 
 function seasonOf(ctx) {
   const o = ctx.easterOffset;
@@ -76,27 +76,32 @@ function seasonOf(ctx) {
 
 function titleFacts(title) {
   const k = armKey(title);
-  const wd = WEEKDAY_WORDS.find(([a]) => k.includes(a));
   const ord = /շաբաթ/.test(String(title).toLowerCase().replace(/\s+/g, '')) || k.includes(armKey('շաբաթու')) ? ORDINALS.find(([a]) => k.includes(a)) : null;
+  // «առաջին շաբաթու աղուհացիցն» = "of the first WEEK": «շաբաթու» there is the week, not the Saturday
+  const weekWord = !!ord && (k.includes(armKey('ապաշխար')) || k.includes(armKey('աղուհաց')));
+  const wd = WEEKDAY_WORDS.find(([a, d]) => k.includes(a) && !(weekWord && d === 'Sat'));
   return { weekday: wd ? wd[1] : null, lentOrdinal: ord && k.includes(armKey('ապաշխար')) ? ord[1] : null, lent: k.includes(armKey('ապաշխար')) || k.includes(armKey('աղուհաց')) || k.includes(armKey('պահոց')),
     eastertide: k.includes(armKey('յինանց')) || k.includes(armKey('յարութեան')) };
 }
 
 // canons: refined canons map. Returns the best generic canon for (part, modes) on this day, or the ranked list.
-function genericFor(canons, part, modes, ctx, kindStem) {
+export function genericFor(canons, part, modes, ctx, kindStem) {
   const season = seasonOf(ctx), cands = [];
   for (const [cid, k] of Object.entries(canons)) {
     const generic = !!k.family || ['generic_by_mode', 'generic_by_weekday'].includes(k.kind) || (kindStem && armKey(k.family_title || k.title).includes(kindStem)) || (k.kind === 'other' && /ճաշու/.test(String(k.title).toLowerCase().replace(/\s+/g, '')));
     if (!generic) continue;
     const f = titleFacts(k.title);
     // a section keyed by weekday (Օրհնութիւն Երեքշաբաթի աւուրն) or by Lenten week is chosen by that key; its hymns' mode is its own, not the day's mode
-    const keyed = !!(f.weekday || f.lentOrdinal);
+    // «Հարց ապաշխարութեան»: the book prints the Harts of penitence in one section per Lenten week, each in ONE mode (week 1 first mode, week 2 first side ...),
+    // so when the rubric names the category the mode selects the section, in or out of Lent
+    const kindLent = !!(kindStem && f.lentOrdinal);
+    const keyed = !!(f.weekday || f.lentOrdinal) && !kindLent;
     const hs = (k.hymns || []).filter((h) => (h.part === part || (h.also || []).includes(part)) && (keyed || modes.has(normMode(h.mode))));
     if (!hs.length) continue;
     let score = 1, why = ['mode agrees'], bad = false;
     if (kindStem) { if (armKey(k.family_title || k.title).includes(kindStem)) { score += 3; why.push('section is of the kind the rubric names'); } else bad = true; }
     if (f.weekday) { if (f.weekday === ctx.weekday) { score += 3; why.push('weekday agrees'); } else bad = true; }
-    if (f.lentOrdinal) { if (season.lentWeek === f.lentOrdinal) { score += 3; why.push(`Lenten week ${f.lentOrdinal}`); } else bad = true; }
+    if (f.lentOrdinal) { if (kindLent) { score += 0; why.push(`penitence Harts of Lenten week ${f.lentOrdinal}, chosen by the mode`); } else if (season.lentWeek === f.lentOrdinal) { score += 3; why.push(`Lenten week ${f.lentOrdinal}`); } else bad = true; }
     else if (f.lent) { if (season.lent || season.fast) { score += 2; why.push('Lent / fast day'); } }
     if (f.eastertide && !f.lent) { if (season.eastertide) { score += 2; why.push('Eastertide'); } else if (ctx.weekday === 'Sun' && armKey(k.title).includes(armKey('յարութեան'))) { score += 2; why.push('Sunday: Resurrection sharagan by mode'); } }
     if (!bad) cands.push({ cid, k, hs, score, why });
@@ -108,6 +113,7 @@ function genericFor(canons, part, modes, ctx, kindStem) {
 // ---------- the day ----------
 // hr: resolver result. ctx: { weekday, modeArmenian, easterOffset, fastStatus, commemorationKinds }
 export function assembleCanon(refined, hr, ctx = {}) {
+  const labelOf0 = (part) => PART_LABEL[part].replace(/ \(.*\)/, '');
   const canons = refined.canons || {};
   const named = new Map();
   for (const h of hr.hymns) if (h.resolved) named.set(h.resolved.hymnId, h);
@@ -163,8 +169,16 @@ export function assembleCanon(refined, hr, ctx = {}) {
         const cue = kindCues.find((h) => partsOfType(h.type).includes(part));
         const modes = new Set([normMode(cue && cue.mode), dayMode, ...wantModes].filter(Boolean));
         const ks = cue ? kindStemOf((cue.incipit || '') + ' ' + (cue.type || '')) : null;
-        let cands = genericFor(canons, part, modes, ctx, ks);
-        if (!cands.length && ks) cands = genericFor(canons, part, modes, ctx, null);
+        // a category named by the rubric («Հարց մարտիրոսաց») is looked up in the day's OWN mode first: the modes of hymns the day's primary canon happens to hold
+        // (wantModes) would otherwise pull in generic canons of other modes and make the choice a tie
+        const ownMode = normMode(cue && cue.mode) || dayMode;
+        let cands = ks && ownMode ? genericFor(canons, part, new Set([ownMode]), ctx, ks) : [];
+        if (!cands.length) cands = genericFor(canons, part, modes, ctx, ks);
+        // a category the rubric names (martyrs, repose, penitence ...) is never replaced by the weekday's or the season's own canon: that is a different canon.
+        // If the book's generic canon of that category has nothing in this mode the part stays unlocated, and the weekday canon is only offered as a candidate for review.
+        let weekdayAlt = [];
+        if (!cands.length && ks) { weekdayAlt = genericFor(canons, part, modes, ctx, null); entry.kindUnlocated = ks; }
+        else if (!cands.length) cands = genericFor(canons, part, modes, ctx, null);
         const top = cands[0], second = cands.slice(1).find((c) => !(top && c.k.family && c.k.family === top.k.family));   // sections of one series are alternatives of the same rule, not competing candidates
         if (top && top.score >= 3 && (!second || top.score - second.score >= 1)) {
           const exact = top.hs.filter((h) => normMode(h.mode) === (normMode(cue && cue.mode) || dayMode));
@@ -175,7 +189,9 @@ export function assembleCanon(refined, hr, ctx = {}) {
           entry.from = [fromOf(top.cid)]; lastCanon = { cid: top.cid, generic: true };
         } else {
           entry.note = 'This part could not be located for this day: to be confirmed.';
-          entry.candidates = cands.slice(0, 3).map((c) => ({ canonId: c.cid, title: c.k.title, startPage: (c.k.pages || [])[0] || null, page: c.hs[0].page, hymnId: c.hs[0].id, score: c.score, why: c.why }));
+          const alt = cands.length ? cands : weekdayAlt;
+          entry.candidates = alt.slice(0, 3).map((c) => ({ canonId: c.cid, title: c.k.title, startPage: (c.k.pages || [])[0] || null, page: c.hs[0].page, hymnId: c.hs[0].id, score: c.score, why: c.why }));
+          if (entry.kindUnlocated) entry.note = `The rubric names the category «${entry.kindUnlocated}» but the book's generic canon of that category has no ${labelOf0(part)} for this mode in our index; the weekday's own canon is shown only as a candidate. To be confirmed.`;
         }
       }
     }
@@ -216,7 +232,7 @@ export function assembleCanon(refined, hr, ctx = {}) {
   // (a) the day's other parts come from one generic canon (e.g. «Կանոն Երեքշաբաթի աւուրն»): its remaining parts belong to the same day
   const genericCids = [...new Set([...parts.filter((p) => p.status === 'present' && p.from.length && genericOk(p.from[0].canonId)).map((p) => p.from[0].canonId)])];
   for (const e of parts) {
-    if (e.status !== 'missing') continue;
+    if (e.status !== 'missing' || e.kindUnlocated) continue;
     for (const cid of genericCids) {
       let hs = hymnsOf(cid, e.part); if (!hs.length) continue;
       const m = hs.filter((h) => normMode(h.mode) === dayMode); if (m.length) hs = m;
