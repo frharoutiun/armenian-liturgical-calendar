@@ -166,31 +166,97 @@ def fix_modes_from_printed_headings(hymns, secs):
             if h and h.get('mode') and pg is not None and cur['page'] is not None and cur['page'] <= pg <= cur['page'] + 12:
                 cur['hymns'].append(h)
     n = skipped = 0
+    for h in hymns:
+        h['_idx'] = h.get('mode')          # the index's own reading (our transcription), kept as one witness
     for sp in spans:
         if any(h['id'] in margin and margin[h['id']][0][:1] != sp['letter'] for h in sp['hymns']):
             skipped += 1
             continue
         for h in sp['hymns']:
-            mode = h['mode']
+            mode = h['_idx']
             if mode[:1] != sp['letter'] and len(mode) == 2:
-                h['mode_index'] = mode
-                h['mode'] = sp['letter'] + mode[1]
-                h['mode_basis'] = f"printed heading «{sp['text']}» (p{sp['page']}): the index's {mode} is read as {h['mode']}"
+                h['_head'] = sp['letter'] + mode[1]
+                h['_head_why'] = f"printed heading «{sp['text']}» (p{sp['page']}): the index's {mode} is read as {h['_head']}"
                 n += 1
     nm = 0
     for hid, (m, t) in margin.items():
         h = by_id.get(hid)
         if not h:
             continue
-        if h.get('mode') != m:
-            h.setdefault('mode_index', h.get('mode'))
-            h['mode'] = m
-            h['mode_basis'] = f"margin label «{t}» printed beside the hymn (kept by the Unicode edition): the index's {h['mode_index']} is read as {m}"
+        h['_margin'] = m
+        h['_margin_tag'] = t
+        if h['_idx'] != m:
             nm += 1
-        h['mode_margin'] = m
+    stats = reconcile_modes(hymns)
     for h in hymns:
         MODE_FIX[h['id']] = h.get('mode')
-    return {'by_heading': n, 'spans': len(spans), 'spans_skipped_margin_contradicts': skipped, 'by_margin_label': nm, 'hymns_with_margin_label': len(margin)}
+    return {'by_heading': n, 'spans': len(spans), 'spans_skipped_margin_contradicts': skipped, 'margin_label_disagrees_with_index': nm, 'hymns_with_margin_label': len(margin), **stats}
+
+
+def krapar_modes():
+    """Hymn id -> mode, from the verified Krapar corpus: every Krapar verse carries the anchored stanza id it was matched to and the mode of its stanza.
+    Only hymns whose Krapar stanzas all name the same single mode are used."""
+    cp = os.path.join(SITE, 'data', 'corpus.json')
+    sp = os.path.join(PROJ, 'output/sharagnots_anchored/stanzas.json')
+    if not (os.path.exists(cp) and os.path.exists(sp)):
+        return {}
+    hid_of = {x['id']: x['hymn_id'] for x in json.load(open(sp, encoding='utf-8'))['stanzas']}
+    seen = collections.defaultdict(collections.Counter)
+    for sec in json.load(open(cp, encoding='utf-8')):
+        for stz in sec.get('stanzas') or []:
+            ms = stz.get('modes') or []
+            if len(ms) != 1:
+                continue
+            for v in stz.get('verses') or []:
+                hid = hid_of.get(v.get('a'))
+                if hid:
+                    seen[hid][ms[0]] += 1
+    return {hid: next(iter(c)) for hid, c in seen.items() if len(c) == 1}
+
+
+def reconcile_modes(hymns):
+    """Final `mode` of every hymn, decided by evidence rank, never by a count of votes.
+
+    Printed evidence outranks transcription: (1) the margin tag the Unicode edition kept beside the hymn (typed from the print), (2) the printed heading
+    «<ordinal> ձայն» of the generic canon the hymn stands in; (3) only then the index (our transcription of the margin label) and the Krapar corpus's mode.
+    The index and the Krapar corpus are not independent witnesses for Գ/Դ: they disagree with the printed margin label in the same way (Դ for Գ, Կ for Ձ);
+    the scan pages confirm the printed reading (p244 «Հարց Երրորդ ձայն» with the margin label գձ; p62 margin label գկ where index and Krapar say ԴԿ; p28 հրց/գձ).
+    Where only index and Krapar speak and differ, the index is kept and the hymn is flagged `conflict_unresolved`; where nothing else speaks it is `index_only`.
+    `mode_status`: printed_margin | printed_heading | agreed | index_only | conflict_unresolved; `mode_checks` lists every witness that disagrees with the decision; `mode_index` keeps
+    the index's own value when it was changed (reversible)."""
+    kr = krapar_modes()
+    c = collections.Counter()
+    for h in hymns:
+        idx = h.pop('_idx', h.get('mode'))
+        head, head_why = h.pop('_head', None), h.pop('_head_why', None)
+        mg, tag = h.pop('_margin', None), h.pop('_margin_tag', None)
+        k = kr.get(h['id'])
+        checks = {}   # filled after the decision: the witnesses that disagree with it
+        if mg:
+            final, status, why = mg, 'printed_margin', f"margin tag «{tag}» beside the hymn (kept by the Unicode edition)"
+        elif head:
+            final, status, why = head, 'printed_heading', head_why
+        else:
+            final = idx
+            if k and k != idx:
+                status = 'conflict_unresolved'
+            elif k or (idx and any(v == idx for v in (mg, head))):
+                status = 'agreed'
+            else:
+                status = 'index_only'
+            why = None
+        checks = {w: v for w, v in (('index', idx), ('krapar', k), ('margin', mg), ('heading', head)) if v and v != final}
+        h['mode'] = final
+        if final != idx:
+            h['mode_index'] = idx
+            h['mode_basis'] = f"{why}: the index's {idx} is read as {final}" if why else f"index {idx}"
+        elif status in ('printed_margin', 'printed_heading'):
+            status = 'agreed'
+        h['mode_status'] = status
+        if checks:
+            h['mode_checks'] = checks
+        c[status] += 1
+    return {'mode_status': dict(c), 'krapar_modes': len(kr)}
 
 
 def build_hymn_openings():
