@@ -26,6 +26,7 @@ node tests/test_hymns.mjs >/dev/null || { echo "hymn tests FAILED"; exit 1; }
 node tests/test_listen.mjs >/dev/null || { echo "listen (reading audio) tests FAILED"; exit 1; }
 node tests/test_cues.mjs >/dev/null || { echo "cue-line tests FAILED"; exit 1; }
 node tests/test_chants_english.mjs >/dev/null || { echo "chants english tests FAILED"; exit 1; }
+node tests/test_k1.mjs >/dev/null || { echo "K1 tests FAILED"; exit 1; }
 node tests/test_scripture_match.mjs || { echo "scripture-match tests FAILED"; exit 1; }
 python3 -m unittest tests.test_hymnal_data 2>&1 | tail -1 | grep -q OK || { echo "hymnal data tests FAILED"; exit 1; }
 python3 -m unittest tests.test_stanza_fixes 2>&1 | tail -1 | grep -q OK || { echo "stanza fix tests FAILED"; exit 1; }

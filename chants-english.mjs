@@ -82,19 +82,34 @@ export function fetchEsvRef(ref) {
   return p;
 }
 
+// Where the ESV omits or numbers differently a verse the KJV (Arak29's English column) has, or adds a line the KJV lacks: the same note the readings carry.
+// Keep in sync with ESV_OMITS in day-extras.js (readings); Psalms are listed here because the chants are mostly psalm verses.
+const ESV_OMITS = { Matthew: ["17:21", "18:11", "23:14"], Mark: ["7:16", "9:44", "9:46", "11:26", "15:28"], Luke: ["17:36", "23:17"], John: ["5:4"], Acts: ["8:37", "15:34", "24:7", "28:29"], Romans: ["16:24"], "1 John": ["5:7"] };
+const ESV_ADDS = { Psalm: [{ at: [145, 13], text: "The ESV keeps the line «The LORD is faithful in all his words and kind in all his works» in Psalm 145:13, which the KJV lacks; the Armenian (Psalm 144:13) has it." }] };
+export function esvNote(ref) {
+  const m = /^(.+?) (\d+):(\d+)(?:-(\d+))?$/.exec(String(ref || "").trim());
+  if (!m) return "";
+  const book = m[1], ch = +m[2], v1 = +m[3], v2 = m[4] != null ? +m[4] : v1;
+  const omit = ((ESV_OMITS[book]) || []).filter((r) => { const [c, v] = r.split(":").map(Number); return c === ch && v >= v1 && v <= v2; });
+  const adds = ((ESV_ADDS[book]) || []).filter((a) => a.at[0] === ch && a.at[1] >= v1 && a.at[1] <= v2).map((a) => a.text);
+  const parts = [];
+  if (omit.length) parts.push(`The ESV omits or numbers differently the KJV verse${omit.length > 1 ? "s" : ""} ${omit.join(", ")}.`);
+  return parts.concat(adds).join(" ");
+}
 // The English column for one verse. `entry` = chants_english entry (or generic/piece entry), `seg` = the layer segment/generic entry (for the layer's own KJV text).
 export function englishHtml(entry, seg) {
   if (!entry) return "";
   const kjv = entry.kjv_text || (seg && seg.english_full) || "";
   let h = "";
   if (entry.esv_lookup) {
-    h += `<div class="chant-esv" data-ref="${esc(entry.esv_lookup)}"><div class="cal-note">English (ESV): ${esc(entry.esv_lookup)}${entry.sung_differs ? " &middot; Bible verse; the sung wording differs" : ""}</div><div class="chant-en chant-esv-body cal-loading">Loading ESV text from achrct.org&hellip;</div></div>`;
+    const nt = esvNote(entry.esv_lookup);
+    h += `<div class="chant-esv" data-ref="${esc(entry.esv_lookup)}"><div class="cal-note">English (ESV): ${esc(entry.esv_lookup)}${entry.sung_differs ? " &middot; Bible verse; the sung wording differs" : ""}${nt ? " &middot; " + esc(nt) : ""}</div><div class="chant-en chant-esv-body cal-loading">Loading ESV text from achrct.org&hellip;</div></div>`;
     if (kjv) h += `<div class="chant-kjv" hidden><div class="chant-en">${esc(kjv)} <span class="cal-note">(KJV, public domain)</span></div></div>`;
   } else if (kjv) {
     h += `<div class="chant-en">${esc(kjv)} <span class="cal-note">(KJV, public domain)</span></div>`;
   }
   if (entry.ai_translation) {
-    const lead = entry.esv_lookup ? "Sung wording" : "Sung wording (not a verse of the Bible)";
+    const lead = entry.rubric ? "Printed direction" : entry.esv_lookup ? "Sung wording" : "Sung wording (not a verse of the Bible)";
     h += `<div class="chant-ai"><span class="ai-badge">${AI_LABEL}</span><span class="cal-note">${esc(lead)}:</span> <span class="chant-en">${esc(entry.ai_translation)}</span>${entry.ai_note && !/^AI translation/.test(entry.ai_note) ? `<div class="cal-note">${esc(entry.ai_note)}</div>` : ""}</div>`;
   }
   if (!h) h = `<div class="cal-note">No sourced English for this verse yet.</div>`;

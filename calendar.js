@@ -177,16 +177,31 @@ function renderBridgeSeg(sg, c, ent) {
   const one = (pe, label) => {
     const hy = pe.armenian_bridge_full || pe.incipit || "";
     const refs = [pe.armenian_ref && String(pe.armenian_ref).replace(/ \(Arak29[^)]*\)/, ""), pe.kjv_ref && "English numbering: " + pe.kjv_ref].filter(Boolean);
-    return `<div class="chant-piece"><div class="hy-en"><div class="hy-col"><div class="chant-hy script-original" lang="hy">${esc(hy)}</div></div><div class="en-col">${CE.englishHtml(pe, null)}</div></div><div class="cal-note">${esc((label ? label + " · " : "") + (pe.armenian_bridge_full ? "1895 Bible text (Arak29)" : "printed opening") + (refs.length ? " · " + refs.join(" · ") : ""))} ${chip("check: found by the wider search", "warn")}</div></div>`;
+    const src = pe.rubric ? "printed direction (not a verse)" : pe.armenian_bridge_full ? (pe.armenian_source === "zhamagirk" ? "Zhamagirk sung wording" : "1895 Bible text (Arak29)") : pe.ai_translation ? "composed text (not a Bible verse)" : "printed opening";
+    const chk = pe.rubric || (!pe.armenian_bridge_full && pe.ai_translation) ? "" : chip(/^K1:/.test(pe.basis || "") ? "check: opening identified from the sources" : "check: found by the wider search", "warn");
+    return `<div class="chant-piece"><div class="hy-en"><div class="hy-col"><div class="chant-hy script-original" lang="hy">${esc(hy)}</div></div><div class="en-col">${CE.englishHtml(pe, null)}</div></div><div class="cal-note">${esc((label ? label + " · " : "") + src + (refs.length ? " · " + refs.join(" · ") : ""))} ${chk}</div></div>`;
   };
   if (ent.pieces) return `<div class="chant-seg">${role}<div class="cal-note">The Tonatsoyts lists several openings here; each was searched in the Bible.</div>${ent.pieces.map((pe) => one(pe, pe.incipit)).join("")}</div>`;
   return `<div class="chant-seg">${role}${one(ent, "")}${ent.note ? `<div class="cal-note">${esc(ent.note)}</div>` : ""}</div>`;
+}
+// A segment that is a printed direction or label (K1), not a verse: shown as such, with a labelled AI translation of the direction.
+function renderRubricSeg(sg, ent) {
+  const role = SEG_ROLE[sg.role] ? `<div class="cal-note">${esc(SEG_ROLE[sg.role])}</div>` : "";
+  return `<div class="chant-seg">${role}<div class="hy-en"><div class="hy-col"><div class="chant-hy chant-opening script-original" lang="hy">${esc(sg.incipit || "")}</div></div><div class="en-col">${CE.englishHtml(ent, null)}</div></div><div class="cal-note">Printed direction, not a verse.${ent.note ? " " + esc(ent.note) : ""}</div></div>`;
+}
+// A segment whose opening no source reproduces (K1 reviewed it): says so, lists the nearest candidates as "not a decision".
+function renderUnresolvedSeg(sg, ent) {
+  const role = SEG_ROLE[sg.role] ? `<div class="cal-note">${esc(SEG_ROLE[sg.role])}</div>` : "";
+  const alts = (ent.alternatives || []).filter(Boolean);
+  return `<div class="chant-seg chant-unsettled">${role}<div class="chant-hy chant-opening script-original" lang="hy">${esc(sg.incipit || "")}</div><div class="cal-note">${chip("verse not identified", "warn")} ${esc(ent.explanation)}</div>${alts.length ? `<details class="cal-other"><summary>Nearest verses (not a decision)</summary><ul>${alts.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></details>` : ""}</div>`;
 }
 function renderChantSeg(sg, c) {
   if (sg.status === "generic") return renderGenericSeg(sg, c);
   const si = c && c.segments ? c.segments.indexOf(sg) : -1;
   const ent = CE && c && si >= 0 ? CE.entryFor(c.layerKey, si, sg) : null;
   if (ent && ent.noise) return "";
+  if (ent && ent.rubric && sg.status !== "matched") return renderRubricSeg(sg, ent);
+  if (ent && ent.explanation && sg.status !== "matched") return renderUnresolvedSeg(sg, ent);
   if (ent && sg.status !== "matched" && (ent.pieces || ent.armenian_bridge_full || ent.ai_translation)) {
     if (ent.pieces || ent.armenian_bridge_full) return renderBridgeSeg(sg, c, ent);
   }

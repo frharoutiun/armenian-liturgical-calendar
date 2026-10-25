@@ -1,6 +1,6 @@
 {
  "schema": "c2-chants-english/1.0",
- "generated": "2026-10-25T12:09:00Z",
+ "generated": "2026-10-25T12:48:43Z",
  "note": "English routes for the chants: ESV is requested live from the church's ESV service (never stored); KJV is the public-domain fallback; AI translations are offline, labelled and only for sung wording that is not a Bible verse.",
  "ai_label": "AI translation (Claude)",
  "entries": {
@@ -22,7 +22,7 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.19,
-    "precision": 0.17
+    "precision": 0.24
    },
    "ai_translation": "(Martyrs) In the church of the saints and in memory of the holy martyrs, lifting our hands, we beseech you: through their intercession and prayers make our lives peaceful, O God, as the lover of mankind.",
    "ai_note": "AI translation of the sung wording",
@@ -462,7 +462,7 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.19,
-    "precision": 0.29
+    "precision": 0.31
    },
    "ai_translation": "Of the Nativity: O unwedded Mother of God, you conceived the Word without beginning and bore the incomprehensible God; you carried in your arms him who cannot be circumscribed; intercede with him unceasingly for our souls.",
    "ai_note": "AI translation of the sung wording",
@@ -775,10 +775,17 @@
    "pieces": [
     {
      "incipit": "տէր յուսացայ",
-     "alternatives": [
-      "Ps 10:2",
-      "Ps 12:6"
-     ]
+     "esv_lookup": "Psalm 11:1",
+     "armenian_ref": "Ps 10:2 (Arak29 / Armenian-LXX numbering)",
+     "kjv_ref": "Ps 11:1",
+     "kjv_text": "In the LORD put I my trust: how say ye to my soul, Flee as a bird to your mountain:",
+     "armenian_bible_full": "Ի Տէր յուսացայ. ո՞րպէս ասիցէք ցանձն իմ. Փոփոխեաց ի լերինս որպէս ճնճղուկ:",
+     "confidence": 0.75,
+     "review_status": "needs_review",
+     "armenian_bridge_full": "Ի Տէր յուսացայ. ո՞րպէս ասիցէք ցանձն իմ. Փոփոխեաց ի լերինս որպէս ճնճղուկ:",
+     "armenian_source": "arak29",
+     "sung_differs": false,
+     "basis": "K1: Series from the printed Ժ (10): «Ի Տէր յուսացայ» = Ps 10:2 (Ps 10:1 is the title), «Ապրեցո զիս» = 11:2, «Մինչեւ յե՞րբ» = 12:1."
     },
     {
      "incipit": "Ապրեցո զիս տէր",
@@ -793,10 +800,17 @@
     },
     {
      "incipit": "Մինչեւ յե՞րբ",
-     "alternatives": [
-      "Ps 12:1",
-      "Ps 12:2"
-     ]
+     "esv_lookup": "Psalm 13:1",
+     "armenian_ref": "Ps 12:1 (Arak29 / Armenian-LXX numbering)",
+     "kjv_ref": "Ps 13:1",
+     "kjv_text": "How long wilt thou forget me, O LORD? for ever? how long wilt thou hide thy face from me:",
+     "armenian_bible_full": "Մինչեւ յե՞րբ, Տէր, մոռանաս զիս ի սպառ, մինչեւ յե՞րբ դարձուցանես զերեսս քո յինէն:",
+     "confidence": 0.75,
+     "review_status": "needs_review",
+     "armenian_bridge_full": "Մինչեւ յե՞րբ, Տէր, մոռանաս զիս ի սպառ, մինչեւ յե՞րբ դարձուցանես զերեսս քո յինէն:",
+     "armenian_source": "arak29",
+     "sung_differs": false,
+     "basis": "K1: Series from the printed Ժ (10): «Ի Տէր յուսացայ» = 10:2, «Ապրեցո զիս» = 11:2, «Մինչեւ յե՞րբ» = Ps 12:1."
     }
    ],
    "review_status": "needs_review",
@@ -1450,7 +1464,7 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.19,
-    "precision": 0.29
+    "precision": 0.31
    },
    "ai_translation": "Of the Nativity: O unwedded Mother of God, you conceived the Word without beginning and bore the incomprehensible God; you carried in your arms him who cannot be circumscribed; intercede with him unceasingly for our souls.",
    "ai_note": "AI translation of the sung wording",
@@ -2293,7 +2307,7 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.19,
-    "precision": 0.14
+    "precision": 0.25
    },
    "ai_translation": "May the thanksgivings of those who fear your name be sweet to you, O Christ, whom you made to hope by your mercy in the mysteries of your life-giving coming.",
    "ai_note": "AI translation of the sung wording",
@@ -2425,7 +2439,7 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.19,
-    "precision": 0.14
+    "precision": 0.25
    },
    "ai_translation": "May the thanksgivings of those who fear your name be sweet to you, O Christ, whom you made to hope by your mercy in the mysteries of your life-giving coming.",
    "ai_note": "AI translation of the sung wording",
@@ -3127,7 +3141,7 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.19,
-    "precision": 0.29
+    "precision": 0.31
    },
    "ai_translation": "Of the Nativity: O unwedded Mother of God, you conceived the Word without beginning and bore the incomprehensible God; you carried in your arms him who cannot be circumscribed; intercede with him unceasingly for our souls.",
    "ai_note": "AI translation of the sung wording",
@@ -4935,9 +4949,11 @@
    "pieces": [
     {
      "incipit": "Յարութեան",
-     "alternatives": [
-      "Ps 65:1"
-     ]
+     "rubric": true,
+     "ai_translation": "Of the Resurrection:",
+     "ai_note": "AI translation of a printed direction (not a verse)",
+     "basis": "K1: printed direction, not a verse",
+     "note": "A label of the mesedi (for the Resurrection); the verse openings follow."
     },
     {
      "incipit": "Տէր թագաւորեաց ցըն",
@@ -5323,10 +5339,17 @@
     },
     {
      "incipit": "Պահեա զիս",
-     "alternatives": [
-      "Ps 15:2",
-      "Ps 16:8"
-     ]
+     "esv_lookup": "Psalm 16:1",
+     "armenian_ref": "Ps 15:2 (Arak29 / Armenian-LXX numbering)",
+     "kjv_ref": "Ps 16:1",
+     "kjv_text": "Preserve me, O God: for in thee do I put my trust. KJV 2 O my soul, thou hast said unto the LORD, Thou art my Lord: my goodness extendeth not to thee:",
+     "armenian_bible_full": "Պահեա զիս, Աստուած, զի ես ի քեզ յուսացայ. ասացի Տեառն. Տէր իմ ես դու, եւ բարիք իմ ինձ ի քէն են:",
+     "confidence": 0.75,
+     "review_status": "needs_review",
+     "armenian_bridge_full": "Պահեա զիս, Աստուած, զի ես ի քեզ յուսացայ. ասացի Տեառն. Տէր իմ ես դու, եւ բարիք իմ ինձ ի քէն են:",
+     "armenian_source": "arak29",
+     "sung_differs": false,
+     "basis": "K1: Series from the printed ԺԳ (13): «Ասաց անզգամն» = 13, «Տէր ո՞վ կացցէ» = 14, «Պահեա զիս» = Ps 15:2 (15:1 is the title)."
     }
    ],
    "review_status": "needs_review",
@@ -5983,7 +6006,7 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.19,
-    "precision": 0.29
+    "precision": 0.31
    },
    "ai_translation": "Of the Nativity: O unwedded Mother of God, you conceived the Word without beginning and bore the incomprehensible God; you carried in your arms him who cannot be circumscribed; intercede with him unceasingly for our souls.",
    "ai_note": "AI translation of the sung wording",
@@ -6401,7 +6424,12 @@
      "kjv_text": "The LORD is my shepherd; I shall not want. 2 He maketh me to lie down in green pastures: he leadeth me beside the still waters:"
     },
     {
-     "incipit": "ապա սաղմոս ՀԹ"
+     "incipit": "ապա սաղմոս ՀԹ",
+     "rubric": true,
+     "ai_translation": "then Psalm 79 (80).",
+     "ai_note": "AI translation of a printed direction (not a verse)",
+     "basis": "K1: printed direction, not a verse",
+     "note": "It joins two psalm openings."
     }
    ],
    "review_status": "needs_review",
@@ -6443,7 +6471,12 @@
      "kjv_text": "I will declare the decree: the LORD hath said unto me, Thou art my Son; this day have I begotten thee:"
     },
     {
-     "incipit": "ապա սաղմոս ՃԹ"
+     "incipit": "ապա սաղմոս ՃԹ",
+     "rubric": true,
+     "ai_translation": "then Psalm 109 (110).",
+     "ai_note": "AI translation of a printed direction (not a verse)",
+     "basis": "K1: printed direction, not a verse",
+     "note": "It joins two psalm openings."
     }
    ],
    "review_status": "needs_review",
@@ -6675,7 +6708,12 @@
      "kjv_text": "My God, my God, why hast thou forsaken me? why art thou so far from helping me, and from the words of my roaring:"
     },
     {
-     "incipit": "Յաջորդ սաղմոս"
+     "incipit": "Յաջորդ սաղմոս",
+     "rubric": true,
+     "ai_translation": "The next psalm:",
+     "ai_note": "AI translation of a printed direction (not a verse)",
+     "basis": "K1: printed direction, not a verse",
+     "note": "It joins two psalm openings."
     }
    ],
    "review_status": "needs_review",
@@ -6866,8 +6904,8 @@
   "CH-e050ff89eb|2": {
    "scope": "whole_bible",
    "pairing": {
-    "coverage": 0.33,
-    "precision": 0.3
+    "coverage": 0.22,
+    "precision": 0.14
    },
    "ai_translation": "[Cues only, cut off] \"God entered…\"; \"You who shepherd Israel…\"; \"Rejoice in God…\".",
    "ai_note": "rubric/cue or list, not a verse",
@@ -6906,7 +6944,7 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.25,
-    "precision": 0.11
+    "precision": 0.12
    },
    "ai_translation": "[Rubric] Mesedis of the Jashoo for the days after the Gordzk (Acts), beginning from Wednesday.",
    "ai_note": "rubric/cue or list, not a verse",
@@ -7025,7 +7063,7 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.19,
-    "precision": 0.29
+    "precision": 0.31
    },
    "ai_translation": "Of the Nativity: O unwedded Mother of God, you conceived the Word without beginning and bore the incomprehensible God; you carried in your arms him who cannot be circumscribed; intercede with him unceasingly for our souls.",
    "ai_note": "AI translation of the sung wording",
@@ -7110,8 +7148,8 @@
   "CH-e82b2bec00|0": {
    "scope": "whole_bible",
    "pairing": {
-    "coverage": 0.11,
-    "precision": 0.2
+    "coverage": 0.16,
+    "precision": 0.19
    },
    "ai_translation": "(Cross) Before your precious, all-conquering Cross we fall down in worship and ask forgiveness of our offenses, for by it you took away the condemnation of the human race.",
    "ai_note": "AI translation of the sung wording",
@@ -7418,19 +7456,33 @@
      "kjv_text": "Praise ye the LORD from the heavens: praise him in the heights:"
     },
     {
-     "incipit": "Փառք եւ երկրպագութիւն"
+     "incipit": "Փառք եւ երկրպագութիւն",
+     "ai_translation": "Glory and worship to the Father and the Son and the Holy Spirit, now and always.",
+     "ai_note": "AI translation of the sung wording",
+     "basis": "K1: composed text, not a Bible verse",
+     "note": "The Zhamagirk's doxology «Փառք եւ երկրպագութիւն Հօր եւ Որդւոյ եւ Հոգւոյն Սրբոյ այժմ եւ միշտ» (line 3271): a composed text, not a verse of the Bible."
     },
     {
-     "incipit": "Դասք հրեշտակաց"
+     "incipit": "Դասք հրեշտակաց",
+     "ai_translation": "The choirs of angels bless you, Christ, alleluia.",
+     "ai_note": "AI translation of the sung wording",
+     "basis": "K1: composed text, not a Bible verse",
+     "note": "The Zhamagirk's «Դասք հրեշտակաց օրհնեն զքեզ, Քրիստոս, ալէլուիա» (lines 3298, 3919): a composed text, not a verse of the Bible."
     },
     {
      "incipit": "Դարձեալ",
-     "alternatives": [
-      "Ps 77:58"
-     ]
+     "rubric": true,
+     "ai_translation": "Again:",
+     "ai_note": "AI translation of a printed direction (not a verse)",
+     "basis": "K1: printed direction, not a verse",
+     "note": "A repeat mark in the Alleluia list."
     },
     {
-     "incipit": "Թագաւոր յաւիտեան"
+     "incipit": "Թագաւոր յաւիտեան",
+     "ai_translation": "King for ever.",
+     "ai_note": "AI translation of the sung wording",
+     "basis": "K1: composed text, not a Bible verse",
+     "note": "The Alleluia refrain «Թագաւոր յաւիտեան» of the Zhamagirk (lines 2931, 3104): a composed refrain, not a verse of the Bible."
     }
    ],
    "review_status": "needs_review",
@@ -7495,17 +7547,31 @@
    "pieces": [
     {
      "incipit": "Տէր աստուած իմ",
-     "alternatives": [
-      "Ps 7:2",
-      "Ps 7:4"
-     ]
+     "esv_lookup": "Psalm 7:1",
+     "armenian_ref": "Ps 7:2 (Arak29 / Armenian-LXX numbering)",
+     "kjv_ref": "Ps 7:1",
+     "kjv_text": "O LORD my God, in thee do I put my trust: save me from all them that persecute me, and deliver me:",
+     "armenian_bible_full": "Տէր Աստուած իմ, ի քեզ յուսացայ, եւ փրկեա զիս յամենայն հալածչաց իմոց եւ ապրեցո զիս:",
+     "confidence": 0.75,
+     "review_status": "needs_review",
+     "armenian_bridge_full": "Տէր Աստուած իմ, ի քեզ յուսացայ, եւ փրկեա զիս յամենայն հալածչաց իմոց եւ ապրեցո զիս:",
+     "armenian_source": "arak29",
+     "sung_differs": false,
+     "basis": "K1: Consecutive psalm openings: «Տէր Աստուած իմ» = Ps 7:2 (7:1 is the title), «Տէր Տէր մեր» = 8:2, «Գոհացայց» = 9:2."
     },
     {
      "incipit": "Տէր տէր մեր",
-     "alternatives": [
-      "Ps 8:2",
-      "Ps 8:10"
-     ]
+     "esv_lookup": "Psalm 8:1",
+     "armenian_ref": "Ps 8:2 (Arak29 / Armenian-LXX numbering)",
+     "kjv_ref": "Ps 8:1",
+     "kjv_text": "O LORD our Lord, how excellent is thy name in all the earth! who hast set thy glory above the heavens:",
+     "armenian_bible_full": "Տէր, Տէր մեր, զի՜ սքանչելի է անուն քո յամենայն երկրի, համբարձաւ մեծվայելչութիւն քո ի վերոյ քան զերկինս:",
+     "confidence": 0.75,
+     "review_status": "needs_review",
+     "armenian_bridge_full": "Տէր, Տէր մեր, զի՜ սքանչելի է անուն քո յամենայն երկրի, համբարձաւ մեծվայելչութիւն քո ի վերոյ քան զերկինս:",
+     "armenian_source": "arak29",
+     "sung_differs": false,
+     "basis": "K1: Consecutive psalm openings: «Տէր Աստուած իմ» = 7:2, «Տէր Տէր մեր» = Ps 8:2, «Գոհացայց» = 9:2."
     },
     {
      "incipit": "Գոհացայց",
@@ -7787,6 +7853,446 @@
    "ai_note": "AI translation of the sung wording",
    "segment_status": "matched",
    "incipit": "Կեցո զծառայս"
+  },
+  "CH-0197bf6f3a|0": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 86:2",
+   "armenian_ref": "Ps 85:2 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 86:2",
+   "kjv_text": "Preserve my soul; for I am holy: O thou my God, save thy servant that trusteth in thee:",
+   "armenian_bible_full": "Պահեա զանձն իմ զի սուրբ եմ ես. փրկեա զծառայս քո, Աստուած իմ, որ ի քեզ յուսացայ:",
+   "scope": "k1_resolved",
+   "confidence": 0.85,
+   "review_status": "needs_review",
+   "note": "Printed psalm ՁԵ (85) is right. The Zhamagirk sings «Կեցո զծառայս քո, Աստուած իմ, որ ի քեզ յուսացայ» (line 9036); the 1895 Bible has the same words with «փրկեա» for «կեցո» (Ps 85:2 = ESV Psalm 86:2).",
+   "armenian_bridge_full": "Կեցո զծառայս քո, Աստուած իմ, որ ի քեզ յուսացայ:",
+   "armenian_source": "zhamagirk",
+   "sung_differs": true,
+   "ai_translation": "Save your servant, my God, who has put his trust in you.",
+   "ai_note": "AI translation of the sung wording",
+   "basis": "K1: Bible verse (the Zhamagirk's sung wording differs): zham.txt line 9036",
+   "incipit": "Կեցո զծառայս քոյ"
+  },
+  "CH-2161550324|0": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 86:2",
+   "armenian_ref": "Ps 85:2 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 86:2",
+   "kjv_text": "Preserve my soul; for I am holy: O thou my God, save thy servant that trusteth in thee:",
+   "armenian_bible_full": "Պահեա զանձն իմ զի սուրբ եմ ես. փրկեա զծառայս քո, Աստուած իմ, որ ի քեզ յուսացայ:",
+   "scope": "k1_resolved",
+   "confidence": 0.85,
+   "review_status": "needs_review",
+   "note": "Printed psalm ՁԵ (85) is right. The Zhamagirk sings «Կեցո զծառայս քո, Աստուած իմ, որ ի քեզ յուսացայ» (line 9036); the 1895 Bible has «փրկեա» for «կեցո» (Ps 85:2 = ESV Psalm 86:2).",
+   "armenian_bridge_full": "Կեցո զծառայս քո, Աստուած իմ, որ ի քեզ յուսացայ:",
+   "armenian_source": "zhamagirk",
+   "sung_differs": true,
+   "ai_translation": "Save your servant, my God, who has put his trust in you.",
+   "ai_note": "AI translation of the sung wording",
+   "basis": "K1: Bible verse (the Zhamagirk's sung wording differs): zham.txt line 9036",
+   "incipit": "Կեցո ըզծառայս"
+  },
+  "CH-3cfa582489|0": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 86:2",
+   "armenian_ref": "Ps 85:2 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 86:2",
+   "kjv_text": "Preserve my soul; for I am holy: O thou my God, save thy servant that trusteth in thee:",
+   "armenian_bible_full": "Պահեա զանձն իմ զի սուրբ եմ ես. փրկեա զծառայս քո, Աստուած իմ, որ ի քեզ յուսացայ:",
+   "scope": "k1_resolved",
+   "confidence": 0.85,
+   "review_status": "needs_review",
+   "note": "Printed psalm ՁԵ (85) is right; the alternate «Ողորմեա» is Ps 85:3. The Zhamagirk sings «Կեցո զծառայս քո, Աստուած իմ…» (line 9036); the 1895 Bible has «փրկեա» for «կեցո».",
+   "armenian_bridge_full": "Կեցո զծառայս քո, Աստուած իմ, որ ի քեզ յուսացայ:",
+   "armenian_source": "zhamagirk",
+   "sung_differs": true,
+   "ai_translation": "Save your servant, my God, who has put his trust in you.",
+   "ai_note": "AI translation of the sung wording",
+   "basis": "K1: Bible verse (the Zhamagirk's sung wording differs): zham.txt line 9036",
+   "incipit": "Կեցո զծառայս"
+  },
+  "CH-bf03a388e6|0": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 86:2",
+   "armenian_ref": "Ps 85:2 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 86:2",
+   "kjv_text": "Preserve my soul; for I am holy: O thou my God, save thy servant that trusteth in thee:",
+   "armenian_bible_full": "Պահեա զանձն իմ զի սուրբ եմ ես. փրկեա զծառայս քո, Աստուած իմ, որ ի քեզ յուսացայ:",
+   "scope": "k1_resolved",
+   "confidence": 0.85,
+   "review_status": "needs_review",
+   "note": "Printed psalm ՁԵ (85) is right. The Zhamagirk sings «Կեցո զծառայս քո, Աստուած իմ, որ ի քեզ յուսացայ» (line 9036); the 1895 Bible has «փրկեա» for «կեցո».",
+   "armenian_bridge_full": "Կեցո զծառայս քո, Աստուած իմ, որ ի քեզ յուսացայ:",
+   "armenian_source": "zhamagirk",
+   "sung_differs": true,
+   "ai_translation": "Save your servant, my God, who has put his trust in you.",
+   "ai_note": "AI translation of the sung wording",
+   "basis": "K1: Bible verse (the Zhamagirk's sung wording differs): zham.txt line 9036",
+   "incipit": "Կեցո զծառայս"
+  },
+  "CH-1a7bb31133|0": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 110:3",
+   "armenian_ref": "Ps 109:3 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 110:3",
+   "kjv_text": "Thy people shall be willing in the day of thy power, in the beauties of holiness from the womb of the morning: thou hast the dew of thy youth:",
+   "armenian_bible_full": "Ընդ քեզ է ինձ սկիզբն աւուրց զօրութեան, ի վայելչութիւն սրբոց քոց յարգանդէ յառաջ քան զարուսեակ ծնայ զքեզ:",
+   "scope": "k1_resolved",
+   "confidence": 0.6,
+   "review_status": "needs_review",
+   "note": "«Ի վայելչութիւն» opens Ps 109:3 («ի վայելչութիւն սրբոց քոց յարգանդէ յառաջ քան զարուսեակ ծնայ զքեզ»), the verse the Zhamagirk uses for the Mother of God and the Epiphany Alleluias (lines 5324, 9417). The printed psalm number ՃԼԱ (131) does not contain it; the alternate «Ասաց Տէր ցՏէր» is Ps 109:1.",
+   "armenian_bridge_full": "Ընդ քեզ է ինձ սկիզբն աւուրց զօրութեան, ի վայելչութիւն սրբոց քոց յարգանդէ յառաջ քան զարուսեակ ծնայ զքեզ:",
+   "armenian_source": "arak29",
+   "sung_differs": false,
+   "basis": "K1: opening identified in the 1895 Bible (evidence in note)",
+   "incipit": "Ի վայելչութիւն, ձայնիւ"
+  },
+  "CH-d32d5b8d3a|4": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 110:3",
+   "armenian_ref": "Ps 109:3 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 110:3",
+   "kjv_text": "Thy people shall be willing in the day of thy power, in the beauties of holiness from the womb of the morning: thou hast the dew of thy youth:",
+   "armenian_bible_full": "Ընդ քեզ է ինձ սկիզբն աւուրց զօրութեան, ի վայելչութիւն սրբոց քոց յարգանդէ յառաջ քան զարուսեակ ծնայ զքեզ:",
+   "scope": "k1_resolved",
+   "confidence": 0.85,
+   "review_status": "needs_review",
+   "note": "Printed psalm ՃԹ (109): «Ի վայելչութիւն» is Ps 109:3 («ի վայելչութիւն սրբոց քոց…»).",
+   "armenian_bridge_full": "Ընդ քեզ է ինձ սկիզբն աւուրց զօրութեան, ի վայելչութիւն սրբոց քոց յարգանդէ յառաջ քան զարուսեակ ծնայ զքեզ:",
+   "armenian_source": "arak29",
+   "sung_differs": false,
+   "basis": "K1: opening identified in the 1895 Bible (evidence in note)",
+   "incipit": "Ի վայելչութիւն"
+  },
+  "CH-20dee26287|1": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 45:1",
+   "armenian_ref": "Ps 44:2 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 45:1",
+   "kjv_text": "My heart is inditing a good matter: I speak of the things which I have made touching the king: my tongue is the pen of a ready writer:",
+   "armenian_bible_full": "Բղխեսցէ սիրտ իմ զպատգամս քո բարիս, եւ ասեմ զգործս իմ թագաւորի. լեզու իմ որպէս գրիչ արագագիր դպրի:",
+   "scope": "k1_resolved",
+   "confidence": 0.85,
+   "review_status": "needs_review",
+   "note": "The alternate «Բղխեաց» is the sung form of Ps 44:2 (the Zhamagirk, line 10139: «Բղխեաց սիրտ իմ զբան բարի…»; the 1895 Bible has «Բղխեսցէ սիրտ իմ զպատգամս քո բարիս»). Printed psalm ԽԴ (44) is right.",
+   "armenian_bridge_full": "Բղխեաց սիրտ իմ զբան բարի, եւ ասեմ զգործս իմ թագաւորի:",
+   "armenian_source": "zhamagirk",
+   "sung_differs": true,
+   "ai_translation": "My heart has overflowed with a good word, and I speak my works to the king.",
+   "ai_note": "AI translation of the sung wording",
+   "basis": "K1: Bible verse (the Zhamagirk's sung wording differs): zham.txt line 10139",
+   "incipit": "Բղխեաց"
+  },
+  "CH-2e77bc52a3|0": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 98:3",
+   "armenian_ref": "Ps 97:3 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 98:3",
+   "kjv_text": "He hath remembered his mercy and his truth toward the house of Israel: all the ends of the earth have seen the salvation of our God:",
+   "armenian_bible_full": "Յիշեաց զողորմութիւն իւր Յակոբայ, զճշմարտութիւն`` իւր ի վերայ տանն Իսրայելի. եւ տեսին ամենայն ծագք երկրի զփրկութիւն Աստուծոյ մերոյ:",
+   "scope": "k1_resolved",
+   "confidence": 0.7,
+   "review_status": "needs_review",
+   "note": "«Տեսին» opens «Տեսին ամենայն ծագք երկրի զփրկութիւն Աստուծոյ մերոյ» (Ps 97:3, the second half of the verse). The same Friday series prints Ps ՂԷ (97) «Տեսին ամենայն» (CH-a64b21e85a); the numeral here, ՂԵ (95), is a scribal slip for ՂԷ.",
+   "armenian_bridge_full": "Յիշեաց զողորմութիւն իւր Յակոբայ, զճշմարտութիւն`` իւր ի վերայ տանն Իսրայելի. եւ տեսին ամենայն ծագք երկրի զփրկութիւն Աստուծոյ մերոյ:",
+   "armenian_source": "arak29",
+   "sung_differs": false,
+   "basis": "K1: opening identified in the 1895 Bible (evidence in note)",
+   "incipit": "Տեսին"
+  },
+  "CH-35067e3614|2": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 136:1",
+   "armenian_ref": "Ps 135:1 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 136:1",
+   "kjv_text": "O give thanks unto the LORD; for he is good: for his mercy endureth for ever:",
+   "armenian_bible_full": "Խոստովան եղերուք Տեառն, զի բարի է. զի յաւիտեան է ողորմ նորա:",
+   "scope": "k1_resolved",
+   "confidence": 0.7,
+   "review_status": "needs_review",
+   "note": "The line lists the first words of consecutive psalms starting at the printed ՃԼԴ (134): «Օրհնեցէք» = 134:1, «Խոստովան» = Ps 135:1 («Խոստովան եղերուք Տեառն, զի բարի է»).",
+   "armenian_bridge_full": "Խոստովան եղերուք Տեառն, զի բարի է. զի յաւիտեան է ողորմ նորա:",
+   "armenian_source": "arak29",
+   "sung_differs": false,
+   "basis": "K1: opening identified in the 1895 Bible (evidence in note)",
+   "incipit": "Խոստովան: Սաղ"
+  },
+  "CH-6f0d3e7517|1": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 138:1",
+   "armenian_ref": "Ps 137:1 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 138:1",
+   "kjv_text": "I will praise thee with my whole heart: before the gods will I sing praise unto thee:",
+   "armenian_bible_full": "Խոստովան եղէց քեզ, Տէր, բոլորով սրտիւ իմով. առաջի հրեշտակաց սաղմոս ասացից քեզ:",
+   "scope": "k1_resolved",
+   "confidence": 0.7,
+   "review_status": "needs_review",
+   "note": "The line lists consecutive psalms starting at the printed ՃԼԶ (136): «Առ գետս» = 136, «Խոստովան» = Ps 137:1 («Խոստովան եղէց քեզ, Տէր, բոլորով սրտիւ իմով»), «Տէր փորձեցեր» = Ps 138:1.",
+   "armenian_bridge_full": "Խոստովան եղէց քեզ, Տէր, բոլորով սրտիւ իմով. առաջի հրեշտակաց սաղմոս ասացից քեզ:",
+   "armenian_source": "arak29",
+   "sung_differs": false,
+   "basis": "K1: opening identified in the 1895 Bible (evidence in note)",
+   "incipit": "Խոստովան"
+  },
+  "CH-7ed69c9804|1": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 111:1",
+   "armenian_ref": "Ps 110:1 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 111:1",
+   "kjv_text": "I will praise the LORD with my whole heart, in the assembly of the upright, and in the congregation:",
+   "armenian_bible_full": "Խոստովան եղէց քեզ, Տէր, բոլորով սրտիւ իմով ի խորհուրդս ուղղոց, ի ժողովուրդս:",
+   "scope": "k1_resolved",
+   "confidence": 0.7,
+   "review_status": "needs_review",
+   "note": "The line lists consecutive psalms starting at the printed ՃԹ (109): «Ասաց Տէր» = 109:1, «Խոստովան» = Ps 110:1 («Խոստովան եղէց քեզ, Տէր, բոլորով սրտիւ իմով»), «Երանեալ է» = Ps 111:1.",
+   "armenian_bridge_full": "Խոստովան եղէց քեզ, Տէր, բոլորով սրտիւ իմով ի խորհուրդս ուղղոց, ի ժողովուրդս:",
+   "armenian_source": "arak29",
+   "sung_differs": false,
+   "basis": "K1: opening identified in the 1895 Bible (evidence in note)",
+   "incipit": "Խոստովան"
+  },
+  "CH-c1f830d855|1": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 96:1",
+   "armenian_ref": "Ps 95:1 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 96:1",
+   "kjv_text": "O sing unto the LORD a new song: sing unto the LORD, all the earth:",
+   "armenian_bible_full": "Օրհնեցէք զՏէր յօրհնութիւն նոր. օրհնեցէք զՏէր ամենայն երկիր:",
+   "scope": "k1_resolved",
+   "confidence": 0.8,
+   "review_status": "needs_review",
+   "note": "The line lists consecutive psalms starting at the printed ՂԴ (94): «Եկայք ցնծասցուք» = 94:1, «Օրհնեցէք զՏէր» = Ps 95:1 («Օրհնեցէք զՏէր յօրհնութիւն նոր»), «Տէր թագաւորեաց» = Ps 96:1.",
+   "armenian_bridge_full": "Օրհնեցէք զՏէր յօրհնութիւն նոր. օրհնեցէք զՏէր ամենայն երկիր:",
+   "armenian_source": "arak29",
+   "sung_differs": false,
+   "basis": "K1: opening identified in the 1895 Bible (evidence in note)",
+   "incipit": "Օրհնեցէք զտէր"
+  },
+  "CH-360f3fc953|2": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 98:4",
+   "armenian_ref": "Ps 97:4 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 98:4",
+   "kjv_text": "Make a joyful noise unto the LORD, all the earth: make a loud noise, and rejoice, and sing praise:",
+   "armenian_bible_full": "Աղաղակեցէք առ Տէր, ամենայն երկիր, օրհնեցէք, ցնծացէք եւ սաղմոս ասացէք:",
+   "scope": "k1_resolved",
+   "confidence": 0.6,
+   "review_status": "needs_review",
+   "note": "The line lists psalm openings from the printed ՂԵ (95) to ՂԸ (98): «Աղաղակեցէք առ Տէր, ամենայն երկիր» is Ps 97:4 (the other candidate, Ps 99:2, lies after Ps 98 and is not in the series).",
+   "armenian_bridge_full": "Աղաղակեցէք առ Տէր, ամենայն երկիր, օրհնեցէք, ցնծացէք եւ սաղմոս ասացէք:",
+   "armenian_source": "arak29",
+   "sung_differs": false,
+   "basis": "K1: opening identified in the 1895 Bible (evidence in note)",
+   "incipit": "Աղաղակեցէք"
+  },
+  "CH-360f3fc953|4": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 99:5",
+   "armenian_ref": "Ps 98:5 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 99:5",
+   "kjv_text": "Exalt ye the LORD our God, and worship at his footstool; for he is holy:",
+   "armenian_bible_full": "Բարձր արարէք զՏէր Աստուած մեր, երկիր պագէք պատուանդանի ոտից նորա, զի սուրբ է:",
+   "scope": "k1_resolved",
+   "confidence": 0.75,
+   "review_status": "needs_review",
+   "note": "Printed psalm ՂԸ (98): «Բարձր արարէք զՏէր Աստուած մեր, երկիր պագէք պատուանդանի ոտից նորա, զի սուրբ է» is Ps 98:5 as the Zhamagirk prints it (line 9040); Ps 98:9 begins the same way.",
+   "armenian_bridge_full": "Բարձր արարէք զՏէր Աստուած մեր, երկիր պագէք պատուանդանի ոտից նորա, զի սուրբ է:",
+   "armenian_source": "arak29",
+   "sung_differs": false,
+   "basis": "K1: opening identified in the 1895 Bible (evidence in note)",
+   "incipit": "Բարձր արարէք"
+  },
+  "CH-68e5d027bf|0": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 99:5",
+   "armenian_ref": "Ps 98:5 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 99:5",
+   "kjv_text": "Exalt ye the LORD our God, and worship at his footstool; for he is holy:",
+   "armenian_bible_full": "Բարձր արարէք զՏէր Աստուած մեր, երկիր պագէք պատուանդանի ոտից նորա, զի սուրբ է:",
+   "scope": "k1_resolved",
+   "confidence": 0.75,
+   "review_status": "needs_review",
+   "note": "Printed psalm ՂԲ; «Բարձր արարէք զՏէր Աստուած մեր, երկիր պագէք պատուանդանի ոտից նորա» is Ps 98:5 as the Zhamagirk prints it (line 9040); Ps 98:9 begins the same way.",
+   "armenian_bridge_full": "Բարձր արարէք զՏէր Աստուած մեր, երկիր պագէք պատուանդանի ոտից նորա, զի սուրբ է:",
+   "armenian_source": "arak29",
+   "sung_differs": false,
+   "basis": "K1: opening identified in the 1895 Bible (evidence in note)",
+   "incipit": "Բարձր արարէք"
+  },
+  "CH-a7c0b6790e|1": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 99:5",
+   "armenian_ref": "Ps 98:5 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 99:5",
+   "kjv_text": "Exalt ye the LORD our God, and worship at his footstool; for he is holy:",
+   "armenian_bible_full": "Բարձր արարէք զՏէր Աստուած մեր, երկիր պագէք պատուանդանի ոտից նորա, զի սուրբ է:",
+   "scope": "k1_resolved",
+   "confidence": 0.75,
+   "review_status": "needs_review",
+   "note": "Printed psalm ՂԸ (98): «Բարձր արարէք» is Ps 98:5 as the Zhamagirk prints it (line 9040); Ps 98:9 begins the same way.",
+   "armenian_bridge_full": "Բարձր արարէք զՏէր Աստուած մեր, երկիր պագէք պատուանդանի ոտից նորա, զի սուրբ է:",
+   "armenian_source": "arak29",
+   "sung_differs": false,
+   "basis": "K1: opening identified in the 1895 Bible (evidence in note)",
+   "incipit": "Բարձր արարէք"
+  },
+  "CH-dbc13bc310|2": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 99:5",
+   "armenian_ref": "Ps 98:5 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 99:5",
+   "kjv_text": "Exalt ye the LORD our God, and worship at his footstool; for he is holy:",
+   "armenian_bible_full": "Բարձր արարէք զՏէր Աստուած մեր, երկիր պագէք պատուանդանի ոտից նորա, զի սուրբ է:",
+   "scope": "k1_resolved",
+   "confidence": 0.75,
+   "review_status": "needs_review",
+   "note": "Printed psalm ՂԸ (98): «Բարձր արարէք» is Ps 98:5 as the Zhamagirk prints it (line 9040); Ps 98:9 begins the same way.",
+   "armenian_bridge_full": "Բարձր արարէք զՏէր Աստուած մեր, երկիր պագէք պատուանդանի ոտից նորա, զի սուրբ է:",
+   "armenian_source": "arak29",
+   "sung_differs": false,
+   "basis": "K1: opening identified in the 1895 Bible (evidence in note)",
+   "incipit": "Բարձր արարէք"
+  },
+  "CH-46089efae0|2": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 124:1",
+   "armenian_ref": "Ps 123:1 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 124:1",
+   "kjv_text": "If it had not been the LORD who was on our side, now may Israel say:",
+   "armenian_bible_full": "Եթէ ոչ Տէր էր առ մեզ, ասասցէ Իսրայէլ:",
+   "scope": "k1_resolved",
+   "confidence": 0.8,
+   "review_status": "needs_review",
+   "note": "The line lists consecutive psalms starting at the printed ՃԻԱ (121): «Ուրախ եղէ» = 121:1, «Առ քեզ տէր» = 122:1, «Եթէ ոչ Տէր» = Ps 123:1 («Եթէ ոչ Տէր էր առ մեզ»).",
+   "armenian_bridge_full": "Եթէ ոչ Տէր էր առ մեզ, ասասցէ Իսրայէլ:",
+   "armenian_source": "arak29",
+   "sung_differs": false,
+   "basis": "K1: opening identified in the 1895 Bible (evidence in note)",
+   "incipit": "Եթէ ոչ տէր"
+  },
+  "CH-7ae53c631e|0": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 118:26",
+   "armenian_ref": "Ps 117:26 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 118:26",
+   "kjv_text": "Blessed be he that cometh in the name of the LORD: we have blessed you out of the house of the LORD:",
+   "armenian_bible_full": "Օրհնեալ որ գալոցդ ես յանուն Տեառն, եւ օրհնեցաք զքեզ ի տանէ Տեառն:",
+   "scope": "k1_resolved",
+   "confidence": 0.8,
+   "review_status": "needs_review",
+   "note": "The mesedi for the Coming: «Օրհնեալ եկեալ յանուն Տեառն» is Ps 117:26; the Zhamagirk prints «Օրհնեալ եկեալ յանուն Տեառն. օրհնեալ, որ գալոց ես» (line 3401). The next piece «Տէր Աստուած մեր» is Ps 117:27.",
+   "armenian_bridge_full": "Օրհնեալ եկեալ յանուն Տեառն. օրհնեալ, որ գալոց ես:",
+   "armenian_source": "zhamagirk",
+   "sung_differs": true,
+   "ai_translation": "Blessed is he who has come in the name of the Lord; blessed is he who is to come.",
+   "ai_note": "AI translation of the sung wording",
+   "basis": "K1: Bible verse (the Zhamagirk's sung wording differs): zham.txt line 3401",
+   "incipit": "Գալստեան՝ Օրհնեալ եկեալ"
+  },
+  "CH-a64b21e85a|2": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 103:1",
+   "armenian_ref": "Ps 102:1 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 103:1",
+   "kjv_text": "Bless the LORD, O my soul: and all that is within me, bless his holy name:",
+   "armenian_bible_full": "Օրհնեա, անձն իմ, զՏէր, եւ ամենայն ոսկերք իմ զանուն սուրբ նորա:",
+   "scope": "k1_resolved",
+   "confidence": 0.8,
+   "review_status": "needs_review",
+   "note": "The line lists consecutive psalms starting at the printed Ճ (100): «Յողորմութիւն» = 100:1, «Տէր լուր աղօթից» = 101:2, «Օրհնեա անձն իմ» = Ps 102:1.",
+   "armenian_bridge_full": "Օրհնեա, անձն իմ, զՏէր, եւ ամենայն ոսկերք իմ զանուն սուրբ նորա:",
+   "armenian_source": "arak29",
+   "sung_differs": false,
+   "basis": "K1: opening identified in the 1895 Bible (evidence in note)",
+   "incipit": "Օրհնեա անձն իմ"
+  },
+  "CH-acaaeeb37c|7": {
+   "segment_status": "unmatched",
+   "esv_lookup": "Psalm 4:1",
+   "armenian_ref": "Ps 4:2 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 4:1",
+   "kjv_text": "Hear me when I call, O God of my righteousness: thou hast enlarged me when I was in distress; have mercy upon me, and hear my prayer:",
+   "armenian_bible_full": "Ի կարդալ իմում լուար ինձ, Աստուած, ըստ արդարութեան``. ի նեղութեան ինձ անդորր արարեր. ողորմեա ինձ եւ լուր աղօթից իմոց:",
+   "scope": "k1_resolved",
+   "confidence": 0.8,
+   "review_status": "needs_review",
+   "note": "Printed «Զկնի Սաղմոս Դ. Նշանեցաւ. փոխ՝ Ի կարդալ»: the alternate «Ի կարդալ իմում լուար ինձ Աստուած» is Ps 4:2 (ESV 4:1); «Նշանեցաւ» is Ps 4:7.",
+   "armenian_bridge_full": "Ի կարդալ իմում լուար ինձ, Աստուած, ըստ արդարութեան``. ի նեղութեան ինձ անդորր արարեր. ողորմեա ինձ եւ լուր աղօթից իմոց:",
+   "armenian_source": "arak29",
+   "sung_differs": false,
+   "basis": "K1: opening identified in the 1895 Bible (evidence in note)",
+   "incipit": "Ի կարդալ"
+  },
+  "CH-12d342b94f|0": {
+   "segment_status": "unmatched",
+   "rubric": true,
+   "ai_translation": "First Alleluia:",
+   "ai_note": "AI translation of a printed direction (not a verse)",
+   "basis": "K1: printed direction, not a verse",
+   "note": "The label of the first Alleluia verse of the Pentecost canon; the verses themselves follow («Սիրտ սուրբ», «Մի՛ ընկենուր», …).",
+   "review_status": "needs_review",
+   "incipit": "Առաջին ալէ"
+  },
+  "CH-2abe6ad603|0": {
+   "segment_status": "unmatched",
+   "rubric": true,
+   "ai_translation": "Entrance of the hour (jamamut), hymn and psalm, as is fitting for the day.",
+   "ai_note": "AI translation of a printed direction (not a verse)",
+   "basis": "K1: printed direction, not a verse",
+   "note": "The Entrance of the hour, the hymn and the psalm are those of the day; the direction names no verse.",
+   "review_status": "needs_review",
+   "incipit": "ժամամուտ, շարական եւ սաղմոս ըստ աւուր պատշաճին"
+  },
+  "CH-2e4f270c43|0": {
+   "segment_status": "unmatched",
+   "rubric": true,
+   "ai_translation": "At the Ninth Hour: «Alleluia, alleluia…»",
+   "ai_note": "AI translation of a printed direction (not a verse)",
+   "basis": "K1: printed direction, not a verse",
+   "note": "For the Ninth Hour of the Christmas Eve canon; the first Alleluia verse before it is «Առաքեաց զբան իւր» (Ps 106:20).",
+   "review_status": "needs_review",
+   "incipit": "Ինն ժամուն՝ Ալէլուիա ալէլու"
+  },
+  "CH-82047484ed|5": {
+   "segment_status": "unmatched",
+   "rubric": true,
+   "ai_translation": "In the evening, before the first Gospel: Psalm 46 (47).",
+   "ai_note": "AI translation of a printed direction (not a verse)",
+   "basis": "K1: printed direction, not a verse",
+   "note": "The verse «Համբարձաւ» that follows is the opening of Ps 46.",
+   "review_status": "needs_review",
+   "incipit": "Երեկոյին առաջին աւետարանից առաջ Սաղմոս ԽԶ"
+  },
+  "CH-d32d5b8d3a|0": {
+   "segment_status": "unmatched",
+   "rubric": true,
+   "ai_translation": "At the Ninth Hour: Psalm 22 (23).",
+   "ai_note": "AI translation of a printed direction (not a verse)",
+   "basis": "K1: printed direction, not a verse",
+   "note": "The openings of the psalms that follow are the next segments.",
+   "review_status": "needs_review",
+   "incipit": "Ինն ժամուն՝ սաղմոս ԻԲ"
+  },
+  "CH-7da096c2eb|0": {
+   "segment_status": "unmatched",
+   "explanation": "No source reproduces «Սրբութիւն քո». The printed psalm is ՃԽԴ (144); the same record family prints «Արքայութիւն քո» (Ps 144:13) for this psalm, so «Սրբութիւն» is probably a scribal slip, but Ps 144:5 («փառաց սրբութեան քո») also fits. Not decided.",
+   "alternatives": [
+    "Ps 144:5",
+    "Ps 144:13"
+   ],
+   "basis": "K1: reviewed; no source reproduces this opening",
+   "review_status": "needs_review",
+   "incipit": "Սրբութիւն քո"
+  },
+  "CH-960800dd80|0": {
+   "segment_status": "unmatched",
+   "explanation": "No source reproduces «Աստուած ուսուսցոց» (the mesedi of the New Sunday): it is not in the 1895 Bible, the Zhamagirk, the Jashots or Fr. Arshen's Lectionary. The nearest verse is Ps 70:17 («Աստուած իմ, ուսուցեր զիս ի մանկութենէ իմմէ»); the alternate «Յելիցն արեգական» (Ps 112:3) is settled separately. Not decided.",
+   "alternatives": [
+    "Ps 70:17"
+   ],
+   "basis": "K1: reviewed; no source reproduces this opening",
+   "review_status": "needs_review",
+   "incipit": "Աստուած ուսուսցոց"
   }
  },
  "generic": {
@@ -8017,6 +8523,18 @@
   "mesedi/resurrection|ԴԿ|1": {
    "esv_lookup": "Psalm 118:1",
    "basis": "generic table pairing"
+  },
+  "alleluia/martyrs|ԴԿ|0": {
+   "esv_lookup": "Psalm 34:19-20",
+   "armenian_ref": "Ps 33:20-21 (Arak29 / Armenian-LXX numbering)",
+   "kjv_ref": "Ps 34:19",
+   "kjv_text": "Many are the afflictions of the righteous: but the LORD delivereth him out of them all: He keepeth all his bones: not one of them is broken:",
+   "armenian_bible_full": "Բազում նեղութիւնք են արդարոց, յամենայնէ փրկէ զնոսա Տէր: եւ պահէ զամենայն ոսկերս նոցա, եւ մի ի նոցանէ մի՛ փշրեսցի:",
+   "confidence": 0.85,
+   "review_status": "needs_review",
+   "note": "The Zhamagirk's martyrs' Alleluia in mode ԴԿ: «Բազում նեղութիւնք են արդարոց, յամենայնէ փրկէ զնոսա Տէր եւ պահէ զամենայն ոսկերս նոցա» = Ps 33:20-21 (ESV Psalm 34:19-20).",
+   "sung_differs": false,
+   "basis": "K1: generic table text found in the 1895 Bible"
   }
  }
 }
