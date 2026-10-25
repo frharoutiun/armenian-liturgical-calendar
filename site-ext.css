@@ -349,3 +349,12 @@ details.sources > summary { cursor: pointer; padding: 8px 2px; opacity: .8; }
   .dt-long { display: none; }
   .where-is { font-size: .85rem; }
 }
+
+/* chant opening (Alleluia line): its own line above the verse, quieter than the verse */
+.chant-open { margin: 2px 0 6px; padding-bottom: 4px; border-bottom: 1px dotted var(--paper-line); }
+.chant-open-label { font-size: .74rem; opacity: .7; margin-bottom: 1px; }
+.chant-open-ev { display: inline; } .chant-open-ev summary { display: inline; cursor: pointer; opacity: .8; text-decoration: underline dotted; }
+.chant-open-ev[open] span { margin-left: 4px; }
+.chant-prefix { font-size: 1.02rem; opacity: .92; }
+.chant-prefix-en { font-style: italic; padding-top: 1.1rem; }
+@media (max-width: 760px) { .chant-prefix-en { padding-top: 0; } }

@@ -192,11 +192,22 @@ function renderChantSeg(sg, c) {
   if (sg.armenian_bible_differs && sg.armenian_bible_full) h += `<details class="cal-other"><summary>The 1895 Bible words this verse differently</summary><div class="script-original" lang="hy">${esc(sg.armenian_bible_full)}</div></details>`;
   return h + `</div>`;
 }
+// The Alleluia line a chant opens with (Fr. Arshen's Lectionary rule, see R1_CHANT_OPENINGS.md): its own line above the verse, Armenian in the
+// Armenian column and English in the English column; kept apart from the sourced verse text. Nothing is shown when the rule does not apply.
+function renderOpening(o) {
+  if (!o || !o.applies || !(o.armenian_prefix || o.english_prefix)) return "";
+  const unconf = o.review_status === "unconfirmed";
+  const label = `Alleluia line (rule ${esc(o.rule_id || "")})${unconf ? " &middot; unconfirmed" : ""}`;
+  const tip = esc([o.evidence, unconf ? "Unconfirmed: the rule is a rubric only for this kind of chant." : ""].filter(Boolean).join(" "));
+  if (unconf) flags.push("Alleluia line (rule " + (o.rule_id || "") + ") is unconfirmed");
+  return `<div class="hy-en chant-open" title="${tip}"><div class="hy-col"><div class="cal-note chant-open-label">${label}${o.evidence ? ` <details class="chant-open-ev"><summary>why</summary><span>${esc(o.evidence)}</span></details>` : ""}</div><div class="chant-prefix script-original" lang="hy">${esc(o.armenian_prefix || "")}</div></div><div class="en-col"><div class="chant-prefix chant-prefix-en">${esc(o.english_prefix || "")}</div></div></div>`;
+}
 function renderChant(c) {
   const kindKey = String(c.kind || "").toLowerCase();
   const review = c.review_status === "needs_review" ? chip("review: position or verse not confirmed", "warn") : "";
   const segs = (c.segments || []).filter((x) => x.status && x.status !== "empty");
   let h = `<div class="cal-chant"><div class="chant-head"><span class="chant-kind">${esc(CHANT_KIND[kindKey] || c.kind || "Chant")}</span>${c.psalm ? " " + chip("Psalm " + c.psalm + " (Armenian numbering)") : ""}${c.service ? ` <span class="cal-note">${esc(c.service_label || c.service)}</span>` : ""} ${review}</div>`;
+  h += renderOpening(c.opening);
   if (segs.length) h += segs.slice(0, 4).map((x) => renderChantSeg(x, c)).join("");
   else if (c.armenian_full) h += renderChantSeg({ armenian_full: c.armenian_full, english_full: c.english_full, english_source: c.english_source, armenian_ref: (c.refs || [])[0] });
   else h += `<div class="chant-hy script-original" lang="hy">${esc(c.verbatim || c.incipit || "")}</div><div class="cal-note">Full verse not matched yet; only the printed opening is shown.</div>`;
