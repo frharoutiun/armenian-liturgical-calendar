@@ -10,6 +10,7 @@ import * as core from './calgen/engine/core.mjs';
 import { loadRulebook } from './calgen/engine/ctx.mjs';
 import { createHymnResolver } from './hymns.mjs';
 import { refineCanonParts, assembleCanon, partsOfType } from './canon.mjs';
+import { applyCueLines } from './cues.mjs';
 import { linkGeneric, categoriesOfNames } from './generic.mjs';
 import { interleave } from '../chant-order.mjs';
 
@@ -104,12 +105,13 @@ export async function createCalendar(opts = {}) {
   const loadData = await makeLoader(dataBase);
   await initEngine();
   const rb = await loadRulebook(loadRb);
-  const [readingsIdx, hymnIdx, recCanons, recService, hymnOpenings, canonParts, canonMarks, chantsLayer, versif] = await Promise.all([
+  const [readingsIdx, hymnIdx, recCanons, recService, hymnOpenings, canonParts, canonMarks, chantsLayer, versif, cueLines] = await Promise.all([
     loadData('readings_index.json').catch(() => ({ keys: {} })), loadData('hymn_index.json').catch(() => ({ hymns: [], sections: [] })), loadData('record_canons.json').catch(() => ({ records: {} })),
     loadData('record_service.json').catch(() => ({ keys: {} })), loadData('hymn_openings.json').catch(() => ({ rows: [] })), loadData('canon_parts.json').catch(() => ({ canons: {} })), loadData('canon_marks.json').catch(() => ({ marks: {} })),
-    loadData('chants_layer.json').catch(() => ({ chants: {}, lookup: {} })), loadData('versification.json').catch(() => ({ map: {} })),
+    loadData('chants_layer.json').catch(() => ({ chants: {}, lookup: {} })), loadData('versification.json').catch(() => ({ map: {} })), loadData('cue_lines.json').catch(() => ({ cues: [] })),
   ]);
   const refinedCanons = refineCanonParts(canonParts, canonMarks.marks);
+  refinedCanons.canons = applyCueLines(refinedCanons.canons, cueLines);
   const idxByBook = new Map(), idxNorm = new Map();
   for (const [k, e] of Object.entries(readingsIdx.keys || {})) {
     const m = /^(.*?) (\d+(?::\d+)?(?:-\d+(?::\d+)?)?)$/.exec(k); if (!m) continue;

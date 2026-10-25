@@ -128,7 +128,7 @@ export function assembleCanon(refined, hr, ctx = {}) {
   const dayCanons = ranked.map((x) => ({ canonId: x.section, title: canons[x.section].title, startPage: (canons[x.section].pages || [])[0] || null, kind: canons[x.section].kind, role: primary && x.section === primary.section ? 'primary' : 'also',
     basis: `holds ${x.cover} of the openings the Tonatsoyts names for this day${x.title >= 0.3 ? ', and the feast name is in its title' : ''}` }));
   const hymnView = (h, canonId, extra = {}) => ({ hymnId: h.id, canonId, sectionId: h.block, incipit: h.incipit, mode: h.mode || null, page: h.page, pagesAll: h.pages || [h.page], stanzaIds: h.stanza_ids || [],
-    heading: h.heading || null, printedCategory: h.cat_printed || null, subpart: h.subpart || null, partBasis: h.part_basis, namedByRubric: named.has(h.id), ...extra });
+    heading: h.heading || null, printedCategory: h.cat_printed || null, subpart: h.subpart || null, partBasis: h.part_basis, namedByRubric: named.has(h.id), cues: h.cues || null, ...extra });
   const rubricView = (h) => ({ hymnId: h.resolved.hymnId, canonId: h.resolved.sectionId, sectionId: h.resolved.sectionId, incipit: h.resolved.incipit, mode: h.resolved.mode, page: h.resolved.page, pagesAll: h.resolved.pagesAll, stanzaIds: ((canons[h.resolved.sectionId] || {}).hymns || []).find((x) => x.id === h.resolved.hymnId)?.stanza_ids || [],
     heading: null, printedCategory: null, subpart: null, partBasis: 'named by the Tonatsoyts rubric', namedByRubric: true, basis: h.basis, confidence: h.confidence });
   const fromOf = (id) => ({ canonId: id, title: (canons[id] || {}).title || null, startPage: ((canons[id] || {}).pages || [])[0] || null });
@@ -285,7 +285,7 @@ export function assembleCanon(refined, hr, ctx = {}) {
     } else if (['jashoo', 'hampartsi', 'mankunk'].includes(e.part) && ((primary && !primaryGeneric) || genericCids.length)) {
       const cid = primary && !primaryGeneric ? primary.section : genericCids[0];
       e.status = 'not_in_data'; e.needsReview = false; e.reason = 'canon_has_none';
-      e.note = `No ${labelOf(e.part)} hymn is transcribed for this canon (${clean(canons[cid].title)}). The book sometimes prints only a one-line cue («${PART_HY[e.part]}: opening words») at the end of a canon; those cue lines are not yet in our transcription, so this is a gap in our data, not a statement that the book prints none.`;
+      e.note = `The book names no ${labelOf(e.part)} hymn for this canon (${clean(canons[cid].title)}). It prints a one-line cue («${PART_HY[e.part]}: opening words») at the end of only a few canons (an image search of all 513 pages finds these labels on pp. 337, 340, 352, 362, 369 and 372); this canon has none.`;
     }
   }
   const located = (p) => p.status === 'not_applicable' || p.status === 'present' || (p.status === 'from_rubric' && p.complete);

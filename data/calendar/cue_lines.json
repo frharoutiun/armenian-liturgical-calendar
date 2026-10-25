@@ -1,0 +1,202 @@
+{
+ "schema": "cue-lines/1.0",
+ "source": "scan labels «Ճաշու :» / «Համբարձի :» at the end of canons",
+ "audit": {
+  "method": "tools/cue_label_scan.py: normalised cross-correlation of the label glyphs (template cut from p372) over all 513 page images, threshold 0.62",
+  "pages_with_label": [
+   337,
+   340,
+   352,
+   362,
+   369,
+   372
+  ],
+  "best_score_by_page": {
+   "337": 0.785,
+   "340": 0.827,
+   "352": 0.815,
+   "362": 0.845,
+   "369": 0.815,
+   "372": 1.0
+  },
+  "reading": "no other page carries these labels, so a canon without an entry here prints no Jashoo/Hampartsi cue of this kind"
+ },
+ "cues": [
+  {
+   "id": "CUE-337-jashoo",
+   "page": 337,
+   "label": "Ճաշու",
+   "labelHy": "Ճաշու:",
+   "part": "jashoo",
+   "canonId": "SCa935a31e1f",
+   "printed": "Աստուածածին ամպ լուսա:",
+   "printed_method": "visual reading by Claude (AI) from the scan, unreviewed",
+   "review_status": "unreviewed",
+   "target": {
+    "hymnId": "SH447a54e0bc",
+    "stanzaId": "AS-d058f4a0822d",
+    "incipit": "Աստուածածին ամպ լուսաւոր",
+    "hymnPart": "metsatsutse",
+    "page": 336,
+    "match": "the cue is the opening of this hymn of the same canon",
+    "incipitAgrees": true
+   },
+   "note": "The printed cue is itself abbreviated («լուսա:» for «լուսաւոր»); our transcription holds it as its own stanza AS-fecae71f9329. The hymn it names is «Աստուածածին ամպ լուսաւոր» of this canon.",
+   "confidence": "high"
+  },
+  {
+   "id": "CUE-340-jashoo",
+   "page": 340,
+   "label": "Ճաշու",
+   "labelHy": "Ճաշու:",
+   "part": "jashoo",
+   "canonId": "SC3f4a5d2dba",
+   "printed": "Աստուածածին գերագոյն երկնից:",
+   "printed_method": "visual reading by Claude (AI) from the scan, unreviewed",
+   "review_status": "unreviewed",
+   "target": {
+    "hymnId": "SH0bd0272c93",
+    "stanzaId": "AS-c8e59cdef1e9",
+    "incipit": "Աստուածածի՛ն գերագոյն",
+    "hymnPart": "metsatsutse",
+    "page": 340,
+    "match": "the cue is the opening of this hymn of the same canon",
+    "incipitAgrees": true
+   },
+   "note": "The Unicode edition keeps this label and cue glued to the end of the previous stanza («… մայր տեառն: Ճաշու: (մ) Աստուածածին գերագոյն երկնից:»).",
+   "confidence": "high"
+  },
+  {
+   "id": "CUE-352-jashoo",
+   "page": 352,
+   "label": "Ճաշու",
+   "labelHy": "Ճաշու:",
+   "part": "jashoo",
+   "canonId": "SC2c0523b19e",
+   "printed": "Որ հաստատեցեր բանիւ:",
+   "printed_method": "visual reading by Claude (AI) from the scan, unreviewed",
+   "review_status": "unreviewed",
+   "target": {
+    "hymnId": "SHc8d716c5c6",
+    "stanzaId": "AS-6ce0eb3b913d",
+    "incipit": "Որ հաստատեցեր բանիւ",
+    "hymnPart": "voghormya",
+    "page": 352,
+    "match": "the cue is the opening of this hymn of the same canon",
+    "incipitAgrees": true
+   },
+   "note": "Glued by the Unicode edition to the end of the previous stanza.",
+   "confidence": "high"
+  },
+  {
+   "id": "CUE-362-jashoo",
+   "page": 362,
+   "label": "Ճաշու",
+   "labelHy": "Ճաշու:",
+   "part": "jashoo",
+   "canonId": "SC157b0c831f",
+   "printed": "Ով քառաթեւ լուսածին:",
+   "printed_method": "visual reading by Claude (AI) from the scan, unreviewed",
+   "review_status": "unreviewed",
+   "target": {
+    "hymnId": "SHcb4eb929bd",
+    "stanzaId": "AS-72f2485952ad",
+    "incipit": "Ո՛վ քառա՜թեւ լուսածի՛ն գերապա՛նծ նիշ",
+    "hymnPart": "voghormya",
+    "page": 362,
+    "match": "the cue is the opening of this hymn of the same canon",
+    "incipitAgrees": true
+   },
+   "note": "Glued by the Unicode edition to the end of the previous stanza.",
+   "confidence": "high"
+  },
+  {
+   "id": "CUE-369-jashoo",
+   "page": 369,
+   "label": "Ճաշու",
+   "labelHy": "Ճաշու:",
+   "part": "jashoo",
+   "canonId": "SCbd7b6d8f25",
+   "printed": "Քեզ Քրիստոսի կաթուղիկէ:",
+   "printed_method": "visual reading by Claude (AI) from the scan, unreviewed",
+   "review_status": "unreviewed",
+   "target": {
+    "hymnId": "SHd051729524",
+    "stanzaId": "AS-452f4bdf3703",
+    "incipit": "Քե՛զ քրիստոսի՜ կաթուղիկէ",
+    "hymnPart": "voghormya",
+    "page": 369,
+    "match": "the cue is the opening of this hymn of the same canon",
+    "incipitAgrees": true
+   },
+   "note": "The Unicode edition keeps the label but drops this cue text («Ճաշու: Համբարձի: Հրաշափառ տեսութիւն:»); read from the scan.",
+   "confidence": "high"
+  },
+  {
+   "id": "CUE-369-hampartsi",
+   "page": 369,
+   "label": "Համբարձի",
+   "labelHy": "Համբարձի:",
+   "part": "hampartsi",
+   "canonId": "SCbd7b6d8f25",
+   "printed": "Հրաշափառ տեսութիւն:",
+   "printed_method": "visual reading by Claude (AI) from the scan, unreviewed",
+   "review_status": "unreviewed",
+   "target": {
+    "hymnId": "SH5ff278ca3b",
+    "stanzaId": "AS-b81a7904a991",
+    "incipit": "Հրաշափա՜ռ տեսութիւն ՚ի կաթուղիկէ",
+    "hymnPart": "der_hergnits",
+    "page": 369,
+    "match": "the cue is the opening of this hymn of the same canon",
+    "incipitAgrees": true
+   },
+   "note": "Kept by the Unicode edition after the Ճաշու label.",
+   "confidence": "high"
+  },
+  {
+   "id": "CUE-372-jashoo",
+   "page": 372,
+   "label": "Ճաշու",
+   "labelHy": "Ճաշու:",
+   "part": "jashoo",
+   "canonId": "SC02f8dc881f",
+   "printed": "Այսօր խընդրի պատուական:",
+   "printed_method": "visual reading by Claude (AI) from the scan, unreviewed",
+   "review_status": "unreviewed",
+   "target": {
+    "hymnId": "SHd53fbc928f",
+    "stanzaId": "AS-6af09ad01ffc",
+    "incipit": "Այսօր խընդրի պատուական",
+    "hymnPart": "voghormya",
+    "page": 371,
+    "match": "the cue is the opening of this hymn of the same canon",
+    "incipitAgrees": true
+   },
+   "note": "Absent from both our transcription and the Unicode edition; read from the scan (the last letters of the printed word are small and slightly unclear).",
+   "confidence": "high"
+  },
+  {
+   "id": "CUE-372-hampartsi",
+   "page": 372,
+   "label": "Համբարձի",
+   "labelHy": "Համբարձի:",
+   "part": "hampartsi",
+   "canonId": "SC02f8dc881f",
+   "printed": "Ապաւինեցաք ՚ի խաչ քո:",
+   "printed_method": "visual reading by Claude (AI) from the scan, unreviewed",
+   "review_status": "unreviewed",
+   "target": {
+    "hymnId": "SH48369859d7",
+    "stanzaId": "AS-55780b5749a3",
+    "incipit": "Ապաւինեցաք ՚ի խաչ քո",
+    "hymnPart": "der_hergnits",
+    "page": 371,
+    "match": "the cue is the opening of this hymn of the same canon",
+    "incipitAgrees": true
+   },
+   "note": "Absent from both our transcription and the Unicode edition; read from the scan.",
+   "confidence": "high"
+  }
+ ]
+}

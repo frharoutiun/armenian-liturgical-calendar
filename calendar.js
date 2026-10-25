@@ -230,12 +230,12 @@ function canonView(day) {
     const hymns = []; let cur = null;
     items.forEach((it) => {
       const sts = it.stanzaIds || it.stanzas || it.verses;   // H1 (day-canon/1.0): stanzaIds; older/other shapes: stanzas[]
-      if (Array.isArray(sts)) { hymns.push({ heading: it.heading || it.subpart || "", incipit: it.incipit || it.title || "", type: it.type || it.printedCategory, mode: it.mode, page: firstPage(it), pagesAll: it.pagesAll || it.pages, hymnId: it.hymnId, stanzas: sts.map((x) => normSt(x, it)) }); cur = null; }
+      if (Array.isArray(sts)) { hymns.push({ heading: it.heading || it.subpart || "", incipit: it.incipit || it.title || "", type: it.type || it.printedCategory, mode: it.mode, page: firstPage(it), pagesAll: it.pagesAll || it.pages, hymnId: it.hymnId, cues: it.cues || null, stanzas: sts.map((x) => normSt(x, it)) }); cur = null; }
       else if (!it.id && !it.stanzaId && !it.a && !it.text && (it.heading || it.title)) { cur = { heading: it.heading || it.title, page: firstPage(it), stanzas: [] }; hymns.push(cur); }
       else { if (!cur) { cur = { heading: "", stanzas: [] }; hymns.push(cur); } cur.stanzas.push(normSt(it)); }
     });
     const cands = (p.candidates || []).filter((c) => c && (c.page != null || c.startPage != null)).slice(0, 3);
-    return { key: p.part || p.key || p.type || "p" + n, label: p.label_en || p.label || p.name || p.type || p.key || "Part " + (n + 1), labelHy: p.labelHy || p.label_hy || p.title_hy || p.title || "", page: firstPage(p) || (hymns.find((x) => x.page != null) || {}).page, hymns, status: p.status || "", note: p.note || "", needsReview: !!p.needsReview, cands };
+    return { key: p.part || p.key || p.type || "p" + n, label: p.label_en || p.label || p.name || p.type || p.key || "Part " + (n + 1), labelHy: p.labelHy || p.label_hy || p.title_hy || p.title || "", page: firstPage(p) || (hymns.find((x) => x.page != null) || {}).page, hymns, status: p.status || "", reason: p.reason || "", note: p.note || "", needsReview: !!p.needsReview, cands };
   });
   return parts.length ? { parts, summary: cn.summary || null } : null;
 }
@@ -248,14 +248,14 @@ const partSettled = (p) => p.hymns.length && p.status !== "missing" && p.status 
 function partFlag(p) {
   if (p.status === "missing") return chip("to be confirmed: this part is not located in the book for this day", "warn");
   if (p.status === "from_rubric") return chip("only the opening is named by the rubric", "warn");
-  if (p.status === "not_in_data") return chip("not transcribed in our data (a gap in our data, not a statement about the book)", "warn");
+  if (p.status === "not_in_data") return p.reason === "canon_has_none" ? chip("the book prints none for this canon (no cue line found on the scan images)") : chip("not sung on this weekday: no Divine Liturgy");
   if (p.needsReview) return chip("filled by a documented rule, needs review", "warn");
   return "";
 }
 function canonRail(cv, active) {
   return `<nav class="canon-rail" aria-label="Parts of the canon">` + cv.parts.map((p, n) => {
     const c = nStanzas(p);
-    const sub = p.status === "not_applicable" ? "not today" : c ? [p.page != null ? "p." + p.page : "", c + (c === 1 ? " stanza" : " stanzas")].filter(Boolean).join(" · ") : p.status === "not_in_data" ? "not transcribed" : "not located";
+    const sub = p.status === "not_applicable" ? "not today" : c ? [p.page != null ? "p." + p.page : "", c + (c === 1 ? " stanza" : " stanzas")].filter(Boolean).join(" · ") : p.status === "not_in_data" ? (p.reason === "canon_has_none" ? "none printed" : "not today") : "not located";
     return `<button type="button" class="rail-item${n === active ? " on" : ""}${c ? "" : " rail-off"}" data-part="${n}" aria-pressed="${n === active}"><span class="rail-name">${esc(p.label)}</span><span class="rail-sub">${esc(sub)}</span></button>`;
   }).join("") + `</nav>`;
 }
@@ -269,6 +269,7 @@ function renderCanonPart(p, n, active) {
     const pg = hy.page != null ? hy.page : (hy.stanzas.find((x) => x.page != null) || {}).page;
     const title = hy.heading || hy.incipit;
     h += `<div class="canon-hymn">${title ? `<h5 class="canon-sub script-original" lang="hy">${esc(cleanTitle(title))}</h5>` : ""}<div class="hy-acts">${pg != null && pg !== p.page ? `<button type="button" class="cal-link cal-scan" data-page="${esc(pg)}"${hy.pagesAll && hy.pagesAll.length > 1 ? ` title="continues to p.${esc(hy.pagesAll[hy.pagesAll.length - 1])}"` : ""}>scan p.${esc(pg)}</button>` : ""}${hy.type ? chip(hy.type) : ""}${hy.mode ? chip("Mode " + hy.mode) : ""}</div>`;
+    (hy.cues || []).forEach((c) => { h += `<p class="cal-note canon-cue">Printed cue at the end of the canon (p.${esc(c.page)}): <span class="script-original" lang="hy">${esc(c.labelHy)} ${esc(c.printed)}</span> ${chip("read from the scan by AI, unreviewed")}</p>`; });
     hy.stanzas.forEach((st) => { h += `<div class="canon-st" data-sid="${esc(st.id || "")}"><div class="canon-hy script-original" lang="hy">${esc(st.text || "")}</div><div class="canon-en"></div></div>`; });
     h += `</div>`;
   });

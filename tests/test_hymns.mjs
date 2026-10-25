@@ -101,7 +101,7 @@ ok('H2: a margin naming two parts (ճշ․ մնկ) serves both; weekday canons a
   const tue = cal.resolveDay('2027-01-19').canon;   // Tuesday canon (p349) supplies all parts of an ordinary fast Tuesday
   assert.ok(tue.parts[0].hymns.length >= 1 && tue.parts[0].status === 'present');
   for (const iso of ['2027-01-19', '2027-02-10', '2027-04-10']) for (const p of cal.resolveDay(iso).canon.parts) {
-    if (p.status === 'not_in_data') { assert.equal(p.hymns.length, 0); assert.ok(/not transcribed|no .* transcribed/i.test(p.note) || /transcribed/.test(p.note)); }
+    if (p.status === 'not_in_data') { assert.equal(p.hymns.length, 0); assert.ok(p.reason === 'canon_has_none' ? /513 pages/.test(p.note) : /Divine Liturgy|transcribed/.test(p.note)); }   // X1: the cue labels were searched on every page image
     assert.ok(!/Sharagnots does not print/.test(p.note || ''), 'never assert that the book prints nothing');
   }
 });
