@@ -25,5 +25,8 @@ for f in glob.glob("data/scripture/shards/*.json"):
         if "en" in r: print("CANONICAL ENGLISH STORED:", f, k); badn += 1
 sys.exit(1 if badn else 0)
 PY
+# 6. no iCloud conflict copies ("name 2.json", "name 3.mp3") may ship: they are stale duplicates of a sibling
+dups=$(git ls-files | grep -E ' [0-9]+(\.[A-Za-z0-9]+)?$' | while IFS= read -r f; do base=$(printf '%s' "$f" | sed -E 's/ [0-9]+(\.[A-Za-z0-9]+)?$/\1/'); [ -e "$base" ] && echo "$f"; done)
+if [ -n "$dups" ]; then echo "ICLOUD DUPLICATE FILES (move them out of the site tree):"; echo "$dups"; bad=1; fi
 if [ $bad -ne 0 ]; then echo "secrets scan FAILED"; exit 1; fi
 echo "secrets scan ok"

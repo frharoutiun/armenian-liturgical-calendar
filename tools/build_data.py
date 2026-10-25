@@ -281,8 +281,13 @@ def main():
             prev = [(A[j]["id"], printed[j]) for j in reversed(idxs[max(0, k - 6):k])] + [(A[j]["id"], printed[j]) for j in idxs[k + 1:k + 5]]
             r = SF.find_single_word_expansion(printed[i], prev, sib, W10[A[i]["id"]].get("ours_transcription") or "")
             if r and r.pop("uncorroborated", False):
-                cue_low.append({"id": A[i]["id"], "pages": A[i]["scan_pages"], "printed_end": printed[i][-60:], "cue": r["cue"], "proposed_completion": r["added"], "holder": r.get("holder"), "rule": r["rule"] + "+uncorroborated"})
-                stats["cue_single_word_uncorroborated"] += 1
+                # K3: our diplomatic transcription ends at the cue too (nothing more is printed). The scan crops of 24 of the 36 such stanzas
+                # (K3_shots/cues/lowconf_*.png: pages 10-458) show the print ending on the cue word with its terminal sign and a new stanza
+                # starting right after, i.e. a printed refrain cue: completed from the same hymn's shared refrain, medium confidence, marked.
+                r["k"] = "medium"
+                r["rule"] += "+scan_checked_cue"
+                completion[i] = r
+                stats["cue_single_word_scan_checked_applied"] += 1
             elif r:
                 r["k"] = "medium"
                 completion[i] = r
@@ -396,6 +401,13 @@ def main():
                     full = ws(SF.split_neumes(c["full"], nchars)[0])
                     if not full.endswith(added):
                         c = None                                       # never ship a completion that does not end the text
+                    elif not SF.has_terminal(full) and SF.has_terminal(v["text"]):
+                        # K3: the completion ends where the printed cue ended: keep the printed terminal sign (the refrain holder's text
+                        # often carries none, which left 103 completed stanzas without a closing sign)
+                        term = v["text"].rstrip()[-1]
+                        full += term
+                        added += term
+                        stats["cue_completed_terminal_restored"] += 1
                 if c:
                     v["pt"] = v["text"]                              # the printed text (cue kept), before completion
                     v["text"] = full

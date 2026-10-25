@@ -149,5 +149,26 @@ class TestSingleWordCue(unittest.TestCase):
         self.assertIsNone(SF.find_single_word_expansion("Ողորմեա ինձ Աստուած:", [("H", "Ողորմեա ինձ Աստուած խաղաղութեան օգնեա ինձ:")], {"H"}, None))
 
 
+class TestK3(unittest.TestCase):
+    def test_margin_tags_run_into_the_wording(self):
+        self.assertEqual(DC.clean_stanza("մեծ Այսօր ի բեթա աձ")[0], "Այսօր ի բեթա")
+        self.assertEqual(DC.clean_stanza("Սրբոյն Գրիգորի Լուսաւորչին գկ")[0], "Սրբոյն Գրիգորի Լուսաւորչին")
+        self.assertEqual(DC.clean_stanza("Մեծ Աստուած ողորմեա")[0], "Մեծ Աստուած ողորմեա")          # a real capitalised word is kept
+        self.assertEqual(DC.clean_stanza("Այսօր երգէ եկեղեցի աձ։")[0], "Այսօր երգէ եկեղեցի աձ։")        # a short text with a sign is left alone
+
+    def test_scan_checked_single_word_cues_are_completed_and_terminated(self):
+        corpus = load("data", "corpus.json")
+        by = {v["a"]: v for s in corpus for st in s["stanzas"] for v in st["verses"] if v.get("a")}
+        v = by["AS-419dc2dfe97d"]                      # p.10: «… Եդեմայ փառըս:» cue completed from the hymn's refrain
+        self.assertTrue(v["text"].endswith("փառըս տացուք նըմա սըրբասաց ձայնիւ:"))
+        self.assertIn("scan_checked_cue", v["x"]["r"])
+        self.assertEqual(v["x"]["k"], "medium")
+
+    def test_completed_stanzas_keep_a_closing_sign(self):
+        corpus = load("data", "corpus.json")
+        bad = [v["a"] for s in corpus for st in s["stanzas"] for v in st["verses"] if v.get("x") and not SF.has_terminal(v["text"])]
+        self.assertLessEqual(len(bad), 2, bad[:5])
+
+
 if __name__ == "__main__":
     unittest.main()

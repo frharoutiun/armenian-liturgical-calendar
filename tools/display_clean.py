@@ -24,6 +24,7 @@ Artifact classes (Armenian display text)
               as W9 already does for the Arak29 text
   underscore  "_" typed for a line-break hyphen inside a word of the Jashots second layer ("փափկու_թեան" -> "փափկութեան")
   heading_glue  a part label glued to the first stanza, "Օրհնութիւն. Այսօր …" (the part is shown by the page; label kept in the raw copy)
+  lead_tag / tail_mode_tag  a margin label (part tag before a capitalised word, mode tag as last word) run into the wording
   title_glue  a canon title glued to the first stanza, "Կանոն … Տեառն յԵրուսաղէմ: Այսօր …" (reported, raw kept)
   neume       stress-like marks typed for neumes in an INCIPIT label
 
@@ -55,6 +56,10 @@ BACKTICK_COMMA = re.compile(r"(?<=[%s])`(?=\s)" % ARM)
 PART_GLUE = re.compile(r"^(Օրհնութիւն|Հարց|Գործք|Մեծացուսցէ|Մեծացուցէ|Ողորմեա|Տէր յերկնից|Մանկունք|Ճաշու|Համբարձի)\s*[.։:]\s+(?=[Ա-Ֆ])")
 TITLE_GLUE = re.compile(r"^(Կանոն\s[^։:]{5,110}[։:])\s+(?=[Ա-Ֆ])")
 CUTOFF = re.compile(r"\s*\[cut off\]")
+# K3: margin labels of the print that the Unicode text runs into the wording: a part tag (օրհ, հրց, մեծ, ողր, տէր, մնկ, ճշու, համբ) in
+# lower case right before a capitalised first word, and a mode tag (աձ ակ բձ բկ գձ գկ դձ դկ) as the last word.
+LEAD_TAG = re.compile(r"^(?:օրհ|հրց|մեծ|ողր|տէր|մնկ|ճշու|համբ)\s+(?=[Ա-Ֆ])")
+TAIL_MODE = re.compile(r"\s+(?:աձ|ակ|բձ|բկ|գձ|գկ|դձ|դկ)\s*$")
 
 
 def _fold(w):
@@ -115,6 +120,14 @@ def clean_stanza(text, lex=None, queue=None):
     if m:
         log.append(["heading_glue", m.group(1)])
         s = s[m.end():]
+    m = LEAD_TAG.match(s)
+    if m:
+        log.append(["lead_tag", m.group(0)])
+        s = s[m.end():]
+    m = TAIL_MODE.search(s)
+    if m and len(s.split()) > 3:
+        log.append(["tail_mode_tag", m.group(0)])
+        s = s[:m.start()]
     m = TITLE_GLUE.match(s)
     if m:
         log.append(["title_glue", m.group(1)])
