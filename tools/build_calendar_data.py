@@ -130,6 +130,32 @@ PART_OF = {'օրհնութիւն': 'orhnutyun', 'օրհնութիւն պահոց
 SUBHEADS = {'խաչի', 'աստուածածնի', 'յարութեան', 'յարութիւն', 'ապաշխարութիւն', 'ապաշխարութեան', 'ապաշխարհութեան', 'հանգստեան', 'մարտիրոսաց', 'հոգեգալուստ', 'հոգեգալստեան', 'ծնունդ', 'ծննդեան', 'առաքելոց', 'հայրապետաց', 'ողբ', 'մարգարէից'}
 
 
+# margin abbreviations / words that name a part; a marker naming two parts at once (``ճշ․ մնկ``) serves both
+MARKER_TOKENS = {'օրհ': 'orhnutyun', 'օրհնութիւն': 'orhnutyun', 'հրց': 'harts', 'հարց': 'harts', 'գործք': 'harts', 'մեծ': 'metsatsutse', 'մեծացուսցէ': 'metsatsutse',
+                 'ող': 'voghormya', 'ողր': 'voghormya', 'ողբ': 'voghormya', 'ողորմեա': 'voghormya', 'տէր': 'der_hergnits', 'մնկ': 'mankunk', 'մկ': 'mankunk', 'մանկունք': 'mankunk',
+                 'ճշ': 'jashoo', 'ճաշու': 'jashoo', 'հմբ': 'hampartsi', 'համբարձի': 'hampartsi'}
+PART_ORDER = ['orhnutyun', 'harts', 'metsatsutse', 'voghormya', 'der_hergnits', 'mankunk', 'jashoo', 'hampartsi']
+OTHER_CATS = {'մեղեդի', 'երգ', 'շարական', 'ողբ երգ'}
+
+
+def parts_in_marker(text):
+    """Parts named by a printed margin marker, in canon order ([] when the marker names none or is a bare sub-heading)."""
+    toks = [t for t in re.split(r'[^\u0531-\u058f]+', (text or '').lower()) if t]
+    found = []
+    for t in toks:
+        pt = MARKER_TOKENS.get(t)
+        if pt and pt not in found:
+            found.append(pt)
+    # a lone «ող» / «ողբ» is the plain Voghormya marker; «ողբ» is also a sub-heading word elsewhere, so only multi-token markers are read here
+    if len(toks) < 2:
+        return []
+    return sorted(found, key=PART_ORDER.index)
+
+
+def is_subhead(ck, raw):
+    return ck in SUBHEADS
+
+
 def build_canon_parts():
     """Every headed canon with its hymns in book order, each hymn assigned to a part. A hymn's part is the printed category it carries
     (Օրհնութիւն, Հարց, Գործք, Մեծացուսցէ, Ողորմեա, Տէր յերկնից, Մանկունք, Ճաշու, Համբարձի); a hymn without one continues the part above it
@@ -172,11 +198,18 @@ def build_canon_parts():
         prev, first = None, True
         for h in canons[cid]['hymns']:
             ck = (h['cat'] or '').strip().lower()
+            raw = (h.get('cat_printed') or '').strip().lower()
             part = PART_OF.get(ck)
-            if ck and not part and ck not in SUBHEADS:
+            multi = parts_in_marker(ck) or parts_in_marker(raw)
+            if len(multi) >= 2:
+                # one hymn printed for two parts (e.g. margin «ճշ․ մնկ» = Jashoo and Mankunk): its part is the earlier one in the canon order, the rest go in `also`
+                part = multi[0]; h['also'] = multi[1:]
+            elif not part and len(multi) == 1:
+                part = multi[0]
+            if ck and not part and not is_subhead(ck, raw) and (ck.startswith('սաղմոս') or ck in OTHER_CATS):
                 part = 'other'
-            if ck in SUBHEADS:
-                h['heading'] = h['cat']
+            if not part and (ck or raw):
+                h['heading'] = h['cat'] or h.get('cat_printed')   # a sub-heading inside the current part (of Nerses, of the Cross, ...): the part continues
             if part:
                 h['part'], h['part_basis'] = part, 'printed category'
                 if ck == 'գործք':
@@ -186,6 +219,30 @@ def build_canon_parts():
             else:
                 h['part'], h['part_basis'] = 'orhnutyun', 'inferred: the first hymn of a canon is its Orhnutyun'
             prev = h['part']
+    # the weekday canons («Կանոն Երկուշաբաթի / ... / Ուրբաթի / Շաբաթու աւուրն», one per weekday) are generic by weekday, whatever kind the index gave them
+    WD = ['երկուշաբ', 'երեքշաբ', 'չորեքշաբ', 'հինգշաբ', 'ուրբաթ', 'շաբաթու']
+    for cid in order:
+        flat = arm_key(re.sub(r'\s+', '', canons[cid].get('title') or ''))
+        if flat.startswith('կանոն') and flat.endswith(arm_key('աւուրն')) and any(w in flat for w in (arm_key(x) for x in WD)) and 'աղուհաց' not in flat:
+            canons[cid]['kind'] = 'generic_by_weekday'
+    # families: «Կանոն ... ըստ ութն ձայնից» (a canon given by the eight modes) is followed by short partial sections, one per mode or side
+    # (Առաջին կողմն, Աւագ կողմն, Վառ ձայն, Վերջ ձայնի ...) that belong to it
+    fam, fam_title, root = None, None, None
+    for cid in order:
+        c = canons[cid]
+        flat = arm_key(re.sub(r'\s+', '', c.get('title') or ''))
+        if ('ստւթնձայն' in flat or 'ստւթձայն' in flat) and c.get('kind') in ('full_canon', 'generic_by_mode', 'generic_by_weekday'):
+            fam, fam_title = cid, c['title']
+            c['family'], c['family_title'] = cid, fam_title
+        elif fam and c.get('kind') == 'partial':
+            c['family'], c['family_title'] = fam, fam_title
+        elif root and c.get('kind') in ('partial', 'generic_by_mode') and flat.startswith('հարց') and ((c.get('pages') or [0])[0] - (canons[root].get('pages') or [0])[0]) <= 40:
+            # a Harts-only partial («Հարց ․ Վառ ձայն», «Վերջ ձայնի») a few pages after the root of its series continues that series
+            c['family'], c['family_title'] = root, canons[root]['title']
+        else:
+            fam = fam_title = None
+        if c.get('family') == cid:
+            root = cid
     write_json(os.path.join(OUT, 'canon_parts.json'), {'schema': 'canon-parts/1.0', 'source': 'output/sharagnots_anchored/index.json', 'order': order, 'canons': canons})
     return canons
 

@@ -66,8 +66,9 @@ ok('day.canon: parts in the owner\'s order, every part present / from the rubric
     const c = cal.resolveDay(d).canon;
     assert.equal(c.schema, 'day-canon/1.0'); assert.deepEqual(c.parts.map((p) => p.part), ORDER);
     for (const p of c.parts) {
-      assert.ok(['present', 'from_rubric', 'missing', 'not_applicable'].includes(p.status), p.status);
+      assert.ok(['present', 'from_rubric', 'missing', 'not_applicable', 'not_in_data'].includes(p.status), p.status);
       if (p.status === 'missing') { assert.equal(p.hymns.length, 0); assert.ok(p.note && p.needsReview); }
+      if (p.status === 'not_in_data') { assert.equal(p.hymns.length, 0); assert.ok(p.note && ['no_liturgy', 'canon_has_none'].includes(p.reason)); }
       for (const h of p.hymns) { assert.ok(idx2.has(h.hymnId)); assert.equal(typeof h.page, 'number'); assert.ok(Array.isArray(h.stanzaIds)); if (p.status === 'present') assert.ok(h.stanzaIds.length >= 1); }
     }
   }
@@ -81,7 +82,7 @@ ok('day.canon second pass: service slot on every part, source and complete flags
     assert.ok(typeof c.summary.allPartsLocated === 'boolean' && typeof c.summary.hasLiturgy === 'boolean');
     for (const p of c.parts) {
       assert.ok(p.service && p.service.service && p.service.evidence.length, 'service slot');
-      assert.ok(['canon', 'rubric', 'generic_rule', 'generic_kind', 'none'].includes(p.source)); assert.equal(typeof p.complete, 'boolean');
+      assert.ok(['canon', 'rubric', 'generic_rule', 'generic_kind', 'generic_same_canon', 'canon_via_rubric', 'generic_friday_repose', 'generic_eight_modes', 'generic_weekday_orhnutyun', 'generic_mode_beginnings', 'none'].includes(p.source)); assert.equal(typeof p.complete, 'boolean');
       if (p.source.startsWith('generic')) assert.ok(p.needsReview && p.note && p.hymns.every((h) => h.confidence <= 0.6), 'rule-based fills are flagged and capped');
     }
     assert.deepEqual(c.parts.map((p) => p.service.service), ['midnight', 'morning', 'morning', 'morning', 'morning', 'morning', 'divine_liturgy', 'evening']);
@@ -91,5 +92,17 @@ ok('day.canon second pass: service slot on every part, source and complete flags
   const e = cal.resolveDay('2027-03-28').canon;     // the book labels the Easter Harts at p195: weaker evidence must not move it earlier
   assert.equal(e.parts[1].hymns[0].page, 195); assert.ok(e.parts[0].hymns.length >= 6);
   assert.equal(cal.resolveDay('2027-03-28').canon.summary.hasLiturgy, true); assert.equal(cal.resolveDay('2027-01-18').canon.summary.hasLiturgy, false);
+});
+ok('H2: a margin naming two parts (ճշ․ մնկ) serves both; weekday canons and series of partial Harts are used by rule; gaps are named, never silent', () => {
+  const k = cal.resolveDay('2027-02-20').canon;   // St Kirill: the one-hymn «Շարական» at p113 is both his Mankunk and his Jashoo
+  assert.equal(k.parts[5].hymns[0].page, 113); assert.equal(k.parts[6].hymns[0].page, 113);
+  const fri = cal.resolveDay('2027-01-15').canon;   // ordinary fast Friday: repose Harts series by the day's mode, Friday Orhnutyun
+  assert.equal(fri.parts[1].status, 'present'); assert.ok(fri.parts[1].hymns[0].confidence <= 0.6 && fri.parts[1].needsReview);
+  const tue = cal.resolveDay('2027-01-19').canon;   // Tuesday canon (p349) supplies all parts of an ordinary fast Tuesday
+  assert.ok(tue.parts[0].hymns.length >= 1 && tue.parts[0].status === 'present');
+  for (const iso of ['2027-01-19', '2027-02-10', '2027-04-10']) for (const p of cal.resolveDay(iso).canon.parts) {
+    if (p.status === 'not_in_data') { assert.equal(p.hymns.length, 0); assert.ok(/not transcribed|no .* transcribed/i.test(p.note) || /transcribed/.test(p.note)); }
+    assert.ok(!/Sharagnots does not print/.test(p.note || ''), 'never assert that the book prints nothing');
+  }
 });
 console.log(`${n} hymn tests passed`);

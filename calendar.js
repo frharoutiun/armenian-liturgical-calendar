@@ -127,20 +127,43 @@ function chantsBefore(chants, i, reading, placed) {
   return out.sort((x, y) => (x.service_order || 0) - (y.service_order || 0));
 }
 const SEG_ROLE = { incipit: "", kc: "Connecting verse (կց.)", pokh: "Alternate (փոխ.)" };
+// A verse is shown only when the incipit names ONE verse. Several candidates or none: the printed opening only, never a guessed verse.
+function chantSourceLabel(sg) {
+  const src = String(sg.armenian_source || "");
+  if (/Ժամագիրք|Zhamagirk/i.test(src)) return "Sung wording: Zhamagirk";
+  if (/Jashots/i.test(src)) return "Jashots wording (transcription, not yet proofread)";
+  if (/Arak29/i.test(src)) return "1895 Bible text (Arak29)";
+  return "";
+}
 function renderChantSeg(sg) {
+  const role = SEG_ROLE[sg.role] ? `<div class="cal-note">${esc(SEG_ROLE[sg.role])}</div>` : "";
+  const opening = `<div class="chant-hy chant-opening script-original" lang="hy">${esc(sg.incipit || sg.armenian_full || "")}</div>`;
+  if (sg.status === "ambiguous") {
+    const alts = (sg.alternatives || []).filter(Boolean);
+    return `<div class="chant-seg chant-unsettled">${role}${opening}<div class="cal-note">${chip("verse not settled", "warn")} Several verses begin like this, so the full verse is not shown.</div>${alts.length ? `<details class="cal-other"><summary>Possible verses (not a decision)</summary><ul>${alts.map((x) => `<li class="script-original" lang="hy">${esc(x)}</li>`).join("")}</ul></details>` : ""}</div>`;
+  }
+  if (sg.status !== "matched" || !sg.armenian_full) {
+    return `<div class="chant-seg chant-unsettled">${role}${opening}<div class="cal-note">${chip("verse not yet matched", "warn")} Only the printed opening is shown.${sg.note ? " " + esc(sg.note) : ""}</div></div>`;
+  }
   const refs = [sg.armenian_ref && String(sg.armenian_ref).replace(/ \(Arak29[^)]*\)/, ""), sg.english_ref_kjv && "English numbering: " + sg.english_ref_kjv].filter(Boolean);
-  const rv = sg.review_status === "needs_review" || sg.status === "ambiguous" ? chip("review: " + (sg.status === "ambiguous" ? "several verses begin like this" : "pairing not confirmed"), "warn") : "";
-  let h = `<div class="chant-seg">${SEG_ROLE[sg.role] ? `<div class="cal-note">${esc(SEG_ROLE[sg.role])}</div>` : ""}`;
+  const rv = sg.review_status === "needs_review" ? chip("check: " + (sg.note ? "numbering differs" : "pairing not confirmed"), "warn") : "";
+  let h = `<div class="chant-seg">${role}`;
   h += `<div class="chant-hy script-original" lang="hy">${esc(sg.armenian_full).replace(/\n/g, "<br>")}</div>`;
   if (sg.english_full) h += `<div class="chant-en">${esc(sg.english_full)} <span class="cal-note">(${esc(String(sg.english_source || "KJV").replace(/ as printed in Arak29.*$/, ""))})</span></div>`;
-  return h + `<div class="cal-note">${esc(refs.join(" · "))} ${rv}</div></div>`;
+  else h += `<div class="cal-note">No sourced English for this verse yet.</div>`;
+  const lab = chantSourceLabel(sg);
+  h += `<div class="cal-note">${esc([lab].concat(refs).filter(Boolean).join(" · "))} ${rv}</div>`;
+  if (sg.note) h += `<div class="cal-note">${esc(sg.note)}</div>`;
+  if (sg.armenian_note) h += `<div class="cal-note">${esc(sg.armenian_note)}</div>`;
+  if (sg.armenian_bible_differs && sg.armenian_bible_full) h += `<details class="cal-other"><summary>The 1895 Bible words this verse differently</summary><div class="script-original" lang="hy">${esc(sg.armenian_bible_full)}</div></details>`;
+  return h + `</div>`;
 }
 function renderChant(c) {
   const kindKey = String(c.kind || "").toLowerCase();
   const review = c.review_status === "needs_review" ? chip("review: position or verse not confirmed", "warn") : "";
-  const segs = (c.segments || []).filter((x) => x.armenian_full && (x.status === "matched" || x.status === "ambiguous"));
+  const segs = (c.segments || []).filter((x) => x.status && x.status !== "empty");
   let h = `<div class="cal-chant"><div class="chant-head"><span class="chant-kind">${esc(CHANT_KIND[kindKey] || c.kind || "Chant")}</span>${c.psalm ? " " + chip("Psalm " + c.psalm + " (Armenian numbering)") : ""}${c.service ? ` <span class="cal-note">${esc(c.service_label || c.service)}</span>` : ""} ${review}</div>`;
-  if (segs.length) h += segs.slice(0, 3).map(renderChantSeg).join("");
+  if (segs.length) h += segs.slice(0, 4).map(renderChantSeg).join("");
   else if (c.armenian_full) h += renderChantSeg({ armenian_full: c.armenian_full, english_full: c.english_full, english_source: c.english_source, armenian_ref: (c.refs || [])[0] });
   else h += `<div class="chant-hy script-original" lang="hy">${esc(c.verbatim || c.incipit || "")}</div><div class="cal-note">Full verse not matched yet; only the printed opening is shown.</div>`;
   return h + `</div>`;
@@ -171,15 +194,18 @@ function canonView(day) {
   });
   return parts.length ? { parts, summary: cn.summary || null } : null;
 }
+// Small service tag per canon part (W11 map); the parts stay in canon order, the tags only say which service a part belongs to.
+const SVC_TAG = { orhnutyun: "Midnight", harts: "Morning", gordzk: "Morning", metsatsutse: "Morning", voghormya: "Morning", der_hergnits: "Morning", mankunk: "Morning", jashoo: "Divine Liturgy", hampartsi: "Evening" };
+const svcTag = (p) => SVC_TAG[p.key] ? `<span class="svc-tag svc-${esc(String(SVC_TAG[p.key]).toLowerCase().replace(/\s+/g, "-"))}" title="${p.key === "hampartsi" ? "The exact slot of the Hampartsi is unconfirmed" : "Service this part belongs to"}">${esc(SVC_TAG[p.key])}${p.key === "hampartsi" ? "?" : ""}</span>` : "";
 const nStanzas = (p) => p.hymns.reduce((n, hy) => n + hy.stanzas.length, 0);
 function canonIndex(cv) {
-  return `<nav class="canon-index" aria-label="Parts of the canon">` + cv.parts.map((p, n) => { const c = nStanzas(p); return `<button type="button" class="cal-link${p.needsReview || !p.hymns.length ? " idx-warn" : ""}" data-part="canon-part-${n}">${esc(p.label)} <span>${p.status === "not_applicable" ? "not today" : c ? c + (c === 1 ? " stanza" : " stanzas") : "not located"}</span></button>`; }).join(" ") + `</nav>`;
+  return `<nav class="canon-index" aria-label="Parts of the canon">` + cv.parts.map((p, n) => { const c = nStanzas(p); return `<button type="button" class="cal-link${p.needsReview || !p.hymns.length ? " idx-warn" : ""}" data-part="canon-part-${n}">${esc(p.label)} <span>${p.status === "not_applicable" ? "not today" : c ? c + (c === 1 ? " stanza" : " stanzas") : p.status === "not_in_data" ? "not transcribed" : "not located"}</span></button>`; }).join(" ") + `</nav>`;
 }
 function renderCanonPart(p, n, open) {
-  const stChip = p.status === "missing" ? chip("to be confirmed", "warn") : p.status === "from_rubric" ? chip("opening only", "warn") : p.status === "not_applicable" ? chip("not sung today") : p.needsReview ? chip("needs review", "warn") : "";
-  const settled = p.hymns.length && p.status !== "missing" && p.status !== "not_applicable";
-  let h = `<details class="canon-part" id="canon-part-${n}"${open && settled ? " open" : ""}><summary><strong>${esc(p.label)}</strong>${p.labelHy ? ` <span class="script-original" lang="hy">${esc(p.labelHy)}</span>` : ""}${p.page != null && settled ? ` <span class="cal-note">scan p.${esc(p.page)}</span>` : ""} ${stChip}</summary>`;
-  if (!p.hymns.length && p.status !== "not_applicable") h += `<p class="cal-note canon-note">Not located in the Sharagnots for this day.</p>`;
+  const stChip = p.status === "missing" ? chip("to be confirmed", "warn") : p.status === "from_rubric" ? chip("opening only", "warn") : p.status === "not_applicable" ? chip("not sung today") : p.status === "not_in_data" ? chip("not transcribed", "warn") : p.needsReview ? chip("needs review", "warn") : "";
+  const settled = p.hymns.length && p.status !== "missing" && p.status !== "not_applicable" && p.status !== "not_in_data";
+  let h = `<details class="canon-part" id="canon-part-${n}"${open && settled ? " open" : ""}><summary><strong>${esc(p.label)}</strong> ${svcTag(p)}${p.labelHy ? ` <span class="script-original" lang="hy">${esc(p.labelHy)}</span>` : ""}${p.page != null && settled ? ` <span class="cal-note">scan p.${esc(p.page)}</span>` : ""} ${stChip}</summary>`;
+  if (!p.hymns.length && p.status !== "not_applicable" && p.status !== "not_in_data") h += `<p class="cal-note canon-note">Not located in the Sharagnots for this day.</p>`;
   if (p.note) h += `<p class="cal-note canon-note">${esc(p.note)}</p>`;
   if (p.cands.length) h += `<details class="hy-cands"><summary>Possible places in the book (${p.cands.length}), not a decision</summary><ul>` + p.cands.map((c) => `<li><span class="script-original" lang="hy">${esc(cleanTitle(c.title))}</span> <button type="button" class="cal-link" data-page="${esc(c.page != null ? c.page : c.startPage)}">scan p.${esc(c.page != null ? c.page : c.startPage)}</button></li>`).join("") + `</ul></details>`;
   p.hymns.forEach((hy) => {
@@ -192,36 +218,9 @@ function renderCanonPart(p, n, open) {
   return h + `</details>`;
 }
 function renderCanon(cv) { return canonIndex(cv) + cv.parts.map((p, n) => renderCanonPart(p, n, n === 0)).join(""); }
-// Services of the day (W11_SERVICE_MAP.md): which canon parts belong to which service, in the order of the liturgical day.
-const SERVICE_PARTS = [
-  { id: "midnight", label: "Midnight service", parts: ["orhnutyun"] },
-  { id: "morning", label: "Morning service", parts: ["harts", "gordzk", "metsatsutse", "voghormya", "der_hergnits", "mankunk"] },
-  { id: "hours", label: "Third, Sixth and Ninth hours", note: "Fixed hours with no canon parts of their own." },
-  { id: "liturgy", label: "Divine Liturgy", parts: ["jashoo"], readings: true },
-  { id: "evening", label: "Evening service", parts: ["hampartsi"], unconfirmed: "the exact slot of the Hampartsi is unconfirmed" },
-  { id: "compline", label: "Compline", note: "Fixed service with no canon parts of its own." },
-];
-function renderServices(day, cv, readingsHtml, hasJashooReadings) {
-  const byKey = new Map(); cv.parts.forEach((p, n) => byKey.set(p.key, { p, n }));
-  const used = new Set();
-  const dominical = /^sun/i.test(day.weekday || "");
-  let h = renderCanonIndexOnly(cv);
-  SERVICE_PARTS.forEach((sv) => {
-    const mine = (sv.parts || []).map((k) => byKey.get(k)).filter(Boolean);
-    mine.forEach((m) => used.add(m.p.key));
-    if (!mine.length && !sv.readings && !sv.note) return;
-    h += `<div class="svc-block" id="svc-${sv.id}"><h4 class="svc-title">${esc(sv.label)}${sv.unconfirmed ? " " + chip("unconfirmed", "warn") : ""}</h4>`;
-    if (sv.note) h += `<p class="cal-note">${esc(sv.note)}</p>`;
-    mine.forEach((m, i) => { h += renderCanonPart(m.p, m.n, m.n === 0); });
-    if (sv.readings) {
-      if (!dominical) h += `<p class="cal-note">These readings (Jashoo) are appointed for the day. On an ordinary weekday there is no Divine Liturgy; on a feast day it is celebrated. ${chip("unconfirmed for this day", "warn")}</p>`;
-      h += readingsHtml;
-    }
-    h += `</div>`;
-  });
-  const rest = cv.parts.filter((p) => !used.has(p.key));
-  if (rest.length) h += `<div class="svc-block"><h4 class="svc-title">Other parts</h4>${rest.map((p) => renderCanonPart(p, byKey.get(p.key).n, false)).join("")}</div>`;
-  return h;
+// The Sharagnots section: the day's whole canon, part by part, in canon order (not mixed with the readings).
+function renderSharagnots(day, cv) {
+  return canonIndex(cv) + cv.parts.map((p, n) => renderCanonPart(p, n, n === 0)).join("");
 }
 const renderCanonIndexOnly = (cv) => canonIndex(cv);
 let stanzaIndex = null;
@@ -279,7 +278,7 @@ function renderDay(day) {
   if (day.easter) h += chip("Easter " + day.easter);
   h += `</div></header>`;
   const nHyReview = hymns.filter((x) => hymnView(x).review).length;
-  h += `<nav class="jumpbar" aria-label="On this page"><button type="button" data-jump="sec-readings">Services, readings &amp; hymns <span>${readings.length}</span></button><button type="button" data-jump="sec-hymns">Hymns <span>${hymns.length}</span></button><button type="button" data-jump="sec-notes">Notes &amp; sources${(day.unresolved || []).length ? " <span>" + day.unresolved.length + "</span>" : ""}</button></nav>`;
+  h += `<nav class="jumpbar" aria-label="On this page"><button type="button" class="jb-readings" data-jump="sec-readings">Readings <span>${readings.length}</span></button><button type="button" class="jb-sharagnots" data-jump="sec-sharagnots">Sharagnots <span>${(canonView(day) || { parts: [] }).parts.length || hymns.length}</span></button><button type="button" data-jump="sec-notes">Notes &amp; sources${(day.unresolved || []).length ? " <span>" + day.unresolved.length + "</span>" : ""}</button></nav>`;
 
   // Readings, with the chants (psalm / mesedi / alleluia) interleaved in service order
   const chants = day.chants || [];
@@ -301,14 +300,19 @@ function renderDay(day) {
   if (loose.length) readingsHtml += `<details class="cal-other"><summary>Chants not tied to a reading (${loose.length})</summary><div class="cal-chantlist">` + loose.map(renderChant).join("") + `</div></details>`;
 
   const canon = canonView(day);
+  const dominical = /^sun/i.test(day.weekday || "");
+  const nLocated = canon ? canon.parts.filter((p) => p.hymns.length && p.status !== "missing" && p.status !== "not_applicable" && p.status !== "not_in_data").length : 0;
+  const nSt = canon ? canon.parts.reduce((n, p) => n + nStanzas(p), 0) : 0;
+  // (A) Readings (Jashots): chants interleaved before the reading they precede
+  h += `<section class="day-sec sec-readings" id="sec-readings"><h3 class="cal-h sec-h"><span class="sec-name">Readings</span> <span class="sec-src">Jashots</span><span class="sec-count">${readings.length} reading${readings.length === 1 ? "" : "s"}${chants.length ? " &middot; " + chants.length + " chant" + (chants.length === 1 ? "" : "s") : ""}</span></h3>`;
+  if (hasJashoo && !dominical) h += `<p class="cal-note">These readings (Jashoo) are appointed for the day. On an ordinary weekday there is no Divine Liturgy; on a feast day it is celebrated. ${chip("unconfirmed for this day", "warn")}</p>`;
+  h += readingsHtml + `</section>`;
+  // (B) Sharagnots: the day's whole canon
+  h += `<section class="day-sec sec-sharagnots" id="sec-sharagnots"><span id="sec-hymns"></span><h3 class="cal-h sec-h"><span class="sec-name">Sharagnots</span> <span class="sec-src">canon of the day</span>${canon ? `<span class="sec-count">${nLocated} of ${canon.parts.length} parts located &middot; ${nSt} stanza${nSt === 1 ? "" : "s"}</span>` : `<span class="sec-count">${hymns.length} hymn${hymns.length === 1 ? "" : "s"} named</span>`}</h3>`;
   if (canon) {
-    // One block per service of the liturgical day, with the whole canon part by part and the readings inside the Divine Liturgy
-    h += `<section class="day-sec" id="sec-readings"><h3 class="cal-h">Services of the day</h3><span id="sec-hymns"></span>${renderServices(day, canon, readingsHtml, hasJashoo)}`;
+    h += renderSharagnots(day, canon);
     if (hymns.length) h += `<details class="cal-other"><summary>Hymns named in the Tonatsoyts (${hymns.length})</summary><div class="cal-readings">${renderHymnGroups(day)}</div></details>`;
-    h += `</section>`;
   } else {
-    h += `<section class="day-sec" id="sec-readings"><h3 class="cal-h">Readings and chants</h3>${readingsHtml}</section>`;
-    h += `<section class="day-sec" id="sec-hymns"><h3 class="cal-h">Hymns appointed (Sharagnots)</h3>`;
     if (hymns.length) {
       if (nHyReview) h += `<p class="cal-note">${hymns.length - nHyReview} of ${hymns.length} hymns have a settled Sharagnots page; ${nHyReview} need review.</p>`;
       h += renderHymnGroups(day);
@@ -317,8 +321,8 @@ function renderDay(day) {
       h += `<h4 class="hy-group-title">Canons named by the book</h4><ul class="cal-canons">` + day.canons.map((c) => `<li><span class="script-original" lang="hy">${esc(c.canonTitle || "")}</span> ${c.mapped ? "" : chip("not mapped", "warn")}
         ${(c.sections || []).slice(0, 1).map((s) => `<button type="button" class="cal-link" data-page="${esc((s.pages && s.pages[0]) || "")}">scan p.${esc((s.pages && s.pages[0]) || "?")}</button>`).join(" ")}</li>`).join("") + `</ul>`;
     }
-    h += `</section>`;
   }
+  h += `</section>`;
 
   // Notes
   h += `<section class="day-sec" id="sec-notes"><h3 class="cal-h">Notes &amp; sources</h3>`;

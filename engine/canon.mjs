@@ -54,7 +54,7 @@ export function refineCanonParts(canonParts, marks) {
       else { part = 'orhnutyun'; cur = part; curOrd = 0; basis = 'inferred: the first hymn of a canon is its Orhnutyun'; }
       const r = { ...h, part, part_basis: basis };
       if (h.uni_gordzk || h.subpart === 'gordzk') r.subpart = 'gordzk';
-      if (mk && mk.also && mk.also.length) r.also = mk.also;
+      if (mk && mk.also && mk.also.length) r.also = [...new Set([...(h.also || []), ...mk.also])].filter((x) => x !== part);
       return r;
     });
     out[cid] = { ...k, hymns };
@@ -86,20 +86,22 @@ function titleFacts(title) {
 function genericFor(canons, part, modes, ctx, kindStem) {
   const season = seasonOf(ctx), cands = [];
   for (const [cid, k] of Object.entries(canons)) {
-    const generic = ['generic_by_mode', 'generic_by_weekday'].includes(k.kind) || (kindStem && armKey(k.title).includes(kindStem)) || (k.kind === 'other' && /ճաշու/.test(String(k.title).toLowerCase().replace(/\s+/g, '')));
+    const generic = !!k.family || ['generic_by_mode', 'generic_by_weekday'].includes(k.kind) || (kindStem && armKey(k.family_title || k.title).includes(kindStem)) || (k.kind === 'other' && /ճաշու/.test(String(k.title).toLowerCase().replace(/\s+/g, '')));
     if (!generic) continue;
-    const hs = (k.hymns || []).filter((h) => h.part === part && modes.has(normMode(h.mode)));
-    if (!hs.length) continue;
     const f = titleFacts(k.title);
+    // a section keyed by weekday (Օրհնութիւն Երեքշաբաթի աւուրն) or by Lenten week is chosen by that key; its hymns' mode is its own, not the day's mode
+    const keyed = !!(f.weekday || f.lentOrdinal);
+    const hs = (k.hymns || []).filter((h) => (h.part === part || (h.also || []).includes(part)) && (keyed || modes.has(normMode(h.mode))));
+    if (!hs.length) continue;
     let score = 1, why = ['mode agrees'], bad = false;
-    if (kindStem) { if (armKey(k.title).includes(kindStem)) { score += 3; why.push('section is of the kind the rubric names'); } else bad = true; }
+    if (kindStem) { if (armKey(k.family_title || k.title).includes(kindStem)) { score += 3; why.push('section is of the kind the rubric names'); } else bad = true; }
     if (f.weekday) { if (f.weekday === ctx.weekday) { score += 3; why.push('weekday agrees'); } else bad = true; }
     if (f.lentOrdinal) { if (season.lentWeek === f.lentOrdinal) { score += 3; why.push(`Lenten week ${f.lentOrdinal}`); } else bad = true; }
     else if (f.lent) { if (season.lent || season.fast) { score += 2; why.push('Lent / fast day'); } }
     if (f.eastertide && !f.lent) { if (season.eastertide) { score += 2; why.push('Eastertide'); } else if (ctx.weekday === 'Sun' && armKey(k.title).includes(armKey('յարութեան'))) { score += 2; why.push('Sunday: Resurrection sharagan by mode'); } }
     if (!bad) cands.push({ cid, k, hs, score, why });
   }
-  cands.sort((a, b) => b.score - a.score);
+  cands.sort((a, b) => b.score - a.score || b.hs.length - a.hs.length);
   return cands;
 }
 
@@ -134,7 +136,7 @@ export function assembleCanon(refined, hr, ctx = {}) {
     const entry = { part, label: PART_LABEL[part], labelHy: PART_HY[part], status: 'missing', source: 'none', complete: false, hymns: [], from: [], note: '', candidates: [], needsReview: true,
       service: { ...svc, dayHasService: part === 'jashoo' ? hasLiturgy : part === 'mankunk' ? !hasLiturgy : null } };
     const take = (cid, modes, strict) => {
-      let hs = (canons[cid].hymns || []).filter((h) => h.part === part);
+      let hs = (canons[cid].hymns || []).filter((h) => h.part === part || (h.also || []).includes(part));
       if (modes) { const m = hs.filter((h) => modes.has(normMode(h.mode))); if (m.length || strict) hs = m; }
       return hs;
     };
@@ -163,7 +165,7 @@ export function assembleCanon(refined, hr, ctx = {}) {
         const ks = cue ? kindStemOf((cue.incipit || '') + ' ' + (cue.type || '')) : null;
         let cands = genericFor(canons, part, modes, ctx, ks);
         if (!cands.length && ks) cands = genericFor(canons, part, modes, ctx, null);
-        const top = cands[0], second = cands[1];
+        const top = cands[0], second = cands.slice(1).find((c) => !(top && c.k.family && c.k.family === top.k.family));   // sections of one series are alternatives of the same rule, not competing candidates
         if (top && top.score >= 3 && (!second || top.score - second.score >= 1)) {
           const exact = top.hs.filter((h) => normMode(h.mode) === (normMode(cue && cue.mode) || dayMode));
           const hs = exact.length ? exact : top.hs;
@@ -180,13 +182,97 @@ export function assembleCanon(refined, hr, ctx = {}) {
     if (part === 'mankunk' && hasLiturgy) {
       // dominical day: Mankunk is not sung (a procession and Gospel come at this point)
       entry.suppressed = !!entry.hymns.length; entry.needsReview = false;
-      if (!entry.hymns.length) entry.status = 'not_applicable';
+      if (!entry.hymns.length) { entry.status = 'not_applicable'; entry.note = ''; entry.candidates = []; }
       entry.note = (entry.note ? entry.note + ' ' : '') + 'Mankunk is sung on non-dominical days; this day has the Liturgy (a Sunday or feast).';
     }
     if (part === 'jashoo' && !hasLiturgy && entry.hymns.length) entry.note = (entry.note ? entry.note + ' ' : '') + 'Appointed for the day; the Divine Liturgy itself is celebrated on Sundays and feasts only (whether it is sung on this weekday is unconfirmed).';
     parts.push(entry);
   }
+  // ---- second pass (H2): what the first pass left missing
+  const season = seasonOf(ctx);
+  const labelOf = (part) => PART_LABEL[part].replace(/ \(.*\)/, '');
+  const clean = (t) => String(t).replace(/\s+/g, ' ').trim();
+  const hymnsOf = (cid, part) => ((canons[cid] || {}).hymns || []).filter((h) => h.part === part || (h.also || []).includes(part));
+  const fillFrom = (entry, cid, hs, source, basis, conf, note) => {
+    entry.status = 'present'; entry.source = source; entry.complete = true; entry.needsReview = true; entry.note = note;
+    entry.hymns = hs.map((h) => hymnView(h, cid, { basis, confidence: conf }));
+    entry.from = [fromOf(cid)]; entry.candidates = [];
+  };
+  // (a0) the Tonatsoyts names one hymn of a part and that hymn sits inside a canon that prints the whole part: the part is that canon's, in book order
+  for (const e of parts) {
+    if (e.status !== 'from_rubric' || e.complete || !['orhnutyun', 'harts', 'metsatsutse', 'voghormya', 'der_hergnits'].includes(e.part)) continue;
+    for (const f of e.from) {
+      const all = hymnsOf(f.canonId, e.part); const named = new Set(e.hymns.map((h) => h.hymnId));
+      if (all.length > e.hymns.length && all.some((h) => named.has(h.id))) {
+        const nm = e.hymns.map((h) => h.hymnId);
+        e.status = 'present'; e.source = 'canon_via_rubric'; e.complete = true; e.needsReview = true;
+        e.note = `The Tonatsoyts names a hymn of this part; it is printed in «${clean(canons[f.canonId].title)}» (p${(canons[f.canonId].pages || [])[0]}), which prints the whole part.`;
+        e.hymns = all.map((h) => hymnView(h, f.canonId, { basis: 'the canon in which the rubric\'s hymn is printed', confidence: 0.6, namedByRubric: nm.includes(h.id) }));
+        e.from = [fromOf(f.canonId)];
+        break;
+      }
+    }
+  }
+  // (a) the day's other parts come from one generic canon (e.g. «Կանոն Երեքշաբաթի աւուրն»): its remaining parts belong to the same day
+  const genericCids = [...new Set([...parts.filter((p) => p.status === 'present' && p.from.length && genericOk(p.from[0].canonId)).map((p) => p.from[0].canonId)])];
+  for (const e of parts) {
+    if (e.status !== 'missing') continue;
+    for (const cid of genericCids) {
+      let hs = hymnsOf(cid, e.part); if (!hs.length) continue;
+      const m = hs.filter((h) => normMode(h.mode) === dayMode); if (m.length) hs = m;
+      fillFrom(e, cid, hs, 'generic_same_canon', 'the same generic canon that supplies the day\'s other parts', 0.5,
+        `The day's other parts come from the book's generic section «${clean(canons[cid].title)}»; this part is taken from the same section.`);
+      break;
+    }
+  }
+  // (b) Orhnutyun of the fasts «of the eight modes» (p87): the book prints one Orhnutyun for every mode of a fast day when a mode has none of its own
+  const eightKey = armKey('զութն ձայնի');
+  for (const e of parts) {
+    if (e.status !== 'missing' || e.part !== 'orhnutyun' || !(season.fast || season.lent)) continue;
+    const hit = Object.entries(canons).find(([cid, k]) => armKey(k.title).includes(eightKey) && armKey(k.title).includes(armKey('պահոց')) && hymnsOf(cid, 'orhnutyun').length);
+    if (hit) fillFrom(e, hit[0], hymnsOf(hit[0], 'orhnutyun'), 'generic_eight_modes', 'the Orhnutyun of the fasts printed for the eight modes', 0.45,
+      `No Orhnutyun of the fasts is printed for this mode; the book gives «${clean(hit[1].title)}» for the eight modes (p${(hit[1].pages || [])[0]}).`);
+  }
+  // (b2) Orhnutyun still missing: a weekday's own «Օրհնութիւն <weekday> աւուրն», else the book's table of Orhnutyun openings for the eight modes (p6)
+  for (const e of parts) {
+    if (e.status !== 'missing' || e.part !== 'orhnutyun') continue;
+    if (ctx.weekday && ctx.weekday !== 'Sun') {
+      const hit = Object.entries(canons).filter(([cid, k]) => k.kind === 'generic_by_weekday' && titleFacts(k.title).weekday === ctx.weekday && armKey(k.title).includes(armKey('օրհնութիւն')) && hymnsOf(cid, 'orhnutyun').length);
+      if (hit.length === 1) { fillFrom(e, hit[0][0], hymnsOf(hit[0][0], 'orhnutyun'), 'generic_weekday_orhnutyun', 'the weekday\'s own Orhnutyun', 0.5, `The day's canon prints no Orhnutyun; the book's «${clean(hit[0][1].title)}» is the Orhnutyun of this weekday.`); continue; }
+    }
+    const beginnings = Object.entries(canons).filter(([cid, k]) => k.kind === 'generic_by_mode' && armKey(k.title).includes(armKey('սկսուածք')) && hymnsOf(cid, 'orhnutyun').some((h) => normMode(h.mode) === dayMode));
+    if (beginnings.length === 1) {
+      const [cid, k] = beginnings[0];
+      fillFrom(e, cid, hymnsOf(cid, 'orhnutyun').filter((h) => normMode(h.mode) === dayMode), 'generic_mode_beginnings', 'the book\'s table of Orhnutyun openings for the eight modes', 0.4,
+        `The day's canon prints no Orhnutyun; the book's «${clean(k.title)}» (p${(k.pages || [])[0]}) gives the Orhnutyun opening for the day's mode. Only the opening is printed there.`);
+    }
+  }
+  // (b3) an ordinary fast Friday: the Tonatsoyts names «Հարց հանգստեան» (the Harts of repose) for the great majority of fast Fridays of the year, so a fast Friday
+  // for which it names nothing takes the Harts of repose by the day's mode (Metsatsutse, Voghormya and Der Hergnits follow in the same series)
+  if (ctx.weekday === 'Fri' && season.fast) {
+    for (const e of parts) {
+      if (e.status !== 'missing' || !['harts', 'metsatsutse', 'voghormya', 'der_hergnits'].includes(e.part)) continue;
+      const cands = genericFor(canons, e.part, new Set([dayMode].filter(Boolean)), ctx, armKey('հանգստեան'));
+      const top = cands[0], second = cands.slice(1).find((c) => !(top && c.k.family && c.k.family === top.k.family));
+      if (top && top.score >= 4 && (!second || top.score - second.score >= 1)) {
+        const exact = top.hs.filter((h) => normMode(h.mode) === dayMode);
+        fillFrom(e, top.cid, exact.length ? exact : top.hs, 'generic_friday_repose', 'fast Friday: the Harts of repose by the day\'s mode', 0.45,
+          `The Tonatsoyts names nothing for this fast Friday; on ordinary fast Fridays it appoints «Հարց հանգստեան», so the book's «${clean(top.k.family_title || top.k.title)}» series was used for the day's mode.`);
+      }
+    }
+  }
+  // (c) a part the book does not print for this canon / this day is stated, not left as an unexplained gap
+  for (const e of parts) {
+    if (e.status !== 'missing') continue;
+    if (e.part === 'jashoo' && !hasLiturgy) {
+      e.status = 'not_in_data'; e.needsReview = false; e.note = 'The Divine Liturgy is celebrated on Sundays and feasts only (not on this weekday), and no Jashoo hymn is transcribed for it.'; e.reason = 'no_liturgy';
+    } else if (['jashoo', 'hampartsi', 'mankunk'].includes(e.part) && ((primary && !primaryGeneric) || genericCids.length)) {
+      const cid = primary && !primaryGeneric ? primary.section : genericCids[0];
+      e.status = 'not_in_data'; e.needsReview = false; e.reason = 'canon_has_none';
+      e.note = `No ${labelOf(e.part)} hymn is transcribed for this canon (${clean(canons[cid].title)}). The book sometimes prints only a one-line cue («${PART_HY[e.part]}: opening words») at the end of a canon; those cue lines are not yet in our transcription, so this is a gap in our data, not a statement that the book prints none.`;
+    }
+  }
   const located = (p) => p.status === 'not_applicable' || p.status === 'present' || (p.status === 'from_rubric' && p.complete);
   const missing = parts.filter((p) => p.status === 'missing').map((p) => p.part);
-  return { schema: 'day-canon/1.0', canons: dayCanons, parts, summary: { primaryCanon: primary ? primary.section : null, present: parts.filter((p) => p.status === 'present').length, fromRubric: parts.filter((p) => p.status === 'from_rubric').length, missing, allPartsLocated: parts.every(located), hasLiturgy } };
+  return { schema: 'day-canon/1.0', canons: dayCanons, parts, summary: { primaryCanon: primary ? primary.section : null, present: parts.filter((p) => p.status === 'present').length, fromRubric: parts.filter((p) => p.status === 'from_rubric').length, missing, allPartsLocated: parts.every(located), allPartsAccounted: parts.every((p) => located(p) || p.status === 'not_in_data'), notPrinted: parts.filter((p) => p.status === 'not_in_data').map((p) => p.part), hasLiturgy } };
 }
