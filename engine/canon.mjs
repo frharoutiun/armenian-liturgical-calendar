@@ -11,16 +11,18 @@ export const PART_LABEL = { orhnutyun: 'Orhnutyun', harts: 'Harts (with its Gord
 export const PART_HY = { orhnutyun: 'Օրհնութիւն', harts: 'Հարց', metsatsutse: 'Մեծացուսցէ', voghormya: 'Ողորմեա', der_hergnits: 'Տէր յերկնից', mankunk: 'Մանկունք', jashoo: 'Ճաշու', hampartsi: 'Համբարձի' };
 const ORD = Object.fromEntries(PART_ORDER.map((p, i) => [p, i]));
 
-// where each part is sung (W11_SERVICE_MAP: Zhamagirk order of services; ZH = line of the Zhamagirk text layer, ST = sacredtradition.am page)
+// where each part is sung (W11_SERVICE_MAP: Zhamagirk order of services; ZH = line of the Zhamagirk text layer, ST = sacredtradition.am page,
+// LS323 = Findikyan's course text, page 39-40 'Šarakan Genres': Orhnutyun = Night office, Harts / Gordzk / Metsatsutse / Voghormya / Der Hergnits / Mankunk = Morning,
+// Chashu = Divine Liturgy, Hampartsi = Evening; the office of every genre is therefore confirmed, only a slot within the office comes from the Zhamagirk)
 export const PART_SERVICE = {
-  orhnutyun: { service: 'midnight', label: 'Midnight service', slot: "after «Օրհնեսցուք զՏէր»", evidence: ['ZH:2616'], confidence: 'medium' },
+  orhnutyun: { service: 'night', label: 'Night service', slot: "after «Օրհնեսցուք զՏէր»", evidence: ['ZH:2616', 'LS323:39'], confidence: 'high' },
   harts: { service: 'morning', label: 'Morning service', slot: 'after the Song of the Three Children', evidence: ['ZH:4252'], confidence: 'high' },
   metsatsutse: { service: 'morning', label: 'Morning service', slot: 'after the songs of Mary, Zachariah and Simeon', evidence: ['ZH:4486'], confidence: 'high' },
   voghormya: { service: 'morning', label: 'Morning service', slot: 'after Psalm 50', evidence: ['ZH:4861'], confidence: 'high' },
   der_hergnits: { service: 'morning', label: 'Morning service', slot: 'after the Alleluia and praise psalms', evidence: ['ZH:5024'], confidence: 'high' },
   mankunk: { service: 'morning', label: 'Morning service', slot: 'after the psalm «Օրհնեցէք, մանկունք, զՏէր»; non-dominical days only', evidence: ['ZH:5891'], confidence: 'high' },
   jashoo: { service: 'divine_liturgy', label: 'Divine Liturgy', slot: 'after the entrance psalm «Ճաշու փոխ», before the Trisagion', evidence: ['ST:20260906_dl.html', 'ZH:8443'], confidence: 'high' },
-  hampartsi: { service: 'evening', label: 'Evening service', slot: 'Psalm 140 block «Համբարձումն ձեռաց»', evidence: ['ZH:10298-10320'], confidence: 'low', unconfirmed: 'exact slot' },
+  hampartsi: { service: 'evening', label: 'Evening service', slot: 'Psalm 140 block «Համբարձումն ձեռաց»', evidence: ['ZH:10298-10320', 'LS323:40'], confidence: 'high', unconfirmed: 'exact slot within the evening service' },
 };
 
 const TYPE_PART = [['օրհնութ', ['orhnutyun']], ['մանկունքեւհամբարձի', ['mankunk', 'hampartsi']], ['հարց', ['harts']], ['գործք', ['harts']], ['մեծացուսցէ', ['metsatsutse']], ['ողորմեա', ['voghormya']], ['տէրյերկնից', ['der_hergnits']],

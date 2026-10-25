@@ -252,7 +252,7 @@ def scan_margin_evidence():
     return json.load(open(p, encoding='utf-8')).get('hymns') or {}
 
 
-_E_PART = {arm_key(k)[:3]: v for k, v in {'օրհ': 'orhnutyun', 'հրց': 'harts', 'հարց': 'harts', 'մեծ': 'metsatsutse', 'ողր': 'voghormya', 'տրյ': 'der_hergnits', 'տրլ': 'der_hergnits',
+_E_PART = {arm_key(k)[:3]: v for k, v in {'օրհ': 'orhnutyun', 'հրց': 'harts', 'հարց': 'harts', 'մեծ': 'metsatsutse', 'ողր': 'voghormya', 'տրյ': 'der_hergnits', 'տրլ': 'der_hergnits',   # Y1 note: in the printed margins «տրլ» is also the ode label of Habakkuk 3 inside an Orhnutyun (LS323 p.10-11, 22-25); here it is only the lists' spelling of Տրյ.
                                            'մնկ': 'mankunk', 'ճշ': 'jashoo', 'հմբ': 'hampartsi'}.items()}
 REF_PART = {'օրհ': 'Օրհնութիւն', 'հրց': 'Հարց', 'հարց': 'Հարց', 'մեծ': 'Մեծացուսցէ', 'ողր': 'Ողորմեա', 'տրյ': 'Տէր յերկնից', 'տրլ': 'Տէր յերկնից',
             'մնկ': 'Մանկունք', 'ճշ': 'Ճաշու', 'ճշու': 'Ճաշու', 'հմբ': 'Համբարձի'}
@@ -357,6 +357,11 @@ def reference_modes(hymns):
     return {hid: {src: next(iter(m)) for src, m in d.items() if len(m) == 1} for hid, d in res.items()}
 
 
+import sys as _sys
+_sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from findikyan_modes import course_modes  # noqa: E402
+
+
 def reconcile_modes(hymns):
     """Final `mode` of every hymn, decided by evidence rank, never by a count of votes.
 
@@ -370,6 +375,7 @@ def reconcile_modes(hymns):
     kr = krapar_modes()
     scan = scan_margin_evidence()
     refs = reference_modes(hymns)
+    course, course_report = course_modes(hymns)   # Y1: Fr Findikyan's course text (authoritative); ranks below the printed margin tag and heading
     c = collections.Counter()
     for h in hymns:
         idx = h.pop('_idx', h.get('mode'))
@@ -381,6 +387,10 @@ def reconcile_modes(hymns):
             final, status, why = mg, 'printed_margin', f"margin tag «{tag}» beside the hymn (kept by the Unicode edition)"
         elif head:
             final, status, why = head, 'printed_heading', head_why
+        elif h['id'] in course:
+            cm_ = course[h['id']]
+            final, status = cm_['mode'], 'course_text'
+            why = f"the course text {cm_['src']} ({cm_.get('series')}) prints tone {cm_['mode']} for this hymn" + (f" on p.{cm_['page']}" if cm_.get('page') else '')
         else:
             final = idx
             if k and k != idx:
@@ -437,7 +447,7 @@ def reconcile_modes(hymns):
                     scan_note = f"{where} reads the half as {sc['half']}, the decision has {final[1]}"
                 else:
                     scan_note = 'scan family confirms'
-        checks = {w: v for w, v in (('index', idx), ('krapar', k), ('margin', mg), ('heading', head)) if v and v != final}
+        checks = {w: v for w, v in (('index', idx), ('krapar', k), ('margin', mg), ('heading', head), ('course_text', (course.get(h['id']) or {}).get('mode'))) if v and v != final}
         for src_, m_ in (refs.get(h['id']) or {}).items():
             if m_ != final:
                 checks['ref_' + src_] = m_
@@ -449,7 +459,7 @@ def reconcile_modes(hymns):
         if final != idx:
             h['mode_index'] = idx
             h['mode_basis'] = f"{why}: the index's {idx} is read as {final}" if why else f"index {idx}"
-        elif status in ('printed_margin', 'printed_heading'):
+        elif status in ('printed_margin', 'printed_heading', 'course_text'):
             status = 'agreed'
         if sc and scan_note and scan_note.endswith('confirms'):
             h['mode_scan'] = scan_note
@@ -466,7 +476,7 @@ def reconcile_modes(hymns):
     for h in hymns:
         if h['id'] in listed:
             h['ref_listed'] = sorted(set(listed[h['id']]))[:3]   # the Echmiadzin TOC lists this hymn at (about) this place, under this part/occasion
-    return {'mode_status': dict(c), 'krapar_modes': len(kr), 'aliases': len(al)}
+    return {'mode_status': dict(c), 'krapar_modes': len(kr), 'aliases': len(al), 'course_text': {k_: len(v_) for k_, v_ in course_report.items()}, 'course_text_report': {k_: v_ for k_, v_ in course_report.items() if k_ in ('ambiguous', 'unmapped', 'accepted')}}
 
 
 def build_hymn_openings():

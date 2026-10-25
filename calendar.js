@@ -69,6 +69,9 @@ async function getEngine() {
 // which the day's single status line lists with its explanation; plain chips are quiet metadata text.
 let flags = [];
 function dot(kind, text) { return `<span class="dot dot-${kind}" role="img" aria-label="${esc(text)}" title="${esc(text)}" tabindex="0"></span>`; }
+// Findikyan (LS323 p.4): the eight tones are numbered 1-8 in the order ԱՁ ԱԿ ԲՁ ԲԿ ԳՁ ԳԿ ԴՁ ԴԿ.
+const TONE_NO = { "ԱՁ": 1, "ԱԿ": 2, "ԲՁ": 3, "ԲԿ": 4, "ԳՁ": 5, "ԳԿ": 6, "ԴՁ": 7, "ԴԿ": 8 };
+const modeLabel = (m) => (m ? "Mode " + m + (TONE_NO[m] ? " (Tone " + TONE_NO[m] + ")" : "") : "");
 function chip(text, cls) {
   if (cls === "warn") { flags.push(String(text)); return dot("warn", text); }
   return `<span class="meta-t">${esc(text)}</span>`;
@@ -93,7 +96,7 @@ function hymnView(h) {
 }
 function renderHymn(h, i) {
   const v = hymnView(h);
-  const meta = `${h.type ? chip(h.type) : ""}${h.mode ? chip("Mode " + h.mode) : ""}`;
+  const meta = `${h.type ? chip(h.type) : ""}${h.mode ? chip(modeLabel(h.mode)) : ""}`;
   let acts = "", badge = "";
   if (v.chosen) {
     acts += `<button type="button" class="cal-link cal-scan" data-page="${esc(v.chosen.page)}" title="Open this page of the Sharagnots scan">View scan &middot; p.${esc(v.chosen.page)}</button>`;
@@ -278,8 +281,8 @@ function canonView(day) {
   return parts.length ? { parts, summary: cn.summary || null } : null;
 }
 // Small service tag per canon part (W11 map); the parts stay in canon order, the tags only say which service a part belongs to.
-const SVC_TAG = { orhnutyun: "Midnight", harts: "Morning", gordzk: "Morning", metsatsutse: "Morning", voghormya: "Morning", der_hergnits: "Morning", mankunk: "Morning", jashoo: "Divine Liturgy", hampartsi: "Evening" };
-const svcTag = (p) => SVC_TAG[p.key] ? `<span class="svc-tag svc-${esc(String(SVC_TAG[p.key]).toLowerCase().replace(/\s+/g, "-"))}" title="${p.key === "hampartsi" ? "The exact slot of the Hampartsi is unconfirmed" : "Service this part belongs to"}">${esc(SVC_TAG[p.key])}${p.key === "hampartsi" ? "?" : ""}</span>` : "";
+const SVC_TAG = { orhnutyun: "Night", harts: "Morning", gordzk: "Morning", metsatsutse: "Morning", voghormya: "Morning", der_hergnits: "Morning", mankunk: "Morning", jashoo: "Divine Liturgy", hampartsi: "Evening" };
+const svcTag = (p) => SVC_TAG[p.key] ? `<span class="svc-tag svc-${esc(String(SVC_TAG[p.key]).toLowerCase().replace(/\s+/g, "-"))}" title="${p.key === "hampartsi" ? "Sung at the Evening service (Findikyan, Armenian Hymnography, p.40); its exact slot within the service is not stated" : "Service this part belongs to (Findikyan, Armenian Hymnography, p.39-40)"}">${esc(SVC_TAG[p.key])}</span>` : "";
 // L2: the Sharagnots tab = a part rail (name, page, stanza count) and ONE open part at a time, Armenian | English side by side.
 const nStanzas = (p) => p.hymns.reduce((n, hy) => n + hy.stanzas.length, 0);
 const partSettled = (p) => p.hymns.length && p.status !== "missing" && p.status !== "not_applicable" && p.status !== "not_in_data";
@@ -306,7 +309,7 @@ function renderCanonPart(p, n, active) {
   p.hymns.forEach((hy) => {
     const pg = hy.page != null ? hy.page : (hy.stanzas.find((x) => x.page != null) || {}).page;
     const title = hy.heading || hy.incipit;
-    h += `<div class="canon-hymn">${title ? `<h5 class="canon-sub script-original" lang="hy">${esc(cleanTitle(title))}</h5>` : ""}<div class="hy-acts">${pg != null && pg !== p.page ? `<button type="button" class="cal-link cal-scan" data-page="${esc(pg)}"${hy.pagesAll && hy.pagesAll.length > 1 ? ` title="continues to p.${esc(hy.pagesAll[hy.pagesAll.length - 1])}"` : ""}>scan p.${esc(pg)}</button>` : ""}${hy.type ? chip(hy.type) : ""}${hy.mode ? chip("Mode " + hy.mode) : ""}</div>`;
+    h += `<div class="canon-hymn">${title ? `<h5 class="canon-sub script-original" lang="hy">${esc(cleanTitle(title))}</h5>` : ""}<div class="hy-acts">${pg != null && pg !== p.page ? `<button type="button" class="cal-link cal-scan" data-page="${esc(pg)}"${hy.pagesAll && hy.pagesAll.length > 1 ? ` title="continues to p.${esc(hy.pagesAll[hy.pagesAll.length - 1])}"` : ""}>scan p.${esc(pg)}</button>` : ""}${hy.type ? chip(hy.type) : ""}${hy.mode ? chip("Mode " + hy.mode + (TONE_NO[hy.mode] ? " (Tone " + TONE_NO[hy.mode] + ")" : "")) : ""}</div>`;
     (hy.cues || []).forEach((c) => { h += `<p class="cal-note canon-cue">Printed cue at the end of the canon (p.${esc(c.page)}): <span class="script-original" lang="hy">${esc(c.labelHy)} ${esc(c.printed)}</span> ${chip("read from the scan by AI, unreviewed")}</p>`; });
     hy.stanzas.forEach((st) => { h += `<div class="canon-st" data-sid="${esc(st.id || "")}"><div class="canon-hy script-original" lang="hy">${esc(st.text || "")}</div><div class="canon-en"></div></div>`; });
     h += `</div>`;
@@ -471,7 +474,7 @@ function renderDay(day) {
   });
   if (!comms.length) h += `<div class="empty-state">No commemoration could be derived for this day.</div>`;
   const facts = [];
-  if (day.mode) facts.push("Mode " + (day.mode.armenian || day.mode.number));
+  if (day.mode) facts.push(day.mode.armenian ? modeLabel(day.mode.armenian) : "Mode " + day.mode.number);
   if (day.fasting) facts.push("Fasting: " + day.fasting.label + (day.fasting.name ? " (" + day.fasting.name + ")" : ""));
   if (day.easter) facts.push("Easter " + day.easter);
   h += `<div class="cal-facts">${facts.map(esc).join(" &middot; ")}</div>`;

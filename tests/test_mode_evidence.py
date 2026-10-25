@@ -10,7 +10,7 @@ class ModeEvidence(unittest.TestCase):
         self.assertEqual(len(H), 2465)
         for h in H:
             self.assertTrue(h['mode'])
-            self.assertIn(h['mode_status'], ('agreed', 'index_only', 'printed_margin', 'printed_heading', 'conflict_unresolved', 'printed_margin_scan', 'scan_family_corrected', 'reference_vote', 'reference_confirmed', 'reference_single'))
+            self.assertIn(h['mode_status'], ('agreed', 'index_only', 'printed_margin', 'printed_heading', 'conflict_unresolved', 'printed_margin_scan', 'scan_family_corrected', 'reference_vote', 'reference_confirmed', 'reference_single', 'course_text'))
 
     def test_counts(self):
         c = IDX['mode_fixes']['mode_status']
@@ -95,5 +95,30 @@ class ModeEvidence(unittest.TestCase):
         self.assertGreater(len(json.load(open(os.path.join(SITE, 'data/calendar/hymn_aliases.json'), encoding='utf-8'))['aliases']), 800)
 
 
+class CourseText(unittest.TestCase):
+    """Y1: Fr. Findikyan's course text (LS323) prints (opening, tone[, Ձայնքաղ page]) facts; they decide the mode where no printed margin tag or heading speaks."""
+    def test_course_text_witnesses_correct_the_index(self):
+        # (hymn id, mode the course text prints, mode the index/Krapar had)
+        for hid, mode, was in (('SH5d981548e4', 'ԳԿ', 'ԳՁ'),     # p133 «Քրիստոս աստուած» Penitential Series 6/1 գկ
+                               ('SH273961d690', 'ԳԿ', 'ԳՁ'),     # p133 «Զանսկիզբն Աստուած» Penitential tone 6
+                               ('SH7c5d6fee26', 'ԱՁ', 'ԱԿ'),     # p231 «Դու ես Քրիստոս կեանք» Resurrection Series 1/7 աձ
+                               ('SHb2068d5ad7', 'ԳՁ', 'ԴՁ'),     # p29 «Զահաւոր բարբառս վերնոցն» Theophany Second Day գձ
+                               ('SH70358cca55', 'ԳՁ', 'ԴՁ'),     # p166 «Զգալուստ քո Քրիստոս» Second Canon for Palm Sunday գձ
+                               ('SHc862b137f2', 'ԴՁ', 'ԳՁ')):    # Holy Thursday tone 7 «Որ անսկիզբն յէութեանց» (the reference lists said ԳՁ)
+            self.assertEqual(BY[hid]['mode'], mode, hid)
+            if hid != 'SHc862b137f2':
+                self.assertEqual(BY[hid]['mode_status'], 'course_text'); self.assertEqual(BY[hid]['mode_index'], was)
+
+    def test_course_text_never_outranks_a_printed_margin_tag(self):
+        # p62: the printed margin tag (գկ) outranks every other witness, the course text included
+        self.assertEqual(BY['SH6281b7011f']['mode_status'], 'printed_margin')
+        self.assertTrue(all(h['mode_status'] != 'course_text' or not h.get('mode_checks', {}).get('margin') for h in H))
+
+    def test_ambiguous_openings_decide_nothing(self):
+        rep = IDX['mode_fixes']['course_text_report']
+        self.assertTrue(all(a['incipit'] for a in rep['ambiguous'] + rep['unmapped']))
+
+
 if __name__ == '__main__':
     unittest.main()
+

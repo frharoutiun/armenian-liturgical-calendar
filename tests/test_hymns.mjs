@@ -85,7 +85,7 @@ ok('day.canon second pass: service slot on every part, source and complete flags
       assert.ok(['canon', 'rubric', 'generic_rule', 'generic_kind', 'generic_same_canon', 'canon_via_rubric', 'generic_friday_repose', 'generic_eight_modes', 'generic_weekday_orhnutyun', 'generic_mode_beginnings', 'none'].includes(p.source)); assert.equal(typeof p.complete, 'boolean');
       if (p.source.startsWith('generic')) assert.ok(p.needsReview && p.note && p.hymns.every((h) => h.confidence <= 0.6), 'rule-based fills are flagged and capped');
     }
-    assert.deepEqual(c.parts.map((p) => p.service.service), ['midnight', 'morning', 'morning', 'morning', 'morning', 'morning', 'divine_liturgy', 'evening']);
+    assert.deepEqual(c.parts.map((p) => p.service.service), ['night', 'morning', 'morning', 'morning', 'morning', 'morning', 'divine_liturgy', 'evening']);
   }
   const nat = cal.resolveDay('2026-12-25').canon;   // Friday fast before Nativity: no canon of its own, the rubric names a repose Harts
   assert.ok(nat.parts.filter((p) => p.hymns.length).length >= 3, 'not an empty canon');
