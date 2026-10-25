@@ -10,7 +10,7 @@ class ModeEvidence(unittest.TestCase):
         self.assertEqual(len(H), 2465)
         for h in H:
             self.assertTrue(h['mode'])
-            self.assertIn(h['mode_status'], ('agreed', 'index_only', 'printed_margin', 'printed_heading', 'conflict_unresolved'))
+            self.assertIn(h['mode_status'], ('agreed', 'index_only', 'printed_margin', 'printed_heading', 'conflict_unresolved', 'printed_margin_scan', 'scan_family_corrected'))
 
     def test_counts(self):
         c = IDX['mode_fixes']['mode_status']
@@ -22,6 +22,23 @@ class ModeEvidence(unittest.TestCase):
         h = BY['SH6281b7011f']
         self.assertEqual(h['mode'], 'ԳԿ'); self.assertEqual(h['mode_index'], 'ԴԿ'); self.assertEqual(h['mode_status'], 'printed_margin')
         self.assertEqual(h['mode_checks'].get('krapar'), 'ԴԿ')
+
+    def test_scan_label_letters_ab_are_proven_gd_is_not(self):
+        # M1: p47 «օրհ / աձ» was typed գձ in the Unicode edition; the 6x scan prints աձ -> ԱՁ (the index said ԴՁ)
+        h = BY['SHeeb234043c']
+        self.assertEqual(h['mode'], 'ԱՁ'); self.assertEqual(h['mode_status'], 'printed_margin_scan'); self.assertEqual(h['mode_index'], 'ԴՁ')
+        # p57 «մնկ / բկ»: the Unicode tag said ակ; the scan prints բկ (= the index)
+        self.assertEqual(BY['SHbc20b9f94e']['mode'], 'ԲԿ')
+        # p75 «մնկ / գկ»: the glyph is the Գ/Դ glyph, which excludes the Unicode tag's Ա; the index's ԴԿ stands
+        h = BY['SH7f214c86c0']
+        self.assertEqual((h['mode'], h['mode_status']), ('ԴԿ', 'scan_family_corrected'))
+
+    def test_scan_gd_label_never_decides_the_letter(self):
+        # the readers' Գ/Դ letter is NOT evidence (the glyphs differ only in the top-left stroke): hymns with only a Գ/Դ scan label keep their earlier decision
+        ev = json.load(open(os.path.join(SITE, '..', '06 - Donatsooyts Digitization', 'output/site_build/m1/margin_label_evidence.json'), encoding='utf-8'))['hymns'] if os.path.exists(os.path.join(SITE, '..', '06 - Donatsooyts Digitization', 'output/site_build/m1/margin_label_evidence.json')) else {}
+        for hid, e in ev.items():
+            if e['kind'] != 'letter' and hid in BY and BY[hid]['mode_status'] not in ('scan_family_corrected', 'conflict_unresolved'):
+                self.assertIn(BY[hid]['mode'][0], 'ԳԴ')
 
     def test_reversible(self):
         for h in H:

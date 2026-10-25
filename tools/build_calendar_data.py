@@ -214,6 +214,16 @@ def krapar_modes():
     return {hid: next(iter(c)) for hid, c in seen.items() if len(c) == 1}
 
 
+def scan_margin_evidence():
+    """M1: printed margin labels read from the scan margin crops (pipeline/s121_margin_label_evidence.py, output/site_build/m1/margin_label_evidence.json).
+    At the readers' resolution the printed Գ and Դ are not separable, so a scan label proves the LETTER only when it is Ա or Բ (`kind: letter`); for Գ/Դ it proves the
+    family (Գ or Դ) and the Ձ/Կ half (`kind: family_GD`)."""
+    p = os.path.join(PROJ, 'output/site_build/m1/margin_label_evidence.json')
+    if not os.path.exists(p):
+        return {}
+    return json.load(open(p, encoding='utf-8')).get('hymns') or {}
+
+
 def reconcile_modes(hymns):
     """Final `mode` of every hymn, decided by evidence rank, never by a count of votes.
 
@@ -225,6 +235,7 @@ def reconcile_modes(hymns):
     `mode_status`: printed_margin | printed_heading | agreed | index_only | conflict_unresolved; `mode_checks` lists every witness that disagrees with the decision; `mode_index` keeps
     the index's own value when it was changed (reversible)."""
     kr = krapar_modes()
+    scan = scan_margin_evidence()
     c = collections.Counter()
     for h in hymns:
         idx = h.pop('_idx', h.get('mode'))
@@ -245,13 +256,42 @@ def reconcile_modes(hymns):
             else:
                 status = 'index_only'
             why = None
+        # M1: the printed label read from the scan (letter Ա/Բ proven; Գ/Դ only as a family; the Ձ/Կ half in both cases)
+        sc = scan.get(h['id'])
+        scan_note = None
+        if sc:
+            ref = (sc.get('source') or {})
+            where = f"scan label p{ref.get('page')} {ref.get('strip')} «{ref.get('part')}»"
+            if sc['kind'] == 'letter':
+                if final != sc['mode']:
+                    final, status = sc['mode'], 'printed_margin_scan'
+                    why = f"{where} prints {sc['mode']} (letter read on the scan; the other witnesses: " + ', '.join(f'{w} {v}' for w, v in (('index', idx), ('krapar', k), ('margin tag', mg), ('heading', head)) if v) + ')'
+                else:
+                    scan_note = 'scan confirms'
+            else:
+                if final[0] not in 'ԳԴ':
+                    alt = next((v for v in (idx, k) if v and v[0] in 'ԳԴ'), None)
+                    if alt:
+                        final, status = alt, 'scan_family_corrected'
+                        why = f"{where} shows the Գ/Դ glyph, which excludes {why or 'the earlier reading'}"
+                    else:
+                        status = 'conflict_unresolved'
+                        scan_note = f"{where} shows the Գ/Դ glyph but no witness names Գ or Դ"
+                elif sc['half'] != final[1]:
+                    scan_note = f"{where} reads the half as {sc['half']}, the decision has {final[1]}"
+                else:
+                    scan_note = 'scan family confirms'
         checks = {w: v for w, v in (('index', idx), ('krapar', k), ('margin', mg), ('heading', head)) if v and v != final}
+        if scan_note and not scan_note.endswith('confirms'):
+            checks['scan'] = scan_note
         h['mode'] = final
         if final != idx:
             h['mode_index'] = idx
             h['mode_basis'] = f"{why}: the index's {idx} is read as {final}" if why else f"index {idx}"
         elif status in ('printed_margin', 'printed_heading'):
             status = 'agreed'
+        if sc and scan_note and scan_note.endswith('confirms'):
+            h['mode_scan'] = scan_note
         h['mode_status'] = status
         if checks:
             h['mode_checks'] = checks
