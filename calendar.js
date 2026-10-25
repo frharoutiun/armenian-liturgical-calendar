@@ -204,7 +204,7 @@ function renderChantSeg(sg, c) {
   const ent = CE && c && si >= 0 ? CE.entryFor(c.layerKey, si, sg) : null;
   if (ent && ent.noise) return "";
   if (ent && ent.rubric && sg.status !== "matched") return renderRubricSeg(sg, ent);
-  if (ent && ent.explanation && sg.status !== "matched") return renderUnresolvedSeg(sg, ent);
+  if (ent && ent.explanation) return renderUnresolvedSeg(sg, ent);
   if (ent && sg.status !== "matched" && (ent.pieces || ent.armenian_bridge_full || ent.ai_translation)) {
     if (ent.pieces || ent.armenian_bridge_full) return renderBridgeSeg(sg, c, ent);
   }

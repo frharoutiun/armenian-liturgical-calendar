@@ -1,6 +1,6 @@
 {
  "schema": "c2-chants-english/1.0",
- "generated": "2026-10-25T12:48:43Z",
+ "generated": "2026-10-25T15:17:19Z",
  "note": "English routes for the chants: ESV is requested live from the church's ESV service (never stored); KJV is the public-domain fallback; AI translations are offline, labelled and only for sung wording that is not a Bible verse.",
  "ai_label": "AI translation (Claude)",
  "entries": {
@@ -21,8 +21,8 @@
   "CH-029fc30387|0": {
    "scope": "whole_bible",
    "pairing": {
-    "coverage": 0.19,
-    "precision": 0.24
+    "coverage": 0.24,
+    "precision": 0.18
    },
    "ai_translation": "(Martyrs) In the church of the saints and in memory of the holy martyrs, lifting our hands, we beseech you: through their intercession and prayers make our lives peaceful, O God, as the lover of mankind.",
    "ai_note": "AI translation of the sung wording",
@@ -462,7 +462,7 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.19,
-    "precision": 0.31
+    "precision": 0.29
    },
    "ai_translation": "Of the Nativity: O unwedded Mother of God, you conceived the Word without beginning and bore the incomprehensible God; you carried in your arms him who cannot be circumscribed; intercede with him unceasingly for our souls.",
    "ai_note": "AI translation of the sung wording",
@@ -1399,7 +1399,7 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.26,
-    "precision": 0.25
+    "precision": 0.27
    },
    "ai_translation": "(Fast days: Monday, Tuesday, Thursday) You who were sent from the Father, Savior, and took flesh of the holy Virgin, who for our sake came down from heaven and enlightened the universe.",
    "ai_note": "AI translation of the sung wording",
@@ -1464,7 +1464,7 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.19,
-    "precision": 0.31
+    "precision": 0.29
    },
    "ai_translation": "Of the Nativity: O unwedded Mother of God, you conceived the Word without beginning and bore the incomprehensible God; you carried in your arms him who cannot be circumscribed; intercede with him unceasingly for our souls.",
    "ai_note": "AI translation of the sung wording",
@@ -1737,11 +1737,11 @@
    "incipit": "Տէր թագաւորեաց"
   },
   "CH-360f3fc953|3": {
-   "esv_lookup": "Psalm 96:0",
-   "basis": "layer pairing",
-   "sung_differs": false,
+   "noise": true,
    "segment_status": "matched",
-   "incipit": "Սաղմոս ՂԸ"
+   "incipit": "Սաղմոս ՂԸ",
+   "basis": "K1: psalm label paired with the psalm title row (verse 0): hidden",
+   "was_esv_lookup": "Psalm 96:0"
   },
   "CH-3611e06532|0": {
    "esv_lookup": "Psalm 44:11",
@@ -2306,8 +2306,8 @@
   "CH-494145fb2c|0": {
    "scope": "whole_bible",
    "pairing": {
-    "coverage": 0.19,
-    "precision": 0.25
+    "coverage": 0.25,
+    "precision": 0.15
    },
    "ai_translation": "May the thanksgivings of those who fear your name be sweet to you, O Christ, whom you made to hope by your mercy in the mysteries of your life-giving coming.",
    "ai_note": "AI translation of the sung wording",
@@ -2409,11 +2409,11 @@
    "incipit": "Խոստովան"
   },
   "CH-4d8c1c3fd7|3": {
-   "esv_lookup": "Psalm 104:0",
-   "basis": "layer pairing",
-   "sung_differs": false,
+   "noise": true,
    "segment_status": "matched",
-   "incipit": "Սաղմոս ԿԶ"
+   "incipit": "Սաղմոս ԿԶ",
+   "basis": "K1: psalm label paired with the psalm title row (verse 0): hidden",
+   "was_esv_lookup": "Psalm 104:0"
   },
   "CH-4d8c1c3fd7|4": {
    "esv_lookup": "Psalm 67:1",
@@ -2438,8 +2438,8 @@
   "CH-4dde6a8ecc|0": {
    "scope": "whole_bible",
    "pairing": {
-    "coverage": 0.19,
-    "precision": 0.25
+    "coverage": 0.25,
+    "precision": 0.15
    },
    "ai_translation": "May the thanksgivings of those who fear your name be sweet to you, O Christ, whom you made to hope by your mercy in the mysteries of your life-giving coming.",
    "ai_note": "AI translation of the sung wording",
@@ -2941,11 +2941,11 @@
    "incipit": "Աստուած վրէժխնդիր"
   },
   "CH-602f69b524|3": {
-   "esv_lookup": "Psalm 92:0",
-   "basis": "layer pairing (Arak29 KJV column)",
-   "sung_differs": false,
+   "noise": true,
    "segment_status": "matched",
-   "incipit": "Սաղմոս Ե"
+   "incipit": "Սաղմոս Ե",
+   "basis": "K1: psalm label paired with the psalm title row (verse 0): hidden",
+   "was_esv_lookup": "Psalm 92:0"
   },
   "CH-602f69b524|4": {
    "esv_lookup": "Psalm 5:12",
@@ -3141,7 +3141,7 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.19,
-    "precision": 0.31
+    "precision": 0.29
    },
    "ai_translation": "Of the Nativity: O unwedded Mother of God, you conceived the Word without beginning and bore the incomprehensible God; you carried in your arms him who cannot be circumscribed; intercede with him unceasingly for our souls.",
    "ai_note": "AI translation of the sung wording",
@@ -3921,8 +3921,8 @@
   "CH-7e7cecf5e0|1": {
    "scope": "whole_bible",
    "pairing": {
-    "coverage": 0.15,
-    "precision": 0.21
+    "coverage": 0.17,
+    "precision": 0.33
    },
    "ai_translation": "As after the God-loving king of Israel Hezekiah God raised up Josiah, who cast away all the idolatry of the ancient people, so also in our time he raised up the firstborn of kings, the pious Abgar, who from afar knew the heavenly King, Christ, and became a herald of his divinity to the ends of the world.",
    "ai_note": "AI translation of the sung wording",
@@ -3964,11 +3964,11 @@
    "incipit": "Երանեալ է"
   },
   "CH-7ed69c9804|3": {
-   "esv_lookup": "Psalm 110:0",
-   "basis": "layer pairing (Arak29 KJV column)",
-   "sung_differs": false,
+   "noise": true,
    "segment_status": "matched",
-   "incipit": "Սաղմոս ԿԴ"
+   "incipit": "Սաղմոս ԿԴ",
+   "basis": "K1: psalm label paired with the psalm title row (verse 0): hidden",
+   "was_esv_lookup": "Psalm 110:0"
   },
   "CH-7ed69c9804|4": {
    "esv_lookup": "Psalm 65:1",
@@ -4699,8 +4699,9 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.14,
-    "precision": 0.14
+    "precision": 0.12
    },
+   "apocrypha": true,
    "ai_translation": "[Rubric] After the psalms the Gospel according to the mode is read.",
    "ai_note": "rubric/cue or list, not a verse",
    "segment_status": "matched",
@@ -5147,8 +5148,9 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.14,
-    "precision": 0.14
+    "precision": 0.12
    },
+   "apocrypha": true,
    "ai_translation": "[Rubric] After the psalms the Gospel according to the mode is read.",
    "ai_note": "rubric/cue or list, not a verse",
    "segment_status": "matched",
@@ -5279,11 +5281,11 @@
    "incipit": "Տէր լուր աղօթից"
   },
   "CH-a64b21e85a|3": {
-   "esv_lookup": "Psalm 101:0",
-   "basis": "layer pairing (Arak29 KJV column)",
-   "sung_differs": false,
+   "noise": true,
    "segment_status": "matched",
-   "incipit": "Սաղմոս ՂԷ"
+   "incipit": "Սաղմոս ՂԷ",
+   "basis": "K1: psalm label paired with the psalm title row (verse 0): hidden",
+   "was_esv_lookup": "Psalm 101:0"
   },
   "CH-a64b21e85a|4": {
    "esv_lookup": "Psalm 98:3",
@@ -5306,11 +5308,18 @@
    "incipit": "Տեսին ամենայն"
   },
   "CH-a70896be28|0": {
-   "esv_lookup": "Psalm 65:0",
-   "basis": "layer pairing (Arak29 KJV column)",
-   "sung_differs": false,
+   "basis": "K1: reviewed; no source reproduces this opening",
    "segment_status": "matched",
-   "incipit": "Սաղմոս ասացէք"
+   "incipit": "Սաղմոս ասացէք",
+   "explanation": "«Սաղմոս ասացէք» (the second psalm of the Jashoo of the 4th Sunday after Pentecost, printed numeral missing): five verses of the 1895 Bible begin with these words. The first psalm printed is ԿԴ (64) «Քեզ վայել է»; the next psalm, 65, has «…սաղմոս ասացէք անուան նորա» (Ps 65:2), which fits the series best, but the opening alone does not decide. The layer's earlier pairing with the title of Ps 64 was wrong and is not shown. Not decided.",
+   "alternatives": [
+    "Ps 65:2",
+    "Ps 46:7",
+    "Ps 97:5",
+    "Ps 29:5",
+    "Ps 9:12"
+   ],
+   "review_status": "needs_review"
   },
   "CH-a7c0b6790e|0": {
    "basis": "list of incipits, each searched in the Bible",
@@ -6006,7 +6015,7 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.19,
-    "precision": 0.31
+    "precision": 0.29
    },
    "ai_translation": "Of the Nativity: O unwedded Mother of God, you conceived the Word without beginning and bore the incomprehensible God; you carried in your arms him who cannot be circumscribed; intercede with him unceasingly for our souls.",
    "ai_note": "AI translation of the sung wording",
@@ -6904,8 +6913,8 @@
   "CH-e050ff89eb|2": {
    "scope": "whole_bible",
    "pairing": {
-    "coverage": 0.22,
-    "precision": 0.14
+    "coverage": 0.33,
+    "precision": 0.3
    },
    "ai_translation": "[Cues only, cut off] \"God entered…\"; \"You who shepherd Israel…\"; \"Rejoice in God…\".",
    "ai_note": "rubric/cue or list, not a verse",
@@ -7063,7 +7072,7 @@
    "scope": "whole_bible",
    "pairing": {
     "coverage": 0.19,
-    "precision": 0.31
+    "precision": 0.29
    },
    "ai_translation": "Of the Nativity: O unwedded Mother of God, you conceived the Word without beginning and bore the incomprehensible God; you carried in your arms him who cannot be circumscribed; intercede with him unceasingly for our souls.",
    "ai_note": "AI translation of the sung wording",
@@ -7148,8 +7157,8 @@
   "CH-e82b2bec00|0": {
    "scope": "whole_bible",
    "pairing": {
-    "coverage": 0.16,
-    "precision": 0.19
+    "coverage": 0.11,
+    "precision": 0.2
    },
    "ai_translation": "(Cross) Before your precious, all-conquering Cross we fall down in worship and ask forgiveness of our offenses, for by it you took away the condemnation of the human race.",
    "ai_note": "AI translation of the sung wording",
