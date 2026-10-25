@@ -224,6 +224,105 @@ def scan_margin_evidence():
     return json.load(open(p, encoding='utf-8')).get('hymns') or {}
 
 
+REF_PART = {'օրհ': 'Օրհնութիւն', 'հրց': 'Հարց', 'հարց': 'Հարց', 'մեծ': 'Մեծացուսցէ', 'ողր': 'Ողորմեա', 'տրյ': 'Տէր յերկնից', 'տրլ': 'Տէր յերկնից',
+            'մնկ': 'Մանկունք', 'ճշ': 'Ճաշու', 'ճշու': 'Ճաշու', 'հմբ': 'Համբարձի'}
+REF_WEIGHT = {'E': 1.0, 'J': 0.3, 'L': 0.5, 'K': 0.3, 'I': 0.2}   # calibrated on the 346 hymns that carry a Unicode margin tag (F2_REPORT.md): 81.5% right vs 67% for the index alone
+REF_NEED, REF_GAP = 0.5, 0.3                                         # a reference vote changes the index only with weight >= 0.5 and a lead of >= 0.3 over the index's own vote
+
+
+def _ref_part(p):
+    k = arm_key(p)[:3] if p else ''
+    for a, b in REF_PART.items():
+        if arm_key(a)[:3] == k:
+            return b
+    return None
+
+
+def reference_modes(hymns):
+    """F2: modes from the owner's reference lists (pipeline/s130_mode_reference_witnesses.py -> output/site_build/f2/reference_entries.json):
+      E = Sharagan TOC Echmiadzin (typed list: incipit | part | mode | pages), J = Sharagan MASTER TOC (Jerusalem 1956), L = Sharagan List.pdf (OCR).
+    An entry is tied to a hymn by its incipit (normalised prefix match) and, when the hymn's part is known, by compatible part. E's page numbers belong to another
+    pagination but are a monotone function of ours (offset 0..26 pages): fitted from the unambiguous matches, used to tell apart repeated incipits (page window +-5)
+    and to match abbreviated incipits by fuzzy text inside the page window. J (three volumes, other order) and L (OCR) are used by incipit only.
+    Returns hymn id -> {'E': mode, 'J': mode, 'L': mode} (only where all of that source's entries for the hymn agree)."""
+    p = os.path.join(PROJ, 'output/site_build/f2/reference_entries.json')
+    if not os.path.exists(p):
+        return {}
+    ents = json.load(open(p, encoding='utf-8'))['entries']
+    byk = collections.defaultdict(list)
+    for h in hymns:
+        byk[h['key']].append(h)
+    keys = list(byk)
+
+    def key_match(e):
+        w = arm_key(e['incipit'])
+        if len(w) < 8:
+            return []
+        out = []
+        for k in keys:
+            if k == w or (len(w) >= 10 and k.startswith(w)) or (len(k) >= 10 and w.startswith(k)):
+                out += byk[k]
+        return out
+
+    def compat(e, h):
+        pc = _ref_part(e['part'])
+        return not (pc and h.get('category') and arm_key(pc) != arm_key(h['category']))
+    # monotone offset E-page minus our page, from hymns with exactly one compatible E entry that has one page
+    ent_by_h = collections.defaultdict(list)
+    for e in ents:
+        if e['src'] == 'E':
+            for h in key_match(e):
+                if compat(e, h):
+                    ent_by_h[h['id']].append(e)
+    hy = {h['id']: h for h in hymns}
+    off = collections.defaultdict(list)
+    for hid, es in ent_by_h.items():
+        if len(es) == 1 and len(es[0]['pages']) == 1 and hy[hid].get('pages'):
+            a = hy[hid]['pages'][0]
+            off[a // 20].append(es[0]['pages'][0] - a)
+    pts = sorted((k * 20 + 10, sorted(v)[len(v) // 2]) for k, v in off.items() if len(v) >= 3)
+
+    def fpage(pg):
+        if not pts:
+            return pg
+        if pg <= pts[0][0]:
+            return pg + pts[0][1]
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+            if pg <= x1:
+                return pg + y0 + (y1 - y0) * (pg - x0) / (x1 - x0)
+        return pg + pts[-1][1]
+    res = collections.defaultdict(lambda: collections.defaultdict(set))
+    for hid, es in ent_by_h.items():
+        for e in es:
+            if any(abs(fpage(pg) - b) <= 5 for pg in (hy[hid].get('pages') or []) for b in e['pages']):
+                res[hid]['E'].add(e['mode'])
+    byp = collections.defaultdict(list)
+    for h in hymns:
+        for pg in h.get('pages') or []:
+            byp[pg].append(h)
+    for e in ents:
+        if e['src'] != 'E':
+            continue
+        w = arm_key(e['incipit'])
+        if len(w) < 5:
+            continue
+        cand = {}
+        for pg in range(1, 530):
+            if any(abs(fpage(pg) - b) <= 5 for b in e['pages']):
+                for h in byp.get(pg, []):
+                    cand[h['id']] = h
+        sc = sorted(((difflib.SequenceMatcher(None, w[:min(len(w), len(h['key']), 16)], h['key'][:min(len(w), len(h['key']), 16)]).ratio(), hid)
+                     for hid, h in cand.items() if compat(e, h)), reverse=True)
+        if sc and sc[0][0] >= 0.7 and (len(sc) == 1 or sc[0][0] - sc[1][0] >= 0.04):
+            res[sc[0][1]]['E'].add(e['mode'])
+    for e in ents:
+        if e['src'] in ('J', 'L'):
+            for h in key_match(e):
+                if compat(e, h):
+                    res[h['id']][e['src']].add(e['mode'])
+    return {hid: {src: next(iter(m)) for src, m in d.items() if len(m) == 1} for hid, d in res.items()}
+
+
 def reconcile_modes(hymns):
     """Final `mode` of every hymn, decided by evidence rank, never by a count of votes.
 
@@ -236,6 +335,7 @@ def reconcile_modes(hymns):
     the index's own value when it was changed (reversible)."""
     kr = krapar_modes()
     scan = scan_margin_evidence()
+    refs = reference_modes(hymns)
     c = collections.Counter()
     for h in hymns:
         idx = h.pop('_idx', h.get('mode'))
@@ -256,6 +356,28 @@ def reconcile_modes(hymns):
             else:
                 status = 'index_only'
             why = None
+            # F2: the owner's reference lists (E Echmiadzin TOC, J Jerusalem 1956 list, L Sharagan List) vote where no printed label or heading speaks
+            refd = refs.get(h['id']) or {}
+            vote = collections.Counter()
+            for src_, m_ in refd.items():
+                vote[m_] += REF_WEIGHT[src_]
+            if k:
+                vote[k] += REF_WEIGHT['K']
+            if idx:
+                vote[idx] += REF_WEIGHT['I']
+            if refd:
+                best, bs = vote.most_common(1)[0]
+                sc0 = scan.get(h['id'])
+                if sc0 and sc0.get('half') and best != idx and best[1] != sc0['half']:
+                    best = best[0] + sc0['half']          # the Ձ/Կ half printed on the scan outranks the lists
+                n_lists = sum(1 for m_ in refd.values() if m_ == best)
+                if best != idx and bs >= REF_NEED and bs - vote.get(idx, 0) >= REF_GAP and n_lists == 1 and k != best:
+                    status = 'reference_single'           # one list alone dissents: recorded in mode_checks, the index stands (calibration: 71% right, vs 92% for two lists)
+                elif best != idx and bs >= REF_NEED and bs - vote.get(idx, 0) >= REF_GAP:
+                    final, status = best, 'reference_vote'
+                    why = 'reference lists ' + ', '.join(f'{s_} {m_}' for s_, m_ in sorted(refd.items())) + (f', krapar {k}' if k else '') + f" outvote the index ({vote.get(idx, 0):.1f} vs {bs:.1f})"
+                elif any(m_ == idx for m_ in refd.values()):
+                    status = 'reference_confirmed'
         # M1: the printed label read from the scan (letter Ա/Բ proven; Գ/Դ only as a family; the Ձ/Կ half in both cases)
         sc = scan.get(h['id'])
         scan_note = None
@@ -282,6 +404,11 @@ def reconcile_modes(hymns):
                 else:
                     scan_note = 'scan family confirms'
         checks = {w: v for w, v in (('index', idx), ('krapar', k), ('margin', mg), ('heading', head)) if v and v != final}
+        for src_, m_ in (refs.get(h['id']) or {}).items():
+            if m_ != final:
+                checks['ref_' + src_] = m_
+        if refs.get(h['id']):
+            h['mode_refs'] = refs[h['id']]
         if scan_note and not scan_note.endswith('confirms'):
             checks['scan'] = scan_note
         h['mode'] = final

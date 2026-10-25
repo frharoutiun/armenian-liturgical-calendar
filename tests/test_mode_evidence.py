@@ -10,7 +10,7 @@ class ModeEvidence(unittest.TestCase):
         self.assertEqual(len(H), 2465)
         for h in H:
             self.assertTrue(h['mode'])
-            self.assertIn(h['mode_status'], ('agreed', 'index_only', 'printed_margin', 'printed_heading', 'conflict_unresolved', 'printed_margin_scan', 'scan_family_corrected'))
+            self.assertIn(h['mode_status'], ('agreed', 'index_only', 'printed_margin', 'printed_heading', 'conflict_unresolved', 'printed_margin_scan', 'scan_family_corrected', 'reference_vote', 'reference_confirmed', 'reference_single'))
 
     def test_counts(self):
         c = IDX['mode_fixes']['mode_status']
@@ -46,12 +46,35 @@ class ModeEvidence(unittest.TestCase):
                 self.assertIn('mode_basis', h)
             if h['mode_status'] in ('index_only', 'conflict_unresolved', 'agreed') and 'mode_index' in h:
                 self.assertEqual(h['mode_status'], 'agreed')
+            if h['mode_status'] == 'reference_vote':
+                self.assertIn('mode_index', h); self.assertIn('mode_refs', h); self.assertNotEqual(h['mode'], h['mode_index'])
 
     def test_unresolved_conflicts_keep_the_index_reading(self):
         for h in H:
             if h['mode_status'] == 'conflict_unresolved':
                 self.assertNotIn('mode_index', h)
                 self.assertIn('krapar', h['mode_checks'])
+
+    def test_reference_votes_never_override_printed_evidence(self):
+        # F2: the reference lists (Echmiadzin TOC, Jerusalem list, Sharagan List) vote only where no printed margin tag/heading/scan letter speaks
+        for h in H:
+            if h['mode_status'] in ('printed_margin', 'printed_heading', 'printed_margin_scan'):
+                self.assertNotEqual(h['mode_status'], 'reference_vote')
+        self.assertGreater(sum(1 for h in H if h['mode_status'] == 'reference_vote'), 60)
+        self.assertGreater(sum(1 for h in H if h['mode_status'] == 'reference_confirmed'), 500)
+
+    def test_reference_vote_needs_a_list_not_just_krapar(self):
+        for h in H:
+            if h['mode_status'] == 'reference_vote':
+                self.assertTrue(set(h['mode_refs']) & {'E', 'J', 'L'})
+                self.assertIn(h['mode'], list(h['mode_refs'].values()) + [h['mode']])
+
+    def test_scan_half_outranks_lists(self):
+        ev = os.path.join(SITE, '..', '06 - Donatsooyts Digitization', 'output/site_build/m1/margin_label_evidence.json')
+        if os.path.exists(ev):
+            for hid, e in json.load(open(ev, encoding='utf-8'))['hymns'].items():
+                if hid in BY and BY[hid]['mode_status'] == 'reference_vote' and e.get('half'):
+                    self.assertEqual(BY[hid]['mode'][1], e['half'])
 
 
 if __name__ == '__main__':
