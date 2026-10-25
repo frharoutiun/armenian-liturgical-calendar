@@ -13,6 +13,9 @@ import { refineCanonParts, assembleCanon, partsOfType } from './canon.mjs';
 import { applyCueLines } from './cues.mjs';
 import { linkGeneric, categoriesOfNames } from './generic.mjs';
 import { interleave } from '../chant-order.mjs';
+import { citationEnglish } from './citations.mjs';
+import { repairReading, repairBook, bookByNormalizedName, passageOverlap, bookKeyEn } from './validate.mjs';
+import { bookEn } from './citations.mjs';
 
 export const SCHEMA = 'liturgical-day/1.0';
 export const MIN_YEAR = 1583, MAX_YEAR = 9999;
@@ -105,10 +108,10 @@ export async function createCalendar(opts = {}) {
   const loadData = await makeLoader(dataBase);
   await initEngine();
   const rb = await loadRulebook(loadRb);
-  const [readingsIdx, hymnIdx, recCanons, recService, hymnOpenings, canonParts, canonMarks, chantsLayer, versif, cueLines, hymnAliases] = await Promise.all([
+  const [readingsIdx, hymnIdx, recCanons, recService, hymnOpenings, canonParts, canonMarks, chantsLayer, versif, cueLines, hymnAliases, chapterVerses, recordSupp] = await Promise.all([
     loadData('readings_index.json').catch(() => ({ keys: {} })), loadData('hymn_index.json').catch(() => ({ hymns: [], sections: [] })), loadData('record_canons.json').catch(() => ({ records: {} })),
     loadData('record_service.json').catch(() => ({ keys: {} })), loadData('hymn_openings.json').catch(() => ({ rows: [] })), loadData('canon_parts.json').catch(() => ({ canons: {} })), loadData('canon_marks.json').catch(() => ({ marks: {} })),
-    loadData('chants_layer.json').catch(() => ({ chants: {}, lookup: {} })), loadData('versification.json').catch(() => ({ map: {} })), loadData('cue_lines.json').catch(() => ({ cues: [] })), loadData('hymn_aliases.json').catch(() => ({ aliases: [] })),
+    loadData('chants_layer.json').catch(() => ({ chants: {}, lookup: {} })), loadData('versification.json').catch(() => ({ map: {} })), loadData('cue_lines.json').catch(() => ({ cues: [] })), loadData('hymn_aliases.json').catch(() => ({ aliases: [] })), loadData('chapter_verses.json').catch(() => ({ books: {} })), loadData('record_supplements.json').catch(() => ({ table: {} })),
   ]);
   const refinedCanons = refineCanonParts(canonParts, canonMarks.marks);
   refinedCanons.canons = applyCueLines(refinedCanons.canons, cueLines);
@@ -184,7 +187,7 @@ export async function createCalendar(opts = {}) {
   function readingView(r, role) {
     const k = citeKey(r), ie = indexEntry(r), e = ie && ie.entries[0];
     return {
-      verbatimArmenian: r.verbatim, passage: { book: r.book, ch1: r.ch1, v1: r.v1, ch2: r.ch2, v2: r.v2, segments: r.segments }, citationKey: k, citationEn: e ? (ie.exact ? e.citation_en : ie.entries.map((x) => x.citation_en).join(' + ')) : null, citationIndexMatch: ie ? (ie.exact ? 'exact' : 'overlapping passages (the tables split or merge the range differently)') : 'none', book: r.book || null, bookHy: r.book_hy || null, kind: r.kind || null, recordOrdinal: r.ordinal, role: role || null,
+      verbatimArmenian: r.verbatim, passage: { book: r.book, ch1: r.ch1, v1: r.v1, ch2: r.ch2, v2: r.v2, segments: r.segments }, citationKey: k, citationEn: e ? (ie.exact ? e.citation_en : ie.entries.map((x) => x.citation_en).join(' + ')) : citationEnglish(r), citationEnSource: e ? 'jashots index' : 'composed from the parsed passage', citationIndexMatch: ie ? (ie.exact ? 'exact' : 'overlapping passages (the tables split or merge the range differently)') : 'none', book: r.book || null, bookHy: r.book_hy || null, kind: r.kind || null, recordOrdinal: r.ordinal, role: role || null,
       qualifiers: r.qualifiers || [], status: r.status, endPrinted: r.end_source === 'printed', flags: r.flags || [], needsPageCheck: !!(r.flags && r.flags.length) || !!r.reason, reason: r.reason || null,
       service: serviceFor(r),
       // Armenian Bible text (Arak29, 1895) is looked up in this shard by this key; versification is the Armenian-vs-English numbering check
@@ -203,8 +206,36 @@ export async function createCalendar(opts = {}) {
     const items = (day.parsed && day.parsed.items) || [];
     const readings = [], chants = [];
     for (const it of items) {
-      for (const r of it.readings || []) readings.push(readingView(r, it.role));
+      const itemViews = (it.readings || []).map((r0) => readingView(((r1) => repairReading(chapterVerses, bookEn(r1.book), r1))(repairBook(chapterVerses, r0)), it.role));
+      // An Old Testament reading the Jashots index does not know (the opening Wisdom / Song of Songs reading printed with the 'Առակ' head) belongs to the
+      // Divine Liturgy set of the SAME Hador 1 record when that record's other readings are Jashoo: the Jashots prints it in the same 'prophecy' block.
+      const hasJashoo = itemViews.some((v) => v.service && v.service.class === 'jashoo');
+      if (hasJashoo) for (const v of itemViews) if (v.service && v.service.class === 'unknown' && /Wisdom|Song of|Proverbs|Ecclesiastes/.test(v.book || '')) {
+        v.service = { class: 'jashoo', label: 'Divine Liturgy (Synaxis)', basis: 'same Hador 1 record as its Divine Liturgy readings; the Jashots prints this Old Testament reading in the same set', share: null, confident: true, level: 'record-block' };
+      }
+      // Any other passage the index has never seen: take the class its Hador 1 record siblings agree on (inferred, flagged, never 'confident').
+      const known = itemViews.filter((v) => v.service && v.service.class !== 'unknown').map((v) => v.service.class);
+      if (known.length && known.every((c) => c === known[0])) for (const v of itemViews) if (v.service && v.service.class === 'unknown') {
+        const sib = itemViews.find((x) => x.service && x.service.class === known[0]).service;
+        v.service = { class: known[0], label: sib.label, basis: 'passage unknown to the Jashots index; every other reading of the same Hador 1 record is ' + sib.label, share: null, confident: false, level: 'record-block-inferred' };
+      }
+      readings.push(...itemViews);
       for (const c of it.chants || []) chants.push({ recordOrdinal: it.ordinal, role: it.role, kind: c.kind, service: c.service, verbatim: c.verbatim, incipit: c.incipit, psalm: c.psalm_number, flags: c.flags || [] });
+    }
+    // Readings the lectionary tables appoint under this Hador 1 record signature but the Hador 1 parse does not carry (record-level, year independent):
+    // see pipeline/s125_record_supplements.py. Added only when no reading of the same book already overlaps the passage.
+    const noSupp = typeof process !== 'undefined' && process.env && process.env.CALGEN_NO_SUPPLEMENTS === '1';
+    const sig = [...new Set([...(day.records || []), ...(day.overlays || [])])].sort((a, b) => a - b).join('+');
+    for (const sp of (!noSupp && recordSupp.table && recordSupp.table[sig]) || []) {
+      const bk = bookByNormalizedName(sp.book); if (!bk) continue;
+      const have = readings.some((v) => v.passage && passageOverlap({ book: bookKeyEn({ en: v.passage.book || '' }), ch1: v.passage.ch1, v1: v.passage.v1, ch2: v.passage.ch2, v2: v.passage.v2 }, sp));
+      if (have) continue;
+      const pr = { verbatim: '', book: bk.en, book_hy: bk.hy, book_id: bk.id, kind: bk.cat, category: bk.cat, ch1: sp.ch1, v1: sp.v1, ch2: sp.ch2, v2: sp.v2, segments: [], status: 'complete', flags: ['lectionary_table_supplement'], qualifiers: [] };
+      const v = readingView(pr, 'day');
+      v.service = sp.class === 'jashoo' ? { class: 'jashoo', label: 'Divine Liturgy (Synaxis)', level: 'record-supplement', confident: sp.freq >= 0.8, share: sp.freq, basis: `appointed with this Hador 1 record in ${sp.days_with} of ${sp.days_total} days of the 2001-2040 lectionary tables (not printed in Hador 1)` }
+        : { class: sp.class === 'other' ? 'other' : 'unknown', label: sp.label || 'service not determined', level: 'record-supplement', confident: sp.freq >= 0.8, share: sp.freq, basis: `appointed with this Hador 1 record in ${sp.days_with} of ${sp.days_total} days of the 2001-2040 lectionary tables (not printed in Hador 1)` };
+      v.supplement = { source: 'lectionary tables 2001-2040', freq: sp.freq, daysWith: sp.days_with, daysTotal: sp.days_total };
+      readings.push(v);
     }
     // Full-verse chants (W9 layer) and their place before the reading they introduce (psalm > 1st reading > mesedi > 2nd reading > alleluia > gospel)
     const layout = interleave({ readings, chants }, chantsLayer);
@@ -260,6 +291,7 @@ export async function createCalendar(opts = {}) {
       easter: core.iso(core.easter(p.y)), easterOffset: day.easterOffset,
       mode: { number: day.mode.number, armenian: day.mode.armenian, since: day.mode.since, basis: 'computed from the eight-week mode cycle' },
       table: day.table, status: day.status, provisional: needsReview || fasting.provisional,
+      records: day.records || [], overlays: day.overlays || [],   // Hador 1 record ordinals the day is built from (the feed uses them for the non-biblical lections)
       commemorations: comms, fasting, readings, chants, chantLayout: layout, hymns, canons, sharagnots: sharagnotsGroups(hymns), canon: canonObj,
       labels: day.labels || [], annotations: day.annotations || [], unresolved,
       provenance: { claims: (day.claims || []).map((c) => ({ rule: c.rule, status: c.status, kind: c.kind, records: c.records, pages: c.source && c.source.pages })), records: day.records, overlays: day.overlays, hador2Rows: day.hador2Rows.map((r) => r.id), easterRule: day.easterRule },

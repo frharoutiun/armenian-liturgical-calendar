@@ -85,7 +85,7 @@ export const BOOKS = [
   B('MIC', 'Micah', 'Միքիա', 'prophet', 7, ['միքիա', 'միքիայ']),
   B('NAM', 'Nahum', 'Նաւում', 'prophet', 3, ['նաւում', 'նաւումայ']),
   B('ZEP', 'Zephaniah', 'Սոփոնիա', 'prophet', 3, ['սոփոնիա']),
-  B('ZEC', 'Zechariah', 'Զաքարիա', 'prophet', 14, ['զաքար', 'զաքարիա', 'զաքարիայ']),
+  B('ZEC', 'Zechariah', 'Զաքարիա', 'prophet', 14, ['զաք', 'զաքար', 'զաքարիա', 'զաքարիայ']),
   B('MAL', 'Malachi', 'Մաղաքիա', 'prophet', 4, ['մաղաք', 'մաղաքիա']),
 ];
 
@@ -115,6 +115,8 @@ function norm(s) {
 const CHV = '(?:([Ա-Ֆ]{1,4})\\.?\\s*)?';
 const SEG = new RegExp('^\\s*' + CHV + '(\\d+)([ա-ֆ])?\\s*(?:-\\s*' + CHV + '(\\d+)([ա-ֆ])?)?\\s*(?:,|$)');
 const INC = new RegExp('^\\s*([Ա-Ֆ]{1,4})\\.?\\s*(\\d+)\\.\\s*(.*?)[.,]?\\s*վ\\.?\\s*(?:([Ա-Ֆ]{1,4})\\.?\\s*)?(\\d+)\\.?\\s*(.*?)\\s*[:։]?\\s*$');
+// incipit and end words joined by a dash instead of the end marker վ: "ԿԱ. 10. Ցնծասցէ անձն իմ - ԿԲ. 3. Աստուծոյ քո" (Isaiah 61:10-62:3, Romans 15:30-16:2)
+const INC2 = new RegExp('^\\s*([Ա-Ֆ]{1,4})\\.?\\s*(\\d+)\\.\\s+([^\\d\\-]{3,}?)\\s+-\\s*([Ա-Ֆ]{1,4})\\.?\\s*(\\d+)\\.\\s*([^\\d]+?)\\s*[:։]?\\s*$');
 const INC1 = new RegExp('^\\s*([Ա-Ֆ]{1,4})\\.?\\s*(\\d+)\\.\\s+([^\\d]+?)\\s*[:։]?\\s*$');
 function parseTail(tail, flags) {
   let im = INC.exec(tail);
@@ -122,6 +124,11 @@ function parseTail(tail, flags) {
     const c1 = armNum(im[1]); const c2 = im[4] ? armNum(im[4]) : c1; if (c1 == null || c2 == null) return { error: 'bad chapter numeral in incipit form' };
     flags.push('incipit_and_end_words_printed');
     return { segs: [{ ch1: c1, v1: +im[2], ch2: c2, v2: +im[5], v1_suffix: null, v2_suffix: null, start_words: im[3].trim(), end_words: im[6].trim() }] };
+  }
+  im = INC2.exec(tail);
+  if (im && armNum(im[1]) != null && armNum(im[4]) != null) {
+    flags.push('incipit_and_end_words_printed');
+    return { segs: [{ ch1: armNum(im[1]), v1: +im[2], ch2: armNum(im[4]), v2: +im[5], v1_suffix: null, v2_suffix: null, start_words: im[3].trim(), end_words: im[6].trim() }] };
   }
   im = INC1.exec(tail);
   if (im && armNum(im[1]) != null) { flags.push('incipit_words_printed_no_end'); return { segs: [{ ch1: armNum(im[1]), v1: +im[2], ch2: null, v2: null, v1_suffix: null, v2_suffix: null, start_words: im[3].trim() }] }; }
@@ -332,6 +339,14 @@ export function readingsForRecords(ctx, ordinals) {
   for (const o of ordinals || []) {
     const rec = ctx.H1.get(o); if (!rec) continue;
     (rec.readings || []).forEach((rd, i) => parseReadings(rd.reading_verbatim).forEach((p) => out.push({ ordinal: o, index: i, name_armenian: rec.name_armenian, ...p })));
+    // Scripture the digitisation left in `readings_unparsed` (e.g. «Մարգարէ Զաք. Գ. 7 - Դ. 9» on the feast of the prophet Zechariah): the same parser
+    // reads it; anything that is not a scripture reference (psalm titles, «Մահ Զաքարիայ» rubrics, «տե՛ս ի Ճաշոցն» pointers) is left out, as before.
+    (rec.readings_unparsed || []).forEach((txt, j) => {
+      for (const p of parseReadings(txt)) {
+        if (!p.book_id || p.ch1 == null || p.v1 == null || !['complete', 'start_only'].includes(p.status)) continue;
+        out.push({ ordinal: o, index: (rec.readings || []).length + j, name_armenian: rec.name_armenian, from_unparsed: true, ...p, flags: [...(p.flags || []), 'from_readings_unparsed'] });
+      }
+    });
   }
   return out;
 }
