@@ -220,3 +220,132 @@ details.canon-part > summary { cursor: pointer; padding: 9px 12px; background: r
   .cal-reading > summary, details.canon-part > summary { padding-top: 11px; padding-bottom: 11px; }
 }
 @media (pointer: coarse) { .jumpbar button, .cal-link, .nav-btn { min-height: 40px; } }
+
+/* ======== L2: a calmer day page ========
+   one summary card with a single status line, three tabs (Readings | Sharagnots | Notes & sources), Armenian beside English,
+   warnings as small dots (not chips), sources folded away. Two accents only: --sec-readings (wine) and --sec-sharagnots (teal). */
+:root { --dot-green: #3f8a4f; --dot-amber: #c98a10; --dot-red: #b4443c; --dot-grey: #9a9488; }
+:root[data-effective-theme="dark"] { --dot-green: #6cc07c; --dot-amber: #e0a73a; --dot-red: #e0766c; --dot-grey: #8d887d; }
+.cal-result-panel { padding: 18px 22px 26px; }
+.meta-t { font-size: .82rem; opacity: .72; margin-right: 8px; white-space: nowrap; }
+.dot { display: inline-block; width: .62em; height: .62em; border-radius: 50%; vertical-align: .08em; margin: 0 .45em 0 .1em; background: var(--dot-grey); cursor: help; flex: none; }
+.dot-green { background: var(--dot-green); } .dot-amber, .dot-warn { background: var(--dot-amber); } .dot-red { background: var(--dot-red); } .dot-grey { background: var(--dot-grey); }
+.dot:focus-visible { outline: 2px solid var(--wine); outline-offset: 2px; }
+
+/* summary card */
+.day-head { padding-bottom: 12px; border-bottom: 0; margin-bottom: 0; }
+.day-date { text-transform: none; letter-spacing: .02em; font-size: .92rem; opacity: .8; margin-bottom: 8px; }
+.day-title { font-size: 2rem; margin-top: 6px; }
+.day-title-en { font-size: 1.1rem; margin: 3px 0 6px; opacity: .9; }
+.cal-facts { font-size: .95rem; opacity: .85; margin: 6px 0 10px; }
+.status-row { display: flex; align-items: flex-start; justify-content: center; gap: 8px; margin-top: 6px; text-align: left; position: relative; }
+.status-line { font-size: .88rem; max-width: 640px; }
+.status-line > summary { cursor: pointer; list-style: none; padding: 3px 12px; border: 1px solid var(--paper-line); border-radius: 999px; display: inline-block; opacity: .9; }
+.status-line > summary::-webkit-details-marker { display: none; }
+.status-line[open] > summary { border-color: var(--dot-amber); }
+.status-line ul { margin: 8px 0 0; padding-left: 22px; line-height: 1.55; }
+.legend-btn { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--paper-line); background: transparent; color: inherit; font: inherit; font-size: .85rem; cursor: pointer; }
+.legend-wrap { position: relative; }
+.legend-pop { position: absolute; right: 0; top: 32px; z-index: 55; width: min(360px, 86vw); padding: 12px 14px; border: 1px solid var(--paper-line); border-radius: 8px; background: var(--paper-deep); box-shadow: 0 6px 24px rgba(0,0,0,.25); font-size: .88rem; text-align: left; }
+.legend-pop[hidden] { display: none; }
+.legend-list { list-style: none; margin: 0 0 6px; padding: 0; line-height: 1.7; }
+
+/* tabs */
+.day-tabs { display: flex; gap: 4px; margin: 14px 0 0; border-bottom: 1px solid var(--paper-line); background: var(--paper-deep); position: sticky; top: var(--topbar-h); z-index: 40; }
+.dt { font: inherit; padding: 10px 20px; border: 0; border-bottom: 3px solid transparent; background: transparent; color: inherit; cursor: pointer; opacity: .78; }
+.dt:hover { opacity: 1; }
+.dt.on { opacity: 1; font-weight: 700; }
+.dt-readings.on { color: var(--sec-readings); border-bottom-color: var(--sec-readings); }
+.dt-sharagnots.on { color: var(--sec-sharagnots); border-bottom-color: var(--sec-sharagnots); }
+.dt-notes.on { border-bottom-color: var(--paper-line); }
+.dt-n { margin-left: 4px; font-size: .78rem; font-weight: 400; opacity: .7; }
+.day-panel { padding: 14px 2px 6px; }
+.day-panel[hidden] { display: none; }
+.panel-sub { margin: 0 0 10px; font-size: .88rem; opacity: .75; }
+.panel-readings { --accent-now: var(--sec-readings); } .panel-sharagnots { --accent-now: var(--sec-sharagnots); }
+
+/* readings: flat rows, Armenian | English */
+details.cal-reading, details.cal-other { border: 0; border-bottom: 1px solid var(--paper-line); border-radius: 0; margin: 0; background: transparent; }
+details.cal-reading > summary { padding: 12px 4px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; list-style: none; cursor: pointer; }
+details.cal-reading > summary::-webkit-details-marker, details.cal-other > summary::-webkit-details-marker { display: none; }
+details.cal-reading > summary::before { content: "\25B8"; opacity: .55; width: 1em; flex: none; }
+details.cal-reading[open] > summary::before { content: "\25BE"; }
+details.cal-reading[open] > summary { border-bottom: 0; }
+.rd-cite { font-size: 1.08rem; color: var(--sec-readings); }
+.rd-hy { font-size: 1rem; opacity: .85; }
+.rd-svc { margin-left: auto; }
+details.cal-other > summary { padding: 10px 4px; cursor: pointer; opacity: .85; }
+.cal-reading-body { padding: 0 4px 16px 22px; }
+.rd-grid { display: grid; grid-template-columns: 1fr; gap: 14px 32px; }
+@media (min-width: 761px) { .rd-grid { grid-template-columns: 1fr 1fr; } }
+.rd-col { min-width: 0; }
+.rd-hy-col .hy-text, .rd-hy-col .cal-verses { font-size: 1.12rem; line-height: 1.85; }
+.rd-en-col .cal-verses, .cal-esv p { font-size: .98rem; line-height: 1.65; }
+.cal-sub { text-transform: none; letter-spacing: 0; font-size: .8rem; opacity: .7; margin: 0 0 4px; }
+.cal-esv h3 { font-size: 1rem; margin: 0 0 .3em; }
+.vers-line { margin: 10px 0 4px; font-size: .84rem; opacity: .85; padding: 0; border: 0; background: none; }
+.vers-line.vers-diff strong { color: var(--dot-amber); } .vers-line.vers-warn strong { color: var(--dot-red); }
+.cal-audio { margin: 8px 6px 4px 0; display: inline-flex; gap: 8px; align-items: center; }
+.rd-audio .nav-btn, .cal-audio .nav-btn { padding: 3px 12px; font-size: .85rem; }
+.rd-intro { margin: 6px 0 0; }
+.cal-hy { margin-top: 10px; font-size: .92rem; }
+.cal-hy summary { opacity: .75; cursor: pointer; }
+
+/* chants: slim cards, Armenian | English */
+.cal-chant { margin: 10px 0 6px 22px; padding: 8px 14px 10px; border-left: 3px solid var(--sec-readings); background: rgba(var(--sec-readings-rgb), .05); border-radius: 0 8px 8px 0; }
+.chant-head { font-size: .88rem; margin-bottom: 4px; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
+.chant-kind { text-transform: none; letter-spacing: 0; font-size: .95rem; }
+.hy-en { display: grid; grid-template-columns: 1fr; gap: 6px 28px; }
+@media (min-width: 761px) { .hy-en { grid-template-columns: 1fr 1fr; } }
+.chant-hy { font-size: 1.1rem; }
+.chant-en { margin-top: 0; font-size: .96rem; }
+
+/* sharagnots: part rail + one open part */
+.shar-layout { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 900px) { .shar-layout { grid-template-columns: 210px 1fr; gap: 24px; align-items: start; } }
+.canon-rail { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin: 0; }
+@media (min-width: 900px) { .canon-rail { flex-direction: column; overflow: visible; position: sticky; top: calc(var(--topbar-h) + 52px); } }
+.rail-item { font: inherit; text-align: left; padding: 8px 12px; border: 1px solid transparent; border-left: 3px solid var(--paper-line); background: transparent; color: inherit; cursor: pointer; border-radius: 0 6px 6px 0; display: flex; flex-direction: column; gap: 1px; flex: none; }
+.rail-item:hover { background: rgba(var(--sec-sharagnots-rgb), .08); }
+.rail-item.on { border-left-color: var(--sec-sharagnots); background: rgba(var(--sec-sharagnots-rgb), .13); }
+.rail-name { font-size: .98rem; font-weight: 600; white-space: nowrap; }
+.rail-sub { font-size: .76rem; opacity: .7; white-space: nowrap; }
+.rail-off .rail-name { font-weight: 400; opacity: .7; }
+.shar-body { min-width: 0; }
+.canon-part[hidden] { display: none; }
+.cp-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin: 0 0 6px; padding-bottom: 8px; border-bottom: 1px solid var(--paper-line); }
+.cp-name { margin: 0; font-size: 1.35rem; color: var(--sec-sharagnots); font-weight: 600; }
+.cp-hy { font-size: 1.1rem; margin-left: 6px; opacity: .85; }
+.cp-meta { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-left: auto; }
+.svc-tag { font-size: .7rem; text-transform: none; letter-spacing: .02em; padding: 0 8px; margin: 0; }
+.canon-hymn { padding: 4px 0 8px; }
+.canon-sub { margin: 14px 0 4px; font-size: 1.05rem; font-weight: 600; color: var(--ink); opacity: .9; }
+.canon-st { display: grid; grid-template-columns: 1fr; gap: 4px 28px; padding: 10px 0; border-bottom: 1px solid var(--paper-line); }
+@media (min-width: 761px) { .canon-st { grid-template-columns: 1fr 1fr; } }
+.canon-hy { font-size: 1.14rem; line-height: 1.85; }
+.canon-en { font-size: .96rem; line-height: 1.6; min-width: 0; }
+.canon-en:empty { display: none; }
+.canon-st .cal-ai { margin: 4px 0 0; padding: 4px 10px; font-style: normal; }
+.canon-en-src { font-style: italic; opacity: .92; }
+.hy-row { padding: 8px 0 10px; }
+
+/* sources folded away: one disclosure per tab */
+details.sources { margin-top: 22px; border: 0; border-top: 1px solid var(--paper-line); padding-top: 4px; font-size: .86rem; }
+details.sources > summary { cursor: pointer; padding: 8px 2px; opacity: .8; }
+.src-body p { margin: 6px 0; line-height: 1.55; opacity: .88; }
+.notes-h { margin: 18px 0 6px; font-size: 1rem; }
+.cal-esv-copy { font-size: .78rem; }
+
+@media (max-width: 760px) {
+  .cal-result-panel { padding: 14px 12px 20px; }
+  .day-title { font-size: 1.55rem; }
+  .day-tabs { position: static; overflow-x: auto; }
+  .dt { padding: 10px 12px; font-size: .95rem; white-space: nowrap; min-height: 40px; }
+  .cal-reading-body { padding-left: 4px; }
+  .cal-chant { margin-left: 4px; }
+  .cp-meta { margin-left: 0; }
+  .canon-rail { margin: 0 -2px; }
+  .rd-svc { margin-left: 0; flex-basis: 100%; }
+  .dt-long { display: none; }
+  .where-is { font-size: .85rem; }
+}

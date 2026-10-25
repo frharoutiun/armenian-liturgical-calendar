@@ -65,7 +65,14 @@ async function getEngine() {
   return enginePromise;
 }
 
-function chip(text, cls) { return `<span class="cal-chip ${cls || ""}">${esc(text)}</span>`; }
+// L2: warnings are not chips any more. A "warn" chip becomes one small amber dot (tooltip = the text) and is recorded in `flags`,
+// which the day's single status line lists with its explanation; plain chips are quiet metadata text.
+let flags = [];
+function dot(kind, text) { return `<span class="dot dot-${kind}" role="img" aria-label="${esc(text)}" title="${esc(text)}" tabindex="0"></span>`; }
+function chip(text, cls) {
+  if (cls === "warn") { flags.push(String(text)); return dot("warn", text); }
+  return `<span class="meta-t">${esc(text)}</span>`;
+}
 
 // ---- hymns -------------------------------------------------------------------------------------------
 // Accepts the resolver's new shape (h.resolved = {hymnId, sectionId, sectionTitle, page, ...}, h.candidates) and the old one
@@ -151,8 +158,8 @@ function renderGenericSeg(sg, c) {
   const ROLE = { alt: "Alternative verse (կամ.)", pokh: "Alternate (փոխ.)" };
   let h = `<div class="chant-seg">${printed}`;
   res.entries.forEach((e) => {
-    h += `<div class="chant-gen-entry">${ROLE[e.role] ? `<div class="cal-note">${ROLE[e.role]}</div>` : ""}<div class="chant-hy script-original" lang="hy">${esc(e.armenian_full)}</div>`;
-    h += e.english_full ? `<div class="chant-en">${esc(e.english_full)} <span class="cal-note">(KJV, public domain)</span></div>` : `<div class="cal-note">No sourced English for this verse yet.</div>`;
+    h += `<div class="chant-gen-entry">${ROLE[e.role] ? `<div class="cal-note">${ROLE[e.role]}</div>` : ""}<div class="hy-en"><div class="hy-col"><div class="chant-hy script-original" lang="hy">${esc(e.armenian_full)}</div></div>`;
+    h += e.english_full ? `<div class="en-col"><div class="chant-en">${esc(e.english_full)} <span class="cal-note">(KJV)</span></div></div></div>` : `<div class="en-col"><div class="cal-note">No sourced English for this verse yet.</div></div></div>`;
     const refs = [e.arak29_ref && "Armenian numbering: " + e.arak29_ref, e.english_ref_kjv && "English numbering: " + e.english_ref_kjv].filter(Boolean);
     if (refs.length) h += `<div class="cal-note">${esc(refs.join(" · "))}</div>`;
     if (e.pointer_to) h += `<div class="cal-note">The Zhamagirk prints only the opening here and refers to the verse above (mode ${esc(e.pointer_to.mode)}).</div>`;
@@ -175,9 +182,9 @@ function renderChantSeg(sg, c) {
   const refs = [sg.armenian_ref && String(sg.armenian_ref).replace(/ \(Arak29[^)]*\)/, ""), sg.english_ref_kjv && "English numbering: " + sg.english_ref_kjv].filter(Boolean);
   const rv = sg.review_status === "needs_review" ? chip("check: " + (sg.note ? "numbering differs" : "pairing not confirmed"), "warn") : "";
   let h = `<div class="chant-seg">${role}`;
-  h += `<div class="chant-hy script-original" lang="hy">${esc(sg.armenian_full).replace(/\n/g, "<br>")}</div>`;
-  if (sg.english_full) h += `<div class="chant-en">${esc(sg.english_full)} <span class="cal-note">(${esc(String(sg.english_source || "KJV").replace(/ as printed in Arak29.*$/, ""))})</span></div>`;
-  else h += `<div class="cal-note">No sourced English for this verse yet.</div>`;
+  h += `<div class="hy-en"><div class="hy-col"><div class="chant-hy script-original" lang="hy">${esc(sg.armenian_full).replace(/\n/g, "<br>")}</div></div>`;
+  if (sg.english_full) h += `<div class="en-col"><div class="chant-en">${esc(sg.english_full)} <span class="cal-note">(${esc(String(sg.english_source || "KJV").replace(/ as printed in Arak29.*$/, ""))})</span></div></div></div>`;
+  else h += `<div class="en-col"><div class="cal-note">No sourced English for this verse yet.</div></div></div>`;
   const lab = chantSourceLabel(sg);
   h += `<div class="cal-note">${esc([lab].concat(refs).filter(Boolean).join(" · "))} ${rv}</div>`;
   if (sg.note) h += `<div class="cal-note">${esc(sg.note)}</div>`;
@@ -224,32 +231,44 @@ function canonView(day) {
 // Small service tag per canon part (W11 map); the parts stay in canon order, the tags only say which service a part belongs to.
 const SVC_TAG = { orhnutyun: "Midnight", harts: "Morning", gordzk: "Morning", metsatsutse: "Morning", voghormya: "Morning", der_hergnits: "Morning", mankunk: "Morning", jashoo: "Divine Liturgy", hampartsi: "Evening" };
 const svcTag = (p) => SVC_TAG[p.key] ? `<span class="svc-tag svc-${esc(String(SVC_TAG[p.key]).toLowerCase().replace(/\s+/g, "-"))}" title="${p.key === "hampartsi" ? "The exact slot of the Hampartsi is unconfirmed" : "Service this part belongs to"}">${esc(SVC_TAG[p.key])}${p.key === "hampartsi" ? "?" : ""}</span>` : "";
+// L2: the Sharagnots tab = a part rail (name, page, stanza count) and ONE open part at a time, Armenian | English side by side.
 const nStanzas = (p) => p.hymns.reduce((n, hy) => n + hy.stanzas.length, 0);
-function canonIndex(cv) {
-  return `<nav class="canon-index" aria-label="Parts of the canon">` + cv.parts.map((p, n) => { const c = nStanzas(p); return `<button type="button" class="cal-link${p.needsReview || !p.hymns.length ? " idx-warn" : ""}" data-part="canon-part-${n}">${esc(p.label)} <span>${p.status === "not_applicable" ? "not today" : c ? c + (c === 1 ? " stanza" : " stanzas") : p.status === "not_in_data" ? "not transcribed" : "not located"}</span></button>`; }).join(" ") + `</nav>`;
+const partSettled = (p) => p.hymns.length && p.status !== "missing" && p.status !== "not_applicable" && p.status !== "not_in_data";
+function partFlag(p) {
+  if (p.status === "missing") return chip("to be confirmed: this part is not located in the book for this day", "warn");
+  if (p.status === "from_rubric") return chip("only the opening is named by the rubric", "warn");
+  if (p.status === "not_in_data") return chip("not transcribed in our data (a gap in our data, not a statement about the book)", "warn");
+  if (p.needsReview) return chip("filled by a documented rule, needs review", "warn");
+  return "";
 }
-function renderCanonPart(p, n, open) {
-  const stChip = p.status === "missing" ? chip("to be confirmed", "warn") : p.status === "from_rubric" ? chip("opening only", "warn") : p.status === "not_applicable" ? chip("not sung today") : p.status === "not_in_data" ? chip("not transcribed", "warn") : p.needsReview ? chip("needs review", "warn") : "";
-  const settled = p.hymns.length && p.status !== "missing" && p.status !== "not_applicable" && p.status !== "not_in_data";
-  let h = `<details class="canon-part" id="canon-part-${n}"${open && settled ? " open" : ""}><summary><strong>${esc(p.label)}</strong> ${svcTag(p)}${p.labelHy ? ` <span class="script-original" lang="hy">${esc(p.labelHy)}</span>` : ""}${p.page != null && settled ? ` <span class="cal-note">scan p.${esc(p.page)}</span>` : ""} ${stChip}</summary>`;
+function canonRail(cv, active) {
+  return `<nav class="canon-rail" aria-label="Parts of the canon">` + cv.parts.map((p, n) => {
+    const c = nStanzas(p);
+    const sub = p.status === "not_applicable" ? "not today" : c ? [p.page != null ? "p." + p.page : "", c + (c === 1 ? " stanza" : " stanzas")].filter(Boolean).join(" · ") : p.status === "not_in_data" ? "not transcribed" : "not located";
+    return `<button type="button" class="rail-item${n === active ? " on" : ""}${c ? "" : " rail-off"}" data-part="${n}" aria-pressed="${n === active}"><span class="rail-name">${esc(p.label)}</span><span class="rail-sub">${esc(sub)}</span></button>`;
+  }).join("") + `</nav>`;
+}
+function renderCanonPart(p, n, active) {
+  const settled = partSettled(p);
+  let h = `<section class="canon-part" id="canon-part-${n}"${n === active ? "" : " hidden"}><header class="cp-head"><h4 class="cp-name">${esc(p.label)}${p.labelHy ? ` <span class="script-original cp-hy" lang="hy">${esc(p.labelHy)}</span>` : ""}</h4><div class="cp-meta">${svcTag(p)}${p.page != null && settled ? `<button type="button" class="cal-link cal-scan" data-page="${esc(p.page)}">View scan &middot; p.${esc(p.page)}</button>` : ""}${partFlag(p)}</div></header>`;
   if (!p.hymns.length && p.status !== "not_applicable" && p.status !== "not_in_data") h += `<p class="cal-note canon-note">Not located in the Sharagnots for this day.</p>`;
   if (p.note) h += `<p class="cal-note canon-note">${esc(p.note)}</p>`;
   if (p.cands.length) h += `<details class="hy-cands"><summary>Possible places in the book (${p.cands.length}), not a decision</summary><ul>` + p.cands.map((c) => `<li><span class="script-original" lang="hy">${esc(cleanTitle(c.title))}</span> <button type="button" class="cal-link" data-page="${esc(c.page != null ? c.page : c.startPage)}">scan p.${esc(c.page != null ? c.page : c.startPage)}</button></li>`).join("") + `</ul></details>`;
   p.hymns.forEach((hy) => {
     const pg = hy.page != null ? hy.page : (hy.stanzas.find((x) => x.page != null) || {}).page;
     const title = hy.heading || hy.incipit;
-    h += `<div class="canon-hymn">${title ? `<h5 class="canon-sub script-original" lang="hy">${esc(cleanTitle(title))}</h5>` : ""}<div class="hy-acts">${pg != null ? `<button type="button" class="cal-link cal-scan" data-page="${esc(pg)}"${hy.pagesAll && hy.pagesAll.length > 1 ? ` title="continues to p.${esc(hy.pagesAll[hy.pagesAll.length - 1])}"` : ""}>View scan &middot; p.${esc(pg)}</button>` : ""}${hy.type ? chip(hy.type) : ""}${hy.mode ? chip("Mode " + hy.mode) : ""}</div>`;
+    h += `<div class="canon-hymn">${title ? `<h5 class="canon-sub script-original" lang="hy">${esc(cleanTitle(title))}</h5>` : ""}<div class="hy-acts">${pg != null && pg !== p.page ? `<button type="button" class="cal-link cal-scan" data-page="${esc(pg)}"${hy.pagesAll && hy.pagesAll.length > 1 ? ` title="continues to p.${esc(hy.pagesAll[hy.pagesAll.length - 1])}"` : ""}>scan p.${esc(pg)}</button>` : ""}${hy.type ? chip(hy.type) : ""}${hy.mode ? chip("Mode " + hy.mode) : ""}</div>`;
     hy.stanzas.forEach((st) => { h += `<div class="canon-st" data-sid="${esc(st.id || "")}"><div class="canon-hy script-original" lang="hy">${esc(st.text || "")}</div><div class="canon-en"></div></div>`; });
     h += `</div>`;
   });
-  return h + `</details>`;
+  return h + `</section>`;
 }
-function renderCanon(cv) { return canonIndex(cv) + cv.parts.map((p, n) => renderCanonPart(p, n, n === 0)).join(""); }
-// The Sharagnots section: the day's whole canon, part by part, in canon order (not mixed with the readings).
 function renderSharagnots(day, cv) {
-  return canonIndex(cv) + cv.parts.map((p, n) => renderCanonPart(p, n, n === 0)).join("");
+  const first = cv.parts.findIndex(partSettled);
+  const active = first < 0 ? 0 : first;
+  return `<div class="shar-layout">${canonRail(cv, active)}<div class="shar-body">${cv.parts.map((p, n) => renderCanonPart(p, n, active)).join("")}</div></div>`;
 }
-const renderCanonIndexOnly = (cv) => canonIndex(cv);
+
 let stanzaIndex = null;
 function stanzaLookup() {
   const LCS = window.LCS, map = LCS && LCS.anchorMap, corpus = LCS && LCS.corpus && LCS.corpus();
@@ -292,31 +311,49 @@ async function fillCanon(root) {
 }
 
 // ---- day page -----------------------------------------------------------------------------------------
+// L2 structure: summary card (+ one expandable status line) -> three tabs: Readings | Sharagnots | Notes & sources.
+// The chosen tab lives in ?view= (the hash belongs to the hymnal's deep links) and is remembered in localStorage.
+const VIEWS = ["readings", "sharagnots", "notes"];
+function savedView() {
+  const q = new URL(location.href).searchParams.get("view");
+  if (VIEWS.includes(q)) return q;
+  try { const v = localStorage.getItem("lcsDayView"); if (VIEWS.includes(v)) return v; } catch (e) { /* storage unavailable */ }
+  return "readings";
+}
+function setView(v, push) {
+  if (!VIEWS.includes(v)) v = "readings";
+  document.querySelectorAll(".day-panel").forEach((p) => { p.hidden = p.id !== "panel-" + v; });
+  document.querySelectorAll(".day-tabs .dt").forEach((b) => { const on = b.getAttribute("data-view") === v; b.classList.toggle("on", on); b.setAttribute("aria-selected", on ? "true" : "false"); });
+  try { localStorage.setItem("lcsDayView", v); } catch (e) { /* storage unavailable */ }
+  if (push !== false) { const u = new URL(location.href); u.searchParams.set("view", v); history.replaceState(null, "", u.pathname + u.search + u.hash); }
+}
+// One status for a reading: green = Armenian and English verse numbers agree, amber = differs (English requested for the corrected range) or a check is open,
+// red = numbering not confirmed, grey = compound citation (not compared).
+function rdStatus(r) {
+  const v = r.versification || {};
+  const cite = r.citationEn || r.citationKey || "reading";
+  if (v.compound) return { kind: "grey", text: "Compound citation: Armenian and English numbering not compared" };
+  if (v.status === "differs") return { kind: "amber", text: "Armenian and English verse numbers differ; the English is requested for the corrected range" };
+  if (v.status === "needs_review") return { kind: "red", text: "Numbering not confirmed: the English may not cover exactly the same verses" };
+  if (r.needsPageCheck) return { kind: "amber", text: "The printed page of this reading still needs a check" };
+  if (v.status === "match") return { kind: "green", text: "Armenian and English verse numbers agree" };
+  return { kind: "grey", text: "Numbering not compared" };
+}
+const statusDot = (st, cite) => { if (st.kind === "amber" || st.kind === "red") flags.push(cite + ": " + st.text); return `<span class="dot dot-${st.kind}" role="img" aria-label="${esc(st.text)}" title="${esc(st.text)}" tabindex="0"></span>`; };
+const LEGEND = [["green", "Checked: nothing open"], ["amber", "Provisional or needs a second look (hover or tap for the reason)"], ["red", "Not confirmed: shown as printed, may not be exact"], ["grey", "Not compared / no data"]];
+const legendHtml = `<ul class="legend-list">${LEGEND.map(([k, t]) => `<li><span class="dot dot-${k}"></span> ${esc(t)}</li>`).join("")}</ul><p class="cal-note">Words such as &ldquo;provisional&rdquo;, &ldquo;composed name&rdquo; and &ldquo;AI translation&rdquo; mean: provisional = a calendar rule not yet demonstrated from the books; composed name = an English name made up here, not a published one; AI translation = machine translation nobody has reviewed.</p>`;
+
 function renderDay(day) {
   if (day.error) return `<div class="empty-state">${esc(day.error)}</div>`;
+  flags = [];
   const comms = [], seen = new Set();
   (day.commemorations || []).forEach((c) => { const k = [c.armenian || c.bookHeadingArmenian, c.english, c.role].join("|"); if (!seen.has(k)) { seen.add(k); comms.push(c); } });
   const readings = day.readings || [];
   const hymns = day.hymns || [];
   genericCtx = { mode: day.mode && day.mode.armenian, weekday: day.weekday, fasting: day.fasting, commemorations: comms.map((c) => c.armenian || c.bookHeadingArmenian).filter(Boolean) };
-  let h = `<article class="cal-day" data-date="${esc(day.date)}">`;
-  h += `<header class="day-head"><div class="day-date">${esc(day.weekday || "")} &middot; ${esc(day.date)}${day.provisional ? " " + chip("some rules provisional", "warn") : ""}
-    <button type="button" class="cal-link" id="calShare">Copy link to this day</button></div>`;
-  comms.forEach((c) => {
-    h += `<div class="cal-comm"><div class="day-title script-original" lang="hy">${esc(c.armenian || c.bookHeadingArmenian || "")}</div>`;
-    if (c.english) h += `<div class="day-title-en">${esc(c.english)} ${c.englishStatus && c.englishStatus !== "sourced" ? chip("composed name", "warn") : ""}</div>`;
-    h += `</div>`;
-  });
-  if (!comms.length) h += `<div class="empty-state">No commemoration could be derived for this day.</div>`;
-  h += `<div class="cal-facts">`;
-  if (day.mode) h += chip("Mode of the day: " + (day.mode.armenian || day.mode.number));
-  if (day.fasting) h += chip("Fasting: " + day.fasting.label + (day.fasting.name ? " (" + day.fasting.name + ")" : ""), day.fasting.provisional ? "warn" : "");
-  if (day.easter) h += chip("Easter " + day.easter);
-  h += `</div></header>`;
-  const nHyReview = hymns.filter((x) => hymnView(x).review).length;
-  h += `<nav class="jumpbar" aria-label="On this page"><button type="button" class="jb-readings" data-jump="sec-readings">Readings <span>${readings.length}</span></button><button type="button" class="jb-sharagnots" data-jump="sec-sharagnots">Sharagnots <span>${(canonView(day) || { parts: [] }).parts.length || hymns.length}</span></button><button type="button" data-jump="sec-notes">Notes &amp; sources${(day.unresolved || []).length ? " <span>" + day.unresolved.length + "</span>" : ""}</button></nav>`;
+  if (day.provisional) flags.push("Some calendar rules for this day are provisional");
 
-  // Readings, with the chants (psalm / mesedi / alleluia) interleaved in service order
+  // Readings (Jashots), with the chants (psalm / mesedi / alleluia) interleaved before the reading each precedes
   const chants = day.chants || [];
   const placed = new Set();
   let readingsHtml = "", hasJashoo = false;
@@ -326,10 +363,15 @@ function renderDay(day) {
     hasJashoo = main.length > 0;
     const rest = idx.filter((i) => main.indexOf(i) < 0);
     const lead = main.length ? main : idx;
-    const rdItem = (r, i, open) => `<details class="cal-reading" data-ri="${i}"${open ? " open" : ""}><summary><strong>${esc(r.citationEn || r.citationKey || "")}</strong> <span class="script-original" lang="hy">${esc(r.verbatimArmenian || "")}</span> ${r.service && r.service.label ? chip(r.service.label, r.service.confident ? "" : "warn") : ""}${r.needsPageCheck ? chip("needs page check", "warn") : ""}</summary><div class="cal-reading-body" id="cal-rb-${i}"><p class="cal-note">Loading&hellip;</p></div></details>`;
+    const rdItem = (r, i, open) => {
+      const cite = r.citationEn || r.citationKey || "";
+      const st = rdStatus(r);
+      const svcWarn = r.service && r.service.label && !r.service.confident ? " (service unconfirmed)" : "";
+      return `<details class="cal-reading" data-ri="${i}"${open ? " open" : ""}><summary><span class="rd-dot">${statusDot(st, cite)}</span><strong class="rd-cite">${esc(cite)}</strong><span class="rd-hy script-original" lang="hy">${esc(r.verbatimArmenian || "")}</span>${r.service && r.service.label ? `<span class="meta-t rd-svc">${esc(r.service.label + svcWarn)}</span>` : ""}</summary><div class="cal-reading-body" id="cal-rb-${i}"><p class="cal-note">Loading&hellip;</p></div></details>`;
+    };
     const sequence = (list, openFirst) => list.map((i, n) => chantsBefore(chants, i, readings[i], placed).map(renderChant).join("") + rdItem(readings[i], i, n < openFirst)).join("");
     if (main.length) readingsHtml += `<p class="cal-note">Readings of the Divine Liturgy (Jashoo), in service order</p>`;
-    readingsHtml += `<div class="cal-readings">` + sequence(lead, 3) + `</div>`;
+    readingsHtml += `<div class="cal-readings">` + sequence(lead, 1) + `</div>`;
     if (rest.length && main.length) readingsHtml += `<details class="cal-other"><summary>Other services (${rest.length} reading${rest.length > 1 ? "s" : ""})</summary><div class="cal-readings">` + sequence(rest, 0) + `</div></details>`;
   } else readingsHtml += `<div class="empty-state">No readings are appointed, or none could be resolved, for this day.</div>`;
   const loose = chants.filter((c) => !placed.has(c));
@@ -337,33 +379,61 @@ function renderDay(day) {
 
   const canon = canonView(day);
   const dominical = /^sun/i.test(day.weekday || "");
-  const nLocated = canon ? canon.parts.filter((p) => p.hymns.length && p.status !== "missing" && p.status !== "not_applicable" && p.status !== "not_in_data").length : 0;
+  const nLocated = canon ? canon.parts.filter(partSettled).length : 0;
   const nSt = canon ? canon.parts.reduce((n, p) => n + nStanzas(p), 0) : 0;
-  // (A) Readings (Jashots): chants interleaved before the reading they precede
-  h += `<section class="day-sec sec-readings" id="sec-readings"><h3 class="cal-h sec-h"><span class="sec-name">Readings</span> <span class="sec-src">Jashots</span><span class="sec-count">${readings.length} reading${readings.length === 1 ? "" : "s"}${chants.length ? " &middot; " + chants.length + " chant" + (chants.length === 1 ? "" : "s") : ""}</span></h3>`;
-  if (hasJashoo && !dominical) h += `<p class="cal-note">These readings (Jashoo) are appointed for the day. On an ordinary weekday there is no Divine Liturgy; on a feast day it is celebrated. ${chip("unconfirmed for this day", "warn")}</p>`;
-  h += readingsHtml + `</section>`;
-  // (B) Sharagnots: the day's whole canon
-  h += `<section class="day-sec sec-sharagnots" id="sec-sharagnots"><span id="sec-hymns"></span><h3 class="cal-h sec-h"><span class="sec-name">Sharagnots</span> <span class="sec-src">canon of the day</span>${canon ? `<span class="sec-count">${nLocated} of ${canon.parts.length} parts located &middot; ${nSt} stanza${nSt === 1 ? "" : "s"}</span>` : `<span class="sec-count">${hymns.length} hymn${hymns.length === 1 ? "" : "s"} named</span>`}</h3>`;
+  let pRead = `<p class="panel-sub">Jashots &middot; ${readings.length} reading${readings.length === 1 ? "" : "s"}${chants.length ? ", " + chants.length + " chant" + (chants.length === 1 ? "" : "s") : ""}</p>`;
+  if (hasJashoo && !dominical) pRead += `<p class="cal-note">These readings (Jashoo) are appointed for the day. On an ordinary weekday there is no Divine Liturgy; on a feast day it is celebrated. ${chip("The Divine Liturgy is unconfirmed for this day", "warn")}</p>`;
+  pRead += readingsHtml;
+  pRead += `<details class="sources" id="src-readings"><summary>Sources and licences for these readings</summary><div class="src-body"><p>Armenian text: Armenian Bible, 1895 Constantinople edition (Armenian Bible Society 1997 reprint), plain verse text from Arak29 (arak29.org). The Jashots printed-page transcription is a second layer and may differ from the Bible text.</p><p>English: the ESV, loaded live from the ACHR website (achrct.org) under the church's Crossway licence, not stored on this site; Apocrypha from the RSVCE; verses beside chants are the King James Version (public domain).</p><div id="src-esv"></div><p>Audio: human-read ESV audio from Crossway (esv.org); other audio is AI-generated speech (ElevenLabs).</p></div></details>`;
+
+  let pShar = `<p class="panel-sub">${canon ? `${nLocated} of ${canon.parts.length} parts located &middot; ${nSt} stanza${nSt === 1 ? "" : "s"}` : `${hymns.length} hymn${hymns.length === 1 ? "" : "s"} named`}</p>`;
   if (canon) {
-    h += renderSharagnots(day, canon);
-    if (hymns.length) h += `<details class="cal-other"><summary>Hymns named in the Tonatsoyts (${hymns.length})</summary><div class="cal-readings">${renderHymnGroups(day)}</div></details>`;
+    pShar += renderSharagnots(day, canon);
+    if (hymns.length) pShar += `<details class="cal-other"><summary>Hymns named in the Tonatsoyts (${hymns.length})</summary><div class="cal-readings">${renderHymnGroups(day)}</div></details>`;
   } else {
     if (hymns.length) {
-      if (nHyReview) h += `<p class="cal-note">${hymns.length - nHyReview} of ${hymns.length} hymns have a settled Sharagnots page; ${nHyReview} need review.</p>`;
-      h += renderHymnGroups(day);
-    } else h += `<div class="empty-state">The book names no hymns for this day.</div>`;
+      if (hymns.filter((x) => hymnView(x).review).length) pShar += `<p class="cal-note">${hymns.length - hymns.filter((x) => hymnView(x).review).length} of ${hymns.length} hymns have a settled Sharagnots page; the rest need review.</p>`;
+      pShar += renderHymnGroups(day);
+    } else pShar += `<div class="empty-state">The book names no hymns for this day.</div>`;
     if ((day.canons || []).length) {
-      h += `<h4 class="hy-group-title">Canons named by the book</h4><ul class="cal-canons">` + day.canons.map((c) => `<li><span class="script-original" lang="hy">${esc(c.canonTitle || "")}</span> ${c.mapped ? "" : chip("not mapped", "warn")}
+      pShar += `<h4 class="hy-group-title">Canons named by the book</h4><ul class="cal-canons">` + day.canons.map((c) => `<li><span class="script-original" lang="hy">${esc(c.canonTitle || "")}</span> ${c.mapped ? "" : chip("This canon is not mapped to a Sharagnots section", "warn")}
         ${(c.sections || []).slice(0, 1).map((s) => `<button type="button" class="cal-link" data-page="${esc((s.pages && s.pages[0]) || "")}">scan p.${esc((s.pages && s.pages[0]) || "?")}</button>`).join(" ")}</li>`).join("") + `</ul>`;
     }
   }
-  h += `</section>`;
+  pShar += `<details class="sources" id="src-sharagnots"><summary>Sources and licences for these hymns</summary><div class="src-body"><p>Krapar sections: the Sharagnots of the Armenian Church in the corrected-spelling form of the Krapar Sharagnots corpus, with its English translations (frharoutiun.github.io/Armenian-Church-Tools/sharagan/).</p><p>Scan-supplement sections: the Unicode edition of the Sharagnots prepared by Fr Ghevond Ajemian, checked against the 1888 Etchmiadzin print; every hymn has a button that opens its scan page, which is the source of truth. A printed cue completed from the same hymn's refrain is shown in a lighter tone.</p><p>Translations marked <span class="ai-label">AI translation (Claude)</span> are machine translations that nobody has reviewed.</p></div></details>`;
 
-  // Notes
-  h += `<section class="day-sec" id="sec-notes"><h3 class="cal-h">Notes &amp; sources</h3>`;
-  if ((day.unresolved || []).length) h += `<details class="cal-unresolved"><summary>Unresolved or provisional (${day.unresolved.length})</summary><ul>` + day.unresolved.map((u) => `<li><strong>${esc(u.field)}</strong>: ${esc(u.reason)}</li>`).join("") + `</ul></details>`;
-  h += `<p class="cal-foot">Computed by the calgen rules from the Tonatsoyts. Schema ${esc(day.schema || "")}. Names marked &ldquo;composed&rdquo; are not published names. Translations marked AI are machine translations that no person has reviewed.</p></section></article>`;
+  let pNotes = "";
+  if ((day.unresolved || []).length) pNotes += `<details class="cal-unresolved" open><summary>Unresolved or provisional (${day.unresolved.length})</summary><ul>` + day.unresolved.map((u) => `<li><strong>${esc(u.field)}</strong>: ${esc(u.reason)}</li>`).join("") + `</ul></details>`;
+  pNotes += `<h4 class="notes-h">What the signs mean</h4>${legendHtml}`;
+  pNotes += `<p class="cal-foot">Computed by the calgen rules from the Tonatsoyts. Schema ${esc(day.schema || "")}. Names marked &ldquo;composed&rdquo; are not published names. Translations marked AI are machine translations that no person has reviewed.</p>`;
+
+  // header: names, mode, fasting, and ONE status line
+  let h = `<article class="cal-day" data-date="${esc(day.date)}">`;
+  h += `<header class="day-head"><div class="day-date">${esc(day.weekday || "")} &middot; ${esc(day.date)}
+    <button type="button" class="cal-link" id="calShare">Copy link to this day</button></div>`;
+  comms.forEach((c) => {
+    h += `<div class="cal-comm"><div class="day-title script-original" lang="hy">${esc(c.armenian || c.bookHeadingArmenian || "")}</div>`;
+    if (c.english) h += `<div class="day-title-en">${esc(c.english)}${c.englishStatus && c.englishStatus !== "sourced" ? " " + chip("The English name is composed here, not a published name", "warn") : ""}</div>`;
+    h += `</div>`;
+  });
+  if (!comms.length) h += `<div class="empty-state">No commemoration could be derived for this day.</div>`;
+  const facts = [];
+  if (day.mode) facts.push("Mode " + (day.mode.armenian || day.mode.number));
+  if (day.fasting) facts.push("Fasting: " + day.fasting.label + (day.fasting.name ? " (" + day.fasting.name + ")" : ""));
+  if (day.easter) facts.push("Easter " + day.easter);
+  h += `<div class="cal-facts">${facts.map(esc).join(" &middot; ")}</div>`;
+  const groups = new Map(); flags.forEach((f) => groups.set(f, (groups.get(f) || 0) + 1));
+  if (day.fasting && day.fasting.provisional) groups.set("Fasting status is provisional", 1);
+  const nFlag = [...groups.values()].reduce((a, b) => a + b, 0);
+  h += `<div class="status-row"><details class="status-line${nFlag ? " has-flags" : ""}"><summary>${nFlag ? `<span class="dot dot-amber"></span> ${nFlag} item${nFlag === 1 ? "" : "s"} to double-check on this day` : `<span class="dot dot-green"></span> Nothing flagged for this day`}</summary>${nFlag ? `<ul>${[...groups].map(([t, n]) => `<li>${esc(t)}${n > 1 ? " &times;" + n : ""}</li>`).join("")}</ul>` : ""}</details>
+    <span class="legend-wrap"><button type="button" class="legend-btn" aria-expanded="false" aria-label="What do the signs mean?">?</button><div class="legend-pop" hidden>${legendHtml}</div></span></div>`;
+  h += `</header>`;
+  const view = savedView();
+  const tab = (k, label, n) => `<button type="button" role="tab" class="dt dt-${k}${view === k ? " on" : ""}" id="tab-${k}" data-view="${k}" aria-selected="${view === k}">${label}${n ? ` <span class="dt-n">${n}</span>` : ""}</button>`;
+  h += `<div class="day-tabs" role="tablist" aria-label="Sections of the day">${tab("readings", "Readings", readings.length + chants.length)}${tab("sharagnots", "Sharagnots", canon ? canon.parts.length : hymns.length)}${tab("notes", "Notes<span class=\"dt-long\"> &amp; sources</span>", (day.unresolved || []).length)}</div>`;
+  h += `<section class="day-panel panel-readings" id="panel-readings" role="tabpanel"${view === "readings" ? "" : " hidden"}>${pRead}</section>`;
+  h += `<section class="day-panel panel-sharagnots" id="panel-sharagnots" role="tabpanel"${view === "sharagnots" ? "" : " hidden"}><span id="sec-hymns"></span>${pShar}</section>`;
+  h += `<section class="day-panel panel-notes" id="sec-notes" role="tabpanel"${view === "notes" ? "" : " hidden"}><span id="panel-notes"></span>${pNotes}</section></article>`;
   return h;
 }
 
@@ -377,6 +447,9 @@ function loadReading(i) {
   Promise.resolve().then(() => hooks.readingBody(curDay.readings[i], curDay)).then((body) => {
     slot.innerHTML = "";
     if (body) { if (typeof body === "string") slot.innerHTML = body; else slot.appendChild(body); }
+    const kind = body && body.getAttribute && body.getAttribute("data-vers-kind");
+    const d = slot.closest("details.cal-reading"), dt = d && d.querySelector(".rd-dot .dot");
+    if (kind && dt) { const TXT = { green: "Armenian and English verse numbers agree", amber: "Armenian and English verse numbers differ; the English is requested for the corrected range", red: "Numbering not confirmed: the English may not cover exactly the same verses", grey: "Numbering not compared" }; dt.className = "dot dot-" + kind; dt.title = TXT[kind]; dt.setAttribute("aria-label", TXT[kind]); }
   }).catch(() => { slot.innerHTML = '<span class="cal-note">Reading text unavailable.</span>'; });
 }
 
@@ -411,8 +484,15 @@ async function showDay(input, push) {
     });
   }
   fillCanon(out);
-  out.querySelectorAll("[data-part]").forEach((b) => b.addEventListener("click", () => { const d = document.getElementById(b.getAttribute("data-part")); if (d) { d.open = true; d.scrollIntoView({ behavior: "smooth", block: "start" }); } }));
-  out.querySelectorAll("[data-jump]").forEach((b) => b.addEventListener("click", () => { const t = document.getElementById(b.getAttribute("data-jump")); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); }));
+  out.querySelectorAll(".day-tabs .dt").forEach((b) => b.addEventListener("click", () => { setView(b.getAttribute("data-view")); window.scrollTo({ top: Math.max(0, out.getBoundingClientRect().top + window.scrollY - 70) }); }));
+  out.querySelectorAll(".rail-item").forEach((b) => b.addEventListener("click", () => {
+    const n = b.getAttribute("data-part");
+    out.querySelectorAll(".canon-part").forEach((p) => { p.hidden = p.id !== "canon-part-" + n; });
+    out.querySelectorAll(".rail-item").forEach((x) => { const on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-pressed", on ? "true" : "false"); });
+    const top = out.querySelector(".shar-body"); if (top && window.innerWidth < 900) top.scrollIntoView({ behavior: "smooth", block: "start" });
+  }));
+  const lb = out.querySelector(".legend-btn"), lp = out.querySelector(".legend-pop");
+  if (lb && lp) lb.addEventListener("click", () => { lp.hidden = !lp.hidden; lb.setAttribute("aria-expanded", lp.hidden ? "false" : "true"); });
   const sh = $("calShare");
   if (sh) sh.addEventListener("click", () => { const u = new URL(location.href); u.searchParams.set("tab", "calendar"); u.searchParams.set("date", day.date); const t = u.toString(); (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => { sh.textContent = "Link copied"; }).catch(() => { window.prompt("Copy this link", t); }); });
   if (hooks.afterRender) hooks.afterRender(day, out);

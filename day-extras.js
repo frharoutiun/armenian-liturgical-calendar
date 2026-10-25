@@ -11,6 +11,13 @@ const AUDIO_BASE = (window.LC_AUDIO_BASE || "https://frharoutiun.github.io/armen
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const j = (u) => fetch(u).then((r) => { if (!r.ok) throw new Error(u + ": HTTP " + r.status); return r.json(); });
 
+// The ESV copyright text is shown once, in the readings tab's Sources disclosure, not under every reading.
+const esvCopies = new Set();
+function noteCopy(t) {
+  esvCopies.add(t);
+  const box = document.getElementById("src-esv");
+  if (box) box.innerHTML = [...esvCopies].map((c) => `<p class="cal-note cal-esv-copy">${esc(c)}</p>`).join("");
+}
 let indexP = null, audioP = null, aiP = null, attrP = null, arakAttrP = null;
 const shardP = {}, arakP = {};
 const getIndex = () => indexP || (indexP = j("data/scripture/index.json").then((d) => ({ citations: d.citations, lookup: buildLookup(d.citations), ranges: parsedRanges(d.citations) })));
@@ -164,12 +171,12 @@ function fillEsv(part, seg, ref) {
     body.className = "cal-esv";
     if (d.introduction) { const p = document.createElement("p"); p.className = "cal-note"; p.textContent = d.introduction + (d.introductionCaption ? " (" + d.introductionCaption + ")" : ""); body.appendChild(p); }
     const t = document.createElement("div"); t.className = "cal-verses"; t.innerHTML = cleanHtml(d.html); body.appendChild(t);
-    if (d.copyright) { const c = document.createElement("div"); c.className = "cal-note cal-esv-copy"; c.textContent = d.copyright; body.appendChild(c); }
+    if (d.copyright) noteCopy(d.copyright);
     part.querySelector(".cal-loading").replaceWith(body);
     if (d.audioAvailable && d.audioUrl && /^https:\/\/audio\.esv\.org\//.test(d.audioUrl)) {
       const au = document.createElement("div"); au.className = "cal-audio";
       au.setAttribute("data-clips", JSON.stringify([d.audioUrl]));
-      au.innerHTML = '<button type="button" class="nav-btn cal-play" aria-label="Play reading audio">&#9654; Play reading</button> <span class="cal-note">Human-read ESV audio from Crossway (esv.org).</span>';
+      au.innerHTML = '<button type="button" class="nav-btn cal-play" aria-label="Play the human-read ESV audio">&#9654; ESV audio</button>';
       body.appendChild(au);
     }
   }).catch(() => {
@@ -189,17 +196,17 @@ function versBadge(reading, entry) {
   const p = parseRef(en);
   const omit = omittedIn(p);
   const omitNote = omit.length ? ` The ESV omits or numbers differently the KJV verse${omit.length > 1 ? "s" : ""} ${omit.join(", ")}; the English below is the church's ESV for this range.` : "";
-  if (v.compound && st !== "differs") return `<div class="vers-badge vers-warn"><strong>Numbering not compared</strong>: this is a compound citation (several passages); the English is requested passage by passage.${esc(omitNote)}</div>`;
-  if (st === "match") return `<div class="vers-badge vers-ok"><strong>Verse numbers agree</strong>: Armenian ${esc(ar || "")} = English ${esc(rangeLabel(en))}.${esc(omitNote)}</div>`;
-  if (st === "differs") return `<div class="vers-badge vers-diff"><strong>Numbering differs</strong>: Armenian ${esc(ar || v.armenianPrinted || "")} corresponds to English ${esc(en)}; the English below is for that range.${esc(omitNote)}</div>`;
-  return `<div class="vers-badge vers-warn"><strong>Numbering not confirmed (needs review)</strong>: ${esc((entry && entry.note) || v.note || "the Armenian and English verse numbers could not be paired with certainty")}. The English below follows the printed citation and may not cover exactly the same verses.</div>`;
+  if (v.compound && st !== "differs") return `<p class="vers-line vers-warn"><strong>Numbering not compared</strong>: a compound citation (several passages); the English is requested passage by passage.${esc(omitNote)}</p>`;
+  if (st === "match") return `<p class="vers-line vers-ok">Verse numbers agree: Armenian ${esc(ar || "")} = English ${esc(rangeLabel(en))}.${esc(omitNote)}</p>`;
+  if (st === "differs") return `<p class="vers-line vers-diff"><strong>Numbering differs</strong>: Armenian ${esc(ar || v.armenianPrinted || "")} corresponds to English ${esc(en)}; the English is for that range.${esc(omitNote)}</p>`;
+  return `<p class="vers-line vers-warn"><strong>Numbering not confirmed</strong>: ${esc((entry && entry.note) || v.note || "the Armenian and English verse numbers could not be paired with certainty")}. The English follows the printed citation and may not cover exactly the same verses.</p>`;
 }
 function arakHtml(entry, reading, attr) {
   if (!entry || !entry.verses || !entry.verses.length) return "";
   let lastCh = null;
   const verses = entry.verses.map((x) => { const [c, v] = String(x.r).split(":"); const lab = c !== lastCh ? c + ":" + v : v; lastCh = c; return `<sup>${esc(lab)}</sup>${esc(x.t)}`; }).join(" ");
   const src = attr && attr.armenian_text ? "Armenian Bible, 1895 Constantinople edition, text from Arak29 (arak29.org)." : "Armenian Bible, 1895 edition (Arak29).";
-  return `<div class="cal-hy-primary"><div class="cal-sub">Armenian (Աստուածաշունչ, ${esc(entry.armenian_printed || "")})</div><p class="script-original hy-text cal-verses" lang="hy">${verses}</p><div class="cal-note">${esc(src)}</div></div>`;
+  return `<div class="cal-hy-primary"><div class="cal-sub">Armenian &middot; ${esc(entry.armenian_printed || "")}</div><p class="script-original hy-text cal-verses" lang="hy">${verses}</p></div>`;
 }
 
 function armenianHtml(recs, reading, hasPrimary) {
@@ -212,12 +219,12 @@ function armenianHtml(recs, reading, hasPrimary) {
   if (!parts.length) return "";
   const pages = [...new Set(parts.flatMap((p) => p.hy.pdf_pages || []))];
   const btns = pages.length ? "Source: Jashots, scan p." + pages.slice(0, 4).join(", ") + "." : "";
-  return `<details class="cal-hy"><summary>${hasPrimary ? "Jashots printed-page transcription (second layer, may differ from the Bible text)" : "Armenian reading (Ճաշոց, Jashots)"}</summary>${parts.map((p) => `<div class="script-original hy-text" lang="hy">${esc(p.hy.text).replace(/\n/g, "<br>")}</div>`).join("")}<div class="cal-note">AI-assisted transcription of the printed Jashots; proofreading in progress. ${btns}</div></details>`;
+  return `<details class="cal-hy"><summary>${hasPrimary ? "Jashots printed-page transcription (second layer)" : "Armenian reading (Ճաշոց, Jashots)"}</summary>${parts.map((p) => `<div class="script-original hy-text" lang="hy">${esc(p.hy.text).replace(/\n/g, "<br>")}</div>`).join("")}<div class="cal-note">AI-assisted transcription of the printed Jashots; proofreading in progress. ${btns}</div></details>`;
 }
 
 async function audioHtml(recs, reading) {
   const ai = await getAudio();
-  if (!ai) return '<div class="cal-audio cal-pending"><span class="cal-note">Audio is not available yet.</span></div>';
+  if (!ai) return "";
   const urls = [];
   recs.forEach((r) => {
     const k = r.exactKey || r.key;
@@ -225,8 +232,8 @@ async function audioHtml(recs, reading) {
     if (!e) return;
     [e.intro, e.reference, ...(e.text || [])].forEach((id) => { const c = id && ai.clips[id]; if (c) urls.push({ url: AUDIO_BASE + c.file.replace(/^\.?\//, ""), id }); });
   });
-  if (!urls.length) return '<div class="cal-audio cal-pending"><span class="cal-note">Audio for this reading is pending.</span></div>';
-  return `<div class="cal-audio" data-clips='${esc(JSON.stringify(urls.map((u) => u.url)))}'><button type="button" class="nav-btn cal-play" aria-label="Play audio">&#9654; Play</button> <span class="cal-note">AI-generated speech (ElevenLabs). ${urls.length} clip${urls.length > 1 ? "s" : ""}.</span></div>`;
+  if (!urls.length) return "";
+  return `<div class="cal-audio" data-clips='${esc(JSON.stringify(urls.map((u) => u.url)))}'><button type="button" class="nav-btn cal-play" aria-label="Play AI-generated speech">&#9654; AI speech</button> <span class="cal-note">${urls.length} clip${urls.length > 1 ? "s" : ""}</span></div>`;
 }
 
 async function readingBody(reading) {
@@ -237,16 +244,28 @@ async function readingBody(reading) {
   const eref = confirmed ? entry.english_ref_should_be : null;
   const parsed = eref && parseRef(eref);
   const apocBook = recs.length && isApoc(recs[0].segment);
-  wrap.insertAdjacentHTML("beforeend", versBadge(reading, entry));
+  // two columns: Armenian on the left, English on the right (stacked on phones)
+  const grid = document.createElement("div"); grid.className = "rd-grid";
+  const colHy = document.createElement("div"); colHy.className = "rd-col rd-hy-col";
+  const colEn = document.createElement("div"); colEn.className = "rd-col rd-en-col";
   const prim = arakHtml(entry, reading, arakAttr);
-  if (prim) wrap.insertAdjacentHTML("beforeend", prim);
-  if (eref && parsed && !apocBook) wrap.appendChild(correctedBlock(esvQuery(eref)));
+  if (prim) colHy.insertAdjacentHTML("beforeend", prim);
+  if (eref && parsed && !apocBook) colEn.appendChild(correctedBlock(esvQuery(eref)));
   else if (eref && parsed && apocBook) {
     const rrecs = await gather({ passage: { ...parsed, book: recs[0].segment.book } });
-    wrap.appendChild(englishBlock(rrecs.length ? rrecs : recs));
-  } else if (recs.length) wrap.appendChild(englishBlock(recs));
-  wrap.insertAdjacentHTML("beforeend", armenianHtml(recs, reading, !!prim) + (await audioHtml(recs, reading))
-    + (reading.jashots && reading.jashots.introEn ? `<div class="cal-note">Introduction: ${esc(reading.jashots.introEn)}</div>` : ""));
+    colEn.appendChild(englishBlock(rrecs.length ? rrecs : recs));
+  } else if (recs.length) colEn.appendChild(englishBlock(recs));
+  colHy.insertAdjacentHTML("beforeend", armenianHtml(recs, reading, !!prim));
+  grid.append(colHy, colEn);
+  wrap.appendChild(grid);
+  wrap.insertAdjacentHTML("beforeend", versBadge(reading, entry));
+  const au = await audioHtml(recs, reading);
+  if (au) wrap.insertAdjacentHTML("beforeend", au);
+  if (reading.jashots && reading.jashots.introEn) wrap.insertAdjacentHTML("beforeend", `<p class="cal-note rd-intro">Introduction: ${esc(reading.jashots.introEn)}</p>`);
+  // the status dot in the row's summary follows the final (Arak29-checked) numbering status
+  const v = reading.versification || {};
+  const st = v.compound ? "grey" : (entry ? entry.status : v.status) === "differs" ? "amber" : (entry ? entry.status : v.status) === "needs_review" ? "red" : (entry ? entry.status : v.status) === "match" ? "green" : "grey";
+  wrap.setAttribute("data-vers-kind", st);
   return wrap;
 }
 
