@@ -128,7 +128,7 @@
       "arak29_ref": "Ps 24:7",
       "english_ref_kjv": "Ps 25:7",
       "english_full": "Remember not the sins of my youth, nor my transgressions: according to thy mercy remember thou me for thy goodness' sake, O LORD:",
-      "armenian_bible_full": "Զմեղս մանկութեան իմոյ եւ զանգիտութեան իմոյ մի՛ յիշեր, այլ յիշեա զիս, Տէր, ըստ ողորմութեան քում` վասն քաղցրութեան քո:",
+      "armenian_bible_full": "Զմեղս մանկութեան իմոյ եւ զանգիտութեան իմոյ մի՛ յիշեր, այլ յիշեա զիս, Տէր, ըստ ողորմութեան քում, վասն քաղցրութեան քո:",
       "pairing_coverage": 0.74,
       "english_ref_esv_lookup": "Psalm 25:7"
      }
@@ -152,13 +152,13 @@
       "arak29_ref": "Ps 24:7",
       "english_ref_kjv": "Ps 25:7",
       "english_full": "Remember not the sins of my youth, nor my transgressions: according to thy mercy remember thou me for thy goodness' sake, O LORD:",
-      "armenian_bible_full": "Զմեղս մանկութեան իմոյ եւ զանգիտութեան իմոյ մի՛ յիշեր, այլ յիշեա զիս, Տէր, ըստ ողորմութեան քում` վասն քաղցրութեան քո:",
+      "armenian_bible_full": "Զմեղս մանկութեան իմոյ եւ զանգիտութեան իմոյ մի՛ յիշեր, այլ յիշեա զիս, Տէր, ըստ ողորմութեան քում, վասն քաղցրութեան քո:",
       "pairing_coverage": 0.74,
       "english_ref_esv_lookup": "Psalm 25:7"
      },
      {
       "role": "alt",
-      "text": "Աղաղակեցի առ քեզ, Տէր, եւ ասացի` դու ես յոյս եւ բաժին իմ յերկրին կենդանեաց:",
+      "text": "Աղաղակեցի առ քեզ, Տէր, եւ ասացի, դու ես յոյս եւ բաժին իմ յերկրին կենդանեաց:",
       "page": 250,
       "arak29_ref": "Ps 141:6",
       "english_ref_kjv": "Ps 142:5",
@@ -316,7 +316,7 @@
       "arak29_ref": "Ps 36:28",
       "english_ref_kjv": "Ps 37:28",
       "english_full": "For the LORD loveth judgment, and forsaketh not his saints; they are preserved for ever: but the seed of the wicked shall be cut off:",
-      "armenian_bible_full": "Տէր սիրէ զիրաւունս, եւ ոչ ընդ վայր հարկանէ զսուրբս իւր, այլ յաւիտեան պահէ զնոսա. անօրէնք հալածեսցին ի միասին,`` եւ զաւակ ամպարշտաց սատակեսցի:",
+      "armenian_bible_full": "Տէր սիրէ զիրաւունս, եւ ոչ ընդ վայր հարկանէ զսուրբս իւր, այլ յաւիտեան պահէ զնոսա. անօրէնք հալածեսցին ի միասին, եւ զաւակ ամպարշտաց սատակեսցի:",
       "pairing_coverage": 1.0,
       "english_ref_esv_lookup": "Psalm 37:28"
      },
@@ -370,7 +370,7 @@
       "arak29_ref": "Ps 33:18",
       "english_ref_kjv": "Ps 34:17",
       "english_full": "The righteous cry, and the LORD heareth, and delivereth them out of all their troubles:",
-      "armenian_bible_full": "Կարդացին արդարք առ Տէր` եւ Տէր լուաւ նոցա, յամենայն նեղութենէ նոցա փրկեաց զնոսա:",
+      "armenian_bible_full": "Կարդացին արդարք առ Տէր, եւ Տէր լուաւ նոցա, յամենայն նեղութենէ նոցա փրկեաց զնոսա:",
       "pairing_coverage": 0.92,
       "english_ref_esv_lookup": "Psalm 34:17"
      }
@@ -509,7 +509,7 @@
       "arak29_ref": "Ps 146:1",
       "english_ref_kjv": "Ps 147:1",
       "english_full": "Praise ye the LORD: for it is good to sing praises unto our God; for it is pleasant; and praise is comely:",
-      "armenian_bible_full": "Օրհնեցէք զՏէր, զի բարի են սաղմոսք Աստուծոյ մերում. քաղցր եղիցի`` օրհնութիւն:",
+      "armenian_bible_full": "Օրհնեցէք զՏէր, զի բարի են սաղմոսք Աստուծոյ մերում. քաղցր եղիցի օրհնութիւն:",
       "pairing_coverage": 0.82,
       "english_ref_esv_lookup": "Psalm 147:1"
      }
@@ -522,7 +522,7 @@
       "arak29_ref": "Ps 46:7",
       "english_ref_kjv": "Ps 47:6",
       "english_full": "Sing praises to God, sing praises: sing praises unto our King, sing praises:",
-      "armenian_bible_full": "Սաղմոս ասացէք Աստուծոյ մերում``, սաղմոս ասացէք Թագաւորին մերում, սաղմոս ասացէք:",
+      "armenian_bible_full": "Սաղմոս ասացէք Աստուծոյ մերում, սաղմոս ասացէք Թագաւորին մերում, սաղմոս ասացէք:",
       "pairing_coverage": 1.0,
       "english_ref_esv_lookup": "Psalm 47:6"
      },

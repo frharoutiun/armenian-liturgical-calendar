@@ -3,6 +3,7 @@
 // It stubs media playback (no sound), records every play() call in order, and prints the sequence for a single reading and for "listen to all".
 import { spawn } from "node:child_process";
 const date = process.argv[2] || "2027-04-04";
+const live = process.argv[3] === "live";   // "live": test https://frharoutiun.github.io/armenian-liturgical-calendar/ itself instead of the local server
 const CH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const port = 9333 + Math.floor(Math.random() * 300);
 const chrome = spawn(CH, ["--headless=new", "--disable-gpu", `--remote-debugging-port=${port}`, "--user-data-dir=/private/tmp/f1/prof" + port, "--window-size=1280,2000", "about:blank"], { stdio: "ignore" });
@@ -16,14 +17,14 @@ const send = (method, params = {}) => new Promise((r) => { const i = ++id; pend.
 const ev = async (expr) => { const r = await send("Runtime.evaluate", { expression: expr, awaitPromise: true, returnByValue: true }); return r.result && r.result.result ? r.result.result.value : r; };
 await send("Runtime.enable"); await send("Page.enable");
 await send("Page.addScriptToEvaluateOnNewDocument", { source: `
-  window.LC_AUDIO_BASE = "http://localhost:4192/audio-repo/"; window.__plays = []; window.__speech = [];
+  if (!${live}) window.LC_AUDIO_BASE = "http://localhost:4192/audio-repo/"; window.__plays = []; window.__speech = [];
   const proto = HTMLMediaElement.prototype;
-  proto.play = function () { const el = this; window.__plays.push({ src: el.src.replace("http://localhost:4192/audio-repo/", "audio-repo/"), rate: el.playbackRate, cls: el.className || "clip" , t: Date.now() });
+  proto.play = function () { const el = this; window.__plays.push({ src: el.src.replace("http://localhost:4192/audio-repo/", "audio-repo/").replace("https://frharoutiun.github.io/armenian-liturgical-audio/", "audio-repo/"), rate: el.playbackRate, cls: el.className || "clip" , t: Date.now() });
     setTimeout(() => { el.dispatchEvent(new Event("playing")); setTimeout(() => el.dispatchEvent(new Event("ended")), 30); }, 20); return Promise.resolve(); };
   proto.pause = function () { this.dispatchEvent(new Event("pause")); };
   window.speechSynthesis && (window.speechSynthesis.speak = (u) => { window.__speech.push(u.text); setTimeout(() => u.onend && u.onend(), 10); });
 ` });
-await send("Page.navigate", { url: `http://localhost:4192/?tab=calendar&date=${date}` });
+await send("Page.navigate", { url: (live ? "https://frharoutiun.github.io/armenian-liturgical-calendar/" : "http://localhost:4192/") + `?tab=calendar&date=${date}&x=${Date.now()}` });
 await sleep(9000);
 const out = {};
 out.listenButtons = await ev(`document.querySelectorAll('.cal-listen-btn').length`);
