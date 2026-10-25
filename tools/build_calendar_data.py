@@ -376,6 +376,10 @@ def reconcile_modes(hymns):
     scan = scan_margin_evidence()
     refs = reference_modes(hymns)
     course, course_report = course_modes(hymns)   # Y1: Fr Findikyan's course text (authoritative); ranks below the printed margin tag and heading
+    try:   # Y2: the eight generic Orhnutyun sets of pp.210-226 are tones 1..8 in book order (pipeline/s150_ode_marks.py)
+        set_tone = json.load(open(os.path.join(OUT, 'ode_marks.json'), encoding='utf-8')).get('set_tones') or {}
+    except (OSError, ValueError):
+        set_tone = {}
     c = collections.Counter()
     for h in hymns:
         idx = h.pop('_idx', h.get('mode'))
@@ -447,7 +451,18 @@ def reconcile_modes(hymns):
                     scan_note = f"{where} reads the half as {sc['half']}, the decision has {final[1]}"
                 else:
                     scan_note = 'scan family confirms'
+        st_ = set_tone.get(h['id'])
+        ode_note = None
+        if st_ and final != st_['tone']:
+            if mg:
+                ode_note = f"the eight-tone Orhnutyun sets of pp.210-226 put this hymn in tone {st_['tone']} (set {st_['set']})"
+            else:   # structural proof: the sets follow the tones 1..8 in book order (Findikyan p.4, 22-25), each with the odes 1-9/10; it also outranks a
+                    # generic-canon heading that only stands NEAR the hymn (p226: the «Հարց. Առաջին ձայն» heading follows the last set's odes 9-10)
+                final, status = st_['tone'], 'ode_set_order'
+                why = f"the hymn stands in set {st_['set']} of the eight Orhnutyun sets of pp.210-226, which follow the tones 1-8 in book order (Findikyan, Armenian Hymnography p.4, 22-25)" + (f"; the heading «{head_why}» only stands near it" if head else '')
         checks = {w: v for w, v in (('index', idx), ('krapar', k), ('margin', mg), ('heading', head), ('course_text', (course.get(h['id']) or {}).get('mode'))) if v and v != final}
+        if ode_note:
+            checks['ode_set'] = ode_note
         for src_, m_ in (refs.get(h['id']) or {}).items():
             if m_ != final:
                 checks['ref_' + src_] = m_
@@ -459,7 +474,7 @@ def reconcile_modes(hymns):
         if final != idx:
             h['mode_index'] = idx
             h['mode_basis'] = f"{why}: the index's {idx} is read as {final}" if why else f"index {idx}"
-        elif status in ('printed_margin', 'printed_heading', 'course_text'):
+        elif status in ('printed_margin', 'printed_heading', 'course_text', 'ode_set_order'):
             status = 'agreed'
         if sc and scan_note and scan_note.endswith('confirms'):
             h['mode_scan'] = scan_note
@@ -598,6 +613,55 @@ def build_canon_parts():
                     h['part_index'], h['part'] = h['part'], next(iter(e_parts))
                     h['part_basis'] = f"the Echmiadzin TOC lists it as «{next(v['part'] for (hid, k), v in reference_modes.aliases.items() if hid == h['id'])}» (our own reading was only inferred: {h['part_index']})"
             prev = h['part']
+    # Y2: the parts of a canon run in the order of the genre table (Findikyan, Armenian Hymnography p.39-40: Orhnutyun, Harts, Metsatsutse, Voghormya,
+    # Der Hergnits, Mankunk, Chashu, Hampartsi) and a part is one run: an Orhnutyun cannot be interrupted by a Metsatsutse. The Echmiadzin TOC names the part
+    # of an OPENING, which may be a different occurrence of the same opening (p21: «Ըզքեզ կոյս եւ մայր» is listed «Մեծ.» elsewhere): a TOC part that breaks
+    # the order of the printed categories around it is rejected and the hymn keeps the part it continues (recorded in part_basis).
+    try:
+        ODE_IDS = set((json.load(open(os.path.join(OUT, 'ode_marks.json'), encoding='utf-8')).get('set_tones') or {}))
+    except (OSError, ValueError):
+        ODE_IDS = set()
+    ORD_ = {p_: i_ for i_, p_ in enumerate(['orhnutyun', 'harts', 'metsatsutse', 'voghormya', 'der_hergnits', 'mankunk', 'jashoo', 'hampartsi'])}
+    for cid in order:
+        hs_ = canons[cid]['hymns']
+        printed_idx = [i_ for i_, h in enumerate(hs_) if h.get('part_basis') == 'printed category' and h.get('part') in ORD_]
+        for i_, h in enumerate(hs_):
+            basis_ = str(h.get('part_basis', ''))
+            if basis_.startswith('the Echmiadzin TOC lists it as') and h['part'] in ORD_:
+                before = [ORD_[hs_[j]['part']] for j in printed_idx if j < i_]
+                after = [ORD_[hs_[j]['part']] for j in printed_idx if j > i_]
+                lo = max(before) if before else 0
+                hi_ = min(after) if after else len(ORD_)
+                if not (lo <= ORD_[h['part']] <= hi_):
+                    toc_part = h['part']
+                    h['part'] = hs_[i_ - 1]['part'] if i_ else (h.get('part_index') or h['part'])    # the part above, already settled
+                    h['part_basis'] = f"continues the part above (the Echmiadzin TOC's «{toc_part}» breaks the order of the printed parts around it and is rejected)"
+                    h['part_toc_rejected'] = toc_part
+            elif basis_.startswith('continues the part above') and i_ and hs_[i_ - 1]['part'] != 'other' and h['part'] != hs_[i_ - 1]['part']:
+                h['part'] = hs_[i_ - 1]['part']   # follows the (possibly repaired) hymn above
+    # Y2: a canon whose heading the index did not recognise runs on into the next one: a PRINTED Orhnutyun category after a Mankunk / Chashu / Hampartsi
+    # (a canon ends with those) starts a new canon (p394 after the canon of the Hayrapets); only plain full canons, never the tone sets or generic series.
+    split_new = []
+    for cid in list(order):
+        c_ = canons[cid]
+        if c_.get('kind') != 'full_canon' or any(h.get('part') == 'orhnutyun' and h['id'] in ODE_IDS for h in c_['hymns']):
+            continue
+        mx_ = -1
+        for i_, h in enumerate(c_['hymns']):
+            if h['part'] not in ORD_:
+                continue
+            if h['part'] == 'orhnutyun' and h.get('part_basis') == 'printed category' and mx_ >= 5 and i_:
+                rest = c_['hymns'][i_:]
+                new_id = cid + '~b'
+                canons[new_id] = {'title': f"(canon beginning on p{rest[0]['page']}: its heading was not recognised)", 'kind': 'full_canon', 'pages': sorted({pg for h in rest for pg in (h.get('pages') or [h['page']])}),
+                                  'hymns': rest, 'split_from': cid}
+                c_['hymns'] = c_['hymns'][:i_]
+                c_['pages'] = sorted({pg for h in c_['hymns'] for pg in (h.get('pages') or [h['page']])})
+                split_new.append((cid, new_id))
+                break
+            mx_ = max(mx_, ORD_[h['part']])
+    for cid, new_id in split_new:
+        order.insert(order.index(cid) + 1, new_id)
     # the weekday canons («Կանոն Երկուշաբաթի / ... / Ուրբաթի / Շաբաթու աւուրն», one per weekday) are generic by weekday, whatever kind the index gave them
     WD = ['երկուշաբ', 'երեքշաբ', 'չորեքշաբ', 'հինգշաբ', 'ուրբաթ', 'շաբաթու']
     for cid in order:
@@ -622,6 +686,21 @@ def build_canon_parts():
             fam = fam_title = None
         if c.get('family') == cid:
             root = cid
+    # Y2: ode sub-headings of the generic Orhnutyun sets (pp.210-226), from data/calendar/ode_marks.json (pipeline/s150_ode_marks.py)
+    try:
+        om = json.load(open(os.path.join(OUT, 'ode_marks.json'), encoding='utf-8'))['marks']
+    except (OSError, ValueError, KeyError):
+        om = {}
+    try:
+        sets_ = json.load(open(os.path.join(OUT, 'ode_marks.json'), encoding='utf-8')).get('set_tones') or {}
+    except (OSError, ValueError):
+        sets_ = {}
+    for c in canons.values():
+        for h in c['hymns']:
+            if h.get('part') == 'orhnutyun' and h['id'] in om:
+                h['ode'] = om[h['id']]
+            if h.get('part') == 'orhnutyun' and h['id'] in sets_:
+                h['ode_set'] = sets_[h['id']]
     write_json(os.path.join(OUT, 'canon_parts.json'), {'schema': 'canon-parts/1.0', 'source': 'output/sharagnots_anchored/index.json', 'order': order, 'canons': canons})
     return canons
 

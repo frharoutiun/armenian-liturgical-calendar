@@ -369,3 +369,9 @@ details.sources > summary { cursor: pointer; padding: 8px 2px; opacity: .8; }
 .cal-audio-none, .cal-audio-wait { margin: 0; }
 .cal-listall { margin: .2em 0 .9em; }
 .cal-listall .cal-listall-btn { background: none; border: 0; padding: 4px 0; color: var(--link, var(--accent-readings, #c9506a)); font: inherit; text-decoration: underline; cursor: pointer; min-height: 40px; }
+
+/* Y2: ode sub-headings inside a generic Orhnutyun set */
+.ode-head { margin: 18px 0 2px; padding-top: 8px; border-top: 1px dotted var(--rule, rgba(128,128,128,.35)); font-size: .82rem; color: var(--sec-sharagnots, var(--wine)); letter-spacing: .02em; }
+.ode-head .ode-n { font-weight: 700; text-transform: uppercase; font-size: .72rem; letter-spacing: .08em; }
+.ode-head .ode-ref { opacity: .75; }
+.ode-head .ode-inf { opacity: .6; font-style: italic; }

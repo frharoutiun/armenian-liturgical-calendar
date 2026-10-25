@@ -10,7 +10,7 @@ class ModeEvidence(unittest.TestCase):
         self.assertEqual(len(H), 2465)
         for h in H:
             self.assertTrue(h['mode'])
-            self.assertIn(h['mode_status'], ('agreed', 'index_only', 'printed_margin', 'printed_heading', 'conflict_unresolved', 'printed_margin_scan', 'scan_family_corrected', 'reference_vote', 'reference_confirmed', 'reference_single', 'course_text'))
+            self.assertIn(h['mode_status'], ('agreed', 'index_only', 'printed_margin', 'printed_heading', 'conflict_unresolved', 'printed_margin_scan', 'scan_family_corrected', 'reference_vote', 'reference_confirmed', 'reference_single', 'course_text', 'ode_set_order'))
 
     def test_counts(self):
         c = IDX['mode_fixes']['mode_status']
@@ -89,10 +89,37 @@ class ModeEvidence(unittest.TestCase):
         n = 0
         for c in cp.values():
             for h in c['hymns']:
-                if 'part_index' in h:
+                if 'part_index' in h and 'part_toc_rejected' not in h:
                     n += 1; self.assertIn('Echmiadzin TOC', h['part_basis']); self.assertNotEqual(h['part'], h['part_index'])
-        self.assertGreater(n, 30)
+        self.assertGreater(n, 20)   # Y2: 43 of the 67 TOC parts were rejected as breaking the order of the printed parts
         self.assertGreater(len(json.load(open(os.path.join(SITE, 'data/calendar/hymn_aliases.json'), encoding='utf-8'))['aliases']), 800)
+
+    def test_y2_parts_run_in_genre_order(self):
+        """Y2 (Findikyan p.39-40): inside one canon the parts run in the order of the genre table, each part one run; a TOC part that breaks
+        the order of the printed categories around it is rejected (p21: «Ըզքեզ կոյս եւ մայր» is not a Metsatsutse inside the Orhnutyun)."""
+        cp = json.load(open(os.path.join(SITE, 'data/calendar/canon_parts.json'), encoding='utf-8'))['canons']
+        ordr = ['orhnutyun', 'harts', 'metsatsutse', 'voghormya', 'der_hergnits', 'mankunk', 'jashoo', 'hampartsi']
+        rejected = 0
+        for cid, c in cp.items():
+            rejected += sum(1 for h in c['hymns'] if h.get('part_toc_rejected'))
+            if c.get('kind') != 'full_canon':
+                continue
+            seq = [ordr.index(h['part']) for h in c['hymns'] if h['part'] in ordr and h.get('part_basis') == 'printed category']
+            # the printed categories themselves may restart (a second canon inside one section, the tone sets): only count order breaks of the TOC-placed hymns
+            for i, h in enumerate(c['hymns']):
+                if str(h.get('part_basis', '')).startswith('the Echmiadzin TOC lists it as'):
+                    before = [ordr.index(x['part']) for x in c['hymns'][:i] if x['part'] in ordr and x.get('part_basis') == 'printed category']
+                    after = [ordr.index(x['part']) for x in c['hymns'][i + 1:] if x['part'] in ordr and x.get('part_basis') == 'printed category']
+                    self.assertTrue((max(before) if before else 0) <= ordr.index(h['part']) <= (min(after) if after else 8), (cid, h['incipit']))
+        self.assertGreater(rejected, 20)
+        theo = next(c for cid, c in cp.items() if cid.startswith('SC3230e84b4e'))
+        parts = [h['part'] for h in theo['hymns']]
+        first_harts = parts.index('harts')
+        self.assertTrue(all(p == 'orhnutyun' for p in parts[:first_harts]), 'the Theophany-eve canon (p20-22) opens with one unbroken Orhnutyun')
+        # the Orhnutyun of most full canons now has about the 31 stanzas of nine odes of three plus the last
+        band = [sum(len(h['stanza_ids']) for h in c['hymns'] if h['part'] == 'orhnutyun') for c in cp.values() if c.get('kind') == 'full_canon']
+        band = [n for n in band if n]
+        self.assertGreaterEqual(sum(1 for n in band if 28 <= n <= 36) / len(band), 0.4)
 
 
 class CourseText(unittest.TestCase):
@@ -117,6 +144,18 @@ class CourseText(unittest.TestCase):
     def test_ambiguous_openings_decide_nothing(self):
         rep = IDX['mode_fixes']['course_text_report']
         self.assertTrue(all(a['incipit'] for a in rep['ambiguous'] + rep['unmapped']))
+
+
+
+    def test_ode_set_order_modes(self):
+        """Y2: the eight Orhnutyun sets of pp.210-226 follow the tones 1-8 in book order: every hymn in a set carries that set's tone, 
+        unless a printed margin tag says otherwise (recorded in mode_checks)."""
+        om = json.load(open(os.path.join(SITE, 'data/calendar/ode_marks.json'), encoding='utf-8'))
+        hi = BY
+        tones = ['ԱՁ', 'ԱԿ', 'ԲՁ', 'ԲԿ', 'ԳՁ', 'ԳԿ', 'ԴՁ', 'ԴԿ']
+        bad = [hid for hid, s in om['set_tones'].items() if hi[hid]['mode'] != tones[s['set'] - 1] and 'ode_set' not in (hi[hid].get('mode_checks') or {})]
+        self.assertEqual(bad, [])
+        self.assertGreaterEqual(sum(1 for h in hi.values() if h.get('mode_status') == 'ode_set_order'), 25)
 
 
 if __name__ == '__main__':

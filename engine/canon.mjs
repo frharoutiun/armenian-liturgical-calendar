@@ -130,9 +130,21 @@ export function assembleCanon(refined, hr, ctx = {}) {
   const dayCanons = ranked.map((x) => ({ canonId: x.section, title: canons[x.section].title, startPage: (canons[x.section].pages || [])[0] || null, kind: canons[x.section].kind, role: primary && x.section === primary.section ? 'primary' : 'also',
     basis: `holds ${x.cover} of the openings the Tonatsoyts names for this day${x.title >= 0.3 ? ', and the feast name is in its title' : ''}` }));
   const hymnView = (h, canonId, extra = {}) => ({ hymnId: h.id, canonId, sectionId: h.block, incipit: h.incipit, mode: h.mode || null, page: h.page, pagesAll: h.pages || [h.page], stanzaIds: h.stanza_ids || [],
-    heading: h.heading || null, printedCategory: h.cat_printed || null, subpart: h.subpart || null, partBasis: h.part_basis, namedByRubric: named.has(h.id), cues: h.cues || null, ...extra });
+    heading: h.heading || null, printedCategory: h.cat_printed || null, subpart: h.subpart || null, partBasis: h.part_basis, namedByRubric: named.has(h.id), cues: h.cues || null, ode: h.ode || null, odeSet: h.ode_set || null, ...extra });
   const rubricView = (h) => ({ hymnId: h.resolved.hymnId, canonId: h.resolved.sectionId, sectionId: h.resolved.sectionId, incipit: h.resolved.incipit, mode: h.resolved.mode, page: h.resolved.page, pagesAll: h.resolved.pagesAll, stanzaIds: ((canons[h.resolved.sectionId] || {}).hymns || []).find((x) => x.id === h.resolved.hymnId)?.stanza_ids || [],
     heading: null, printedCategory: null, subpart: null, partBasis: 'named by the Tonatsoyts rubric', namedByRubric: true, basis: h.basis, confidence: h.confidence });
+  // Y2: a day whose Orhnutyun is taken from the generic sets of pp.210-226 (the Easter order and the generic Orhnutyun hold the eight tones' sets one after the
+  // other) gets exactly ONE set, the day's tone: an Orhnutyun is nine odes plus the last, not eight tones' worth (Findikyan, Armenian Hymnography p.4, 22-25)
+  const restrictToDaySet = (entry) => {
+    if (entry.part !== 'orhnutyun' || !entry.hymns.some((x) => x.odeSet) || !dayMode) return;
+    const setHymns = [];
+    for (const cid of refined.order || Object.keys(canons)) for (const h of (canons[cid] || {}).hymns || []) if (h.part === 'orhnutyun' && h.ode_set && normMode(h.ode_set.tone) === dayMode) setHymns.push([cid, h]);
+    if (!setHymns.length) return;
+    entry.hymns = setHymns.map(([cid, h]) => hymnView(h, cid, { basis: `the Orhnutyun of the day's tone: set ${h.ode_set.set} of the eight sets of pp.210-226`, confidence: 0.6 }));
+    entry.from = [...new Map(setHymns.map(([cid]) => [cid, fromOf(cid)])).values()];
+    entry.needsReview = true;
+    if (!/eight tones in turn/.test(entry.note || '')) entry.note = (entry.note ? entry.note + ' ' : '') + `The book prints the Orhnutyun for each of the eight tones in turn (pp.210-226); this day's tone is ${dayMode}.`;
+  };
   const fromOf = (id) => ({ canonId: id, title: (canons[id] || {}).title || null, startPage: ((canons[id] || {}).pages || [])[0] || null });
   // type-only cues (no opening printed): «Հարց հանգստեան», «Մարտիրոսաց» ... name a KIND of canon
   const kindCues = hr.hymns.filter((h) => !h.resolved && partsOfType(h.type).length);
@@ -146,6 +158,12 @@ export function assembleCanon(refined, hr, ctx = {}) {
     const take = (cid, modes, strict) => {
       let hs = (canons[cid].hymns || []).filter((h) => h.part === part || (h.also || []).includes(part));
       if (modes) { const m = hs.filter((h) => modes.has(normMode(h.mode))); if (m.length || strict) hs = m; }
+      // Y2: the Easter order and the generic Orhnutyun hold the eight tones' sets one after the other (pp.210-226): one Orhnutyun = ONE set, the day's tone
+      if (part === 'orhnutyun' && hs.some((h) => h.ode_set)) {
+        const want = new Set([dayMode, ...(modes || [])].filter(Boolean));
+        const m = hs.filter((h) => h.ode_set && want.has(normMode(h.ode_set.tone)));
+        if (m.length) hs = m;
+      }
       return hs;
     };
     let src = null;
@@ -204,6 +222,7 @@ export function assembleCanon(refined, hr, ctx = {}) {
       entry.note = (entry.note ? entry.note + ' ' : '') + 'Mankunk is sung on non-dominical days; this day has the Liturgy (a Sunday or feast).';
     }
     if (part === 'jashoo' && !hasLiturgy && entry.hymns.length) entry.note = (entry.note ? entry.note + ' ' : '') + 'Appointed for the day; the Divine Liturgy itself is celebrated on Sundays and feasts only (whether it is sung on this weekday is unconfirmed).';
+    restrictToDaySet(entry);
     parts.push(entry);
   }
   // ---- second pass (H2): what the first pass left missing
@@ -227,6 +246,7 @@ export function assembleCanon(refined, hr, ctx = {}) {
         e.note = `The Tonatsoyts names a hymn of this part; it is printed in «${clean(canons[f.canonId].title)}» (p${(canons[f.canonId].pages || [])[0]}), which prints the whole part.`;
         e.hymns = all.map((h) => hymnView(h, f.canonId, { basis: 'the canon in which the rubric\'s hymn is printed', confidence: 0.6, namedByRubric: nm.includes(h.id) }));
         e.from = [fromOf(f.canonId)];
+        restrictToDaySet(e);
         break;
       }
     }

@@ -1,0 +1,1062 @@
+{
+ "canticles": [
+  {
+   "label": "օրհ",
+   "n": 1,
+   "name": "Song of Moses",
+   "ref": "Ex 15:1-19"
+  },
+  {
+   "label": "նայ",
+   "n": 2,
+   "name": "Song of Moses",
+   "ref": "Dt 32:1-21"
+  },
+  {
+   "label": "զիհ",
+   "n": 3,
+   "name": "Song of Moses",
+   "ref": "Dt 32:22-38"
+  },
+  {
+   "label": "ծան",
+   "n": 4,
+   "name": "Song of Moses",
+   "ref": "Dt 32:39-43"
+  },
+  {
+   "label": "հաս",
+   "n": 5,
+   "name": "Song of Hannah",
+   "ref": "1 Sam 2:1-10"
+  },
+  {
+   "label": "գիշ",
+   "n": 6,
+   "name": "Prayer of Isaiah",
+   "ref": "Is 26:9-20"
+  },
+  {
+   "label": "եսա",
+   "n": 7,
+   "name": "Song of Hezekiah",
+   "ref": "Is 38:10-20"
+  },
+  {
+   "label": "օրհ",
+   "n": 8,
+   "name": "Song of the Servant",
+   "ref": "Is 42:1-13; 45:8"
+  },
+  {
+   "label": "նեղ",
+   "n": 9,
+   "name": "Prayer of Jonah",
+   "ref": "Jon 2:3-10"
+  },
+  {
+   "label": "տրլ",
+   "n": 10,
+   "name": "Prayer of Habakkuk",
+   "ref": "Hab 3:1-19"
+  }
+ ],
+ "marks": {
+  "SH002062c67b": {
+   "basis": "printed",
+   "canticle": "Prayer of Habakkuk",
+   "label": "տրլ",
+   "n": 10,
+   "page": 218,
+   "ref": "Hab 3:1-19"
+  },
+  "SH0383787fb0": {
+   "basis": "printed",
+   "canticle": "Song of Hannah",
+   "label": "հաս",
+   "n": 5,
+   "page": 213,
+   "ref": "1 Sam 2:1-10"
+  },
+  "SH045f4bf403": {
+   "basis": "printed",
+   "canticle": "Prayer of Isaiah",
+   "label": "գիշ",
+   "n": 6,
+   "page": 217,
+   "ref": "Is 26:9-20"
+  },
+  "SH0e1c0be58a": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "նայ",
+   "n": 2,
+   "page": 221,
+   "ref": "Dt 32:1-21"
+  },
+  "SH10453966f5": {
+   "basis": "printed",
+   "canticle": "Song of Hezekiah",
+   "label": "եսա",
+   "n": 7,
+   "page": 221,
+   "ref": "Is 38:10-20"
+  },
+  "SH15e819f347": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "ծան",
+   "n": 4,
+   "page": 215,
+   "ref": "Dt 32:39-43"
+  },
+  "SH175abf24c2": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "նայ",
+   "n": 2,
+   "page": 211,
+   "ref": "Dt 32:1-21"
+  },
+  "SH19c274976a": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "նայ",
+   "n": 2,
+   "page": 223,
+   "ref": "Dt 32:1-21"
+  },
+  "SH1bb3cdfa6e": {
+   "basis": "printed",
+   "canticle": "Song of the Servant",
+   "label": "օրհ",
+   "n": 8,
+   "page": 226,
+   "ref": "Is 42:1-13; 45:8"
+  },
+  "SH1cf9301e3f": {
+   "basis": "printed",
+   "canticle": "Prayer of Habakkuk",
+   "label": "տրլ",
+   "n": 10,
+   "page": 220,
+   "ref": "Hab 3:1-19"
+  },
+  "SH2189549233": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "ծան",
+   "n": 4,
+   "page": 221,
+   "ref": "Dt 32:39-43"
+  },
+  "SH2500f51a3c": {
+   "basis": "printed",
+   "canticle": "Prayer of Habakkuk",
+   "label": "տրլ",
+   "n": 10,
+   "page": 224,
+   "ref": "Hab 3:1-19"
+  },
+  "SH2ee67d8b88": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "նայ",
+   "n": 2,
+   "page": 217,
+   "ref": "Dt 32:1-21"
+  },
+  "SH2fd9fdd5d7": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "զիհ",
+   "n": 3,
+   "page": 217,
+   "ref": "Dt 32:22-38"
+  },
+  "SH328df9bc5f": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "նայ",
+   "n": 2,
+   "page": 215,
+   "ref": "Dt 32:1-21"
+  },
+  "SH357e55fece": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "օրհ",
+   "n": 1,
+   "page": 216,
+   "ref": "Ex 15:1-19"
+  },
+  "SH3e920c1513": {
+   "basis": "printed",
+   "canticle": "Song of Hezekiah",
+   "label": "եսա",
+   "n": 7,
+   "page": 216,
+   "ref": "Is 38:10-20"
+  },
+  "SH4296b17a25": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "զիհ",
+   "n": 3,
+   "page": 219,
+   "ref": "Dt 32:22-38"
+  },
+  "SH42a7183385": {
+   "basis": "printed",
+   "canticle": "Prayer of Jonah",
+   "label": "նեղ",
+   "n": 9,
+   "page": 222,
+   "ref": "Jon 2:3-10"
+  },
+  "SH42e6290e13": {
+   "basis": "printed",
+   "canticle": "Song of the Servant",
+   "label": "օրհ",
+   "n": 8,
+   "page": 222,
+   "ref": "Is 42:1-13; 45:8"
+  },
+  "SH441a4813fd": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "ծան",
+   "n": 4,
+   "page": 219,
+   "ref": "Dt 32:39-43"
+  },
+  "SH4505899521": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "օրհ",
+   "n": 1,
+   "page": 212,
+   "ref": "Ex 15:1-19"
+  },
+  "SH45c85814a4": {
+   "basis": "printed",
+   "canticle": "Song of Hannah",
+   "label": "հաս",
+   "n": 5,
+   "page": 217,
+   "ref": "1 Sam 2:1-10"
+  },
+  "SH46bce752de": {
+   "basis": "printed",
+   "canticle": "Prayer of Habakkuk",
+   "label": "տրլ",
+   "n": 10,
+   "page": 226,
+   "ref": "Hab 3:1-19"
+  },
+  "SH46ffd5d642": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "ծան",
+   "n": 4,
+   "page": 217,
+   "ref": "Dt 32:39-43"
+  },
+  "SH4af62dab68": {
+   "basis": "printed",
+   "canticle": "Song of Hannah",
+   "label": "հաս",
+   "n": 5,
+   "page": 221,
+   "ref": "1 Sam 2:1-10"
+  },
+  "SH54e1e96d10": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "օրհ",
+   "n": 1,
+   "page": 220,
+   "ref": "Ex 15:1-19"
+  },
+  "SH5bb0dcf775": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "զիհ",
+   "n": 3,
+   "page": 215,
+   "ref": "Dt 32:22-38"
+  },
+  "SH5ec4ec8bd7": {
+   "basis": "inferred",
+   "canticle": "Song of Moses",
+   "label": "զիհ",
+   "n": 3,
+   "page": null,
+   "ref": "Dt 32:22-38"
+  },
+  "SH615f94d3bd": {
+   "basis": "printed",
+   "canticle": "Song of Hezekiah",
+   "label": "եսա",
+   "n": 7,
+   "page": 224,
+   "ref": "Is 38:10-20"
+  },
+  "SH6192327667": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "ծան",
+   "n": 4,
+   "page": 223,
+   "ref": "Dt 32:39-43"
+  },
+  "SH67050297e7": {
+   "basis": "printed",
+   "canticle": "Prayer of Jonah",
+   "label": "նեղ",
+   "n": 9,
+   "page": 220,
+   "ref": "Jon 2:3-10"
+  },
+  "SH6761304a20": {
+   "basis": "printed",
+   "canticle": "Song of the Servant",
+   "label": "օրհ",
+   "n": 8,
+   "page": 216,
+   "ref": "Is 42:1-13; 45:8"
+  },
+  "SH67db96531e": {
+   "basis": "printed",
+   "canticle": "Song of Hannah",
+   "label": "հաս",
+   "n": 5,
+   "page": 223,
+   "ref": "1 Sam 2:1-10"
+  },
+  "SH6f2608caad": {
+   "basis": "printed",
+   "canticle": "Song of the Servant",
+   "label": "օրհ",
+   "n": 8,
+   "page": 212,
+   "ref": "Is 42:1-13; 45:8"
+  },
+  "SH7457918da3": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "ծան",
+   "n": 4,
+   "page": 211,
+   "ref": "Dt 32:39-43"
+  },
+  "SH7b346ce134": {
+   "basis": "printed",
+   "canticle": "Prayer of Isaiah",
+   "label": "գիշ",
+   "n": 6,
+   "page": 223,
+   "ref": "Is 26:9-20"
+  },
+  "SH80b0b80e95": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "օրհ",
+   "n": 1,
+   "page": 224,
+   "ref": "Ex 15:1-19"
+  },
+  "SH81b6b944ea": {
+   "basis": "printed",
+   "canticle": "Song of the Servant",
+   "label": "օրհ",
+   "n": 8,
+   "page": 220,
+   "ref": "Is 42:1-13; 45:8"
+  },
+  "SH84a9b05009": {
+   "basis": "printed",
+   "canticle": "Song of Hezekiah",
+   "label": "եսա",
+   "n": 7,
+   "page": 226,
+   "ref": "Is 38:10-20"
+  },
+  "SH8860249fa6": {
+   "basis": "printed",
+   "canticle": "Prayer of Isaiah",
+   "label": "գիշ",
+   "n": 6,
+   "page": 225,
+   "ref": "Is 26:9-20"
+  },
+  "SH8a2b82cbd0": {
+   "basis": "printed",
+   "canticle": "Prayer of Jonah",
+   "label": "նեղ",
+   "n": 9,
+   "page": 216,
+   "ref": "Jon 2:3-10"
+  },
+  "SH8bdabc88ae": {
+   "basis": "printed",
+   "canticle": "Prayer of Isaiah",
+   "label": "գիշ",
+   "n": 6,
+   "page": 219,
+   "ref": "Is 26:9-20"
+  },
+  "SH91b92fe0d4": {
+   "basis": "inferred_by_stanza_counts",
+   "canticle": "Prayer of Jonah",
+   "label": "նեղ",
+   "n": 9,
+   "page": null,
+   "ref": "Jon 2:3-10"
+  },
+  "SH94dbbf64f9": {
+   "basis": "printed",
+   "canticle": "Prayer of Jonah",
+   "label": "նեղ",
+   "n": 9,
+   "page": 226,
+   "ref": "Jon 2:3-10"
+  },
+  "SH963982f541": {
+   "basis": "printed",
+   "canticle": "Song of Hannah",
+   "label": "հաս",
+   "n": 5,
+   "page": 219,
+   "ref": "1 Sam 2:1-10"
+  },
+  "SH9d92b053b5": {
+   "basis": "printed",
+   "canticle": "Song of Hezekiah",
+   "label": "եսա",
+   "n": 7,
+   "page": 211,
+   "ref": "Is 38:10-20"
+  },
+  "SHa2de3c9732": {
+   "basis": "printed",
+   "canticle": "Prayer of Jonah",
+   "label": "նեղ",
+   "n": 9,
+   "page": 218,
+   "ref": "Jon 2:3-10"
+  },
+  "SHa620e7048c": {
+   "basis": "printed",
+   "canticle": "Prayer of Isaiah",
+   "label": "գիշ",
+   "n": 6,
+   "page": 211,
+   "ref": "Is 26:9-20"
+  },
+  "SHa791991b2e": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "նայ",
+   "n": 2,
+   "page": 225,
+   "ref": "Dt 32:1-21"
+  },
+  "SHabdbf03e28": {
+   "basis": "printed",
+   "canticle": "Song of Hannah",
+   "label": "հաս",
+   "n": 5,
+   "page": 215,
+   "ref": "1 Sam 2:1-10"
+  },
+  "SHae9e93bc6a": {
+   "basis": "printed",
+   "canticle": "Song of the Servant",
+   "label": "օրհ",
+   "n": 8,
+   "page": 224,
+   "ref": "Is 42:1-13; 45:8"
+  },
+  "SHb1bec07308": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "նայ",
+   "n": 2,
+   "page": 213,
+   "ref": "Dt 32:1-21"
+  },
+  "SHb2cae976d6": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "զիհ",
+   "n": 3,
+   "page": 221,
+   "ref": "Dt 32:22-38"
+  },
+  "SHb34dc8fb6b": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "օրհ",
+   "n": 1,
+   "page": 218,
+   "ref": "Ex 15:1-19"
+  },
+  "SHb4495a1bc9": {
+   "basis": "printed",
+   "canticle": "Prayer of Jonah",
+   "label": "նեղ",
+   "n": 9,
+   "page": 214,
+   "ref": "Jon 2:3-10"
+  },
+  "SHbc1d8b1bb5": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "ծան",
+   "n": 4,
+   "page": 225,
+   "ref": "Dt 32:39-43"
+  },
+  "SHbd8fc0a892": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "օրհ",
+   "n": 1,
+   "page": 214,
+   "ref": "Ex 15:1-19"
+  },
+  "SHbdf7dd70e4": {
+   "basis": "printed",
+   "canticle": "Song of Hezekiah",
+   "label": "եսա",
+   "n": 7,
+   "page": 219,
+   "ref": "Is 38:10-20"
+  },
+  "SHbee48627b4": {
+   "basis": "printed",
+   "canticle": "Prayer of Isaiah",
+   "label": "գիշ",
+   "n": 6,
+   "page": 221,
+   "ref": "Is 26:9-20"
+  },
+  "SHc35e71a2e0": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "օրհ",
+   "n": 1,
+   "page": 222,
+   "ref": "Ex 15:1-19"
+  },
+  "SHc81149381c": {
+   "basis": "printed",
+   "canticle": "Prayer of Isaiah",
+   "label": "գիշ",
+   "n": 6,
+   "page": 213,
+   "ref": "Is 26:9-20"
+  },
+  "SHcce9201bb2": {
+   "basis": "printed",
+   "canticle": "Prayer of Isaiah",
+   "label": "գիշ",
+   "n": 6,
+   "page": 215,
+   "ref": "Is 26:9-20"
+  },
+  "SHd820ad57e9": {
+   "basis": "inferred",
+   "canticle": "Song of Hezekiah",
+   "label": "եսա",
+   "n": 7,
+   "page": null,
+   "ref": "Is 38:10-20"
+  },
+  "SHdccd5a2d09": {
+   "basis": "printed",
+   "canticle": "Song of Hezekiah",
+   "label": "եսա",
+   "n": 7,
+   "page": 217,
+   "ref": "Is 38:10-20"
+  },
+  "SHe215f88dc6": {
+   "basis": "printed",
+   "canticle": "Prayer of Habakkuk",
+   "label": "տրլ",
+   "n": 10,
+   "page": 214,
+   "ref": "Hab 3:1-19"
+  },
+  "SHe2dcc0d8f1": {
+   "basis": "inferred",
+   "canticle": "Song of Moses",
+   "label": "զիհ",
+   "n": 3,
+   "page": null,
+   "ref": "Dt 32:22-38"
+  },
+  "SHe7eea2dcc8": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "զիհ",
+   "n": 3,
+   "page": 223,
+   "ref": "Dt 32:22-38"
+  },
+  "SHea648fd1a6": {
+   "basis": "printed",
+   "canticle": "Song of Hannah",
+   "label": "հաս",
+   "n": 5,
+   "page": 225,
+   "ref": "1 Sam 2:1-10"
+  },
+  "SHee970cabf0": {
+   "basis": "printed",
+   "canticle": "Song of the Servant",
+   "label": "օրհ",
+   "n": 8,
+   "page": 218,
+   "ref": "Is 42:1-13; 45:8"
+  },
+  "SHf02c655d83": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "ծան",
+   "n": 4,
+   "page": 213,
+   "ref": "Dt 32:39-43"
+  },
+  "SHf1470484f6": {
+   "basis": "printed",
+   "canticle": "Prayer of Jonah",
+   "label": "նեղ",
+   "n": 9,
+   "page": 224,
+   "ref": "Jon 2:3-10"
+  },
+  "SHf3c1293517": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "նայ",
+   "n": 2,
+   "page": 219,
+   "ref": "Dt 32:1-21"
+  },
+  "SHf4c50a5efe": {
+   "basis": "printed",
+   "canticle": "Song of the Servant",
+   "label": "օրհ",
+   "n": 8,
+   "page": 214,
+   "ref": "Is 42:1-13; 45:8"
+  },
+  "SHf500689a18": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "զիհ",
+   "n": 3,
+   "page": 225,
+   "ref": "Dt 32:22-38"
+  },
+  "SHf5c8c2843a": {
+   "basis": "printed",
+   "canticle": "Song of Hannah",
+   "label": "հաս",
+   "n": 5,
+   "page": 211,
+   "ref": "1 Sam 2:1-10"
+  },
+  "SHf8b5b88472": {
+   "basis": "printed",
+   "canticle": "Prayer of Habakkuk",
+   "label": "տրլ",
+   "n": 10,
+   "page": 212,
+   "ref": "Hab 3:1-19"
+  },
+  "SHfc5ab07e0a": {
+   "basis": "printed",
+   "canticle": "Song of Moses",
+   "label": "օրհ",
+   "n": 1,
+   "page": 210,
+   "ref": "Ex 15:1-19"
+  }
+ },
+ "order": [
+  "օրհ",
+  "նայ",
+  "զիհ",
+  "ծան",
+  "հաս",
+  "գիշ",
+  "եսա",
+  "օրհ",
+  "նեղ",
+  "տրլ"
+ ],
+ "schema": "ode-marks/1.0",
+ "set_tones": {
+  "SH002062c67b": {
+   "set": 4,
+   "tone": "ԲԿ"
+  },
+  "SH0383787fb0": {
+   "set": 2,
+   "tone": "ԱԿ"
+  },
+  "SH045f4bf403": {
+   "set": 4,
+   "tone": "ԲԿ"
+  },
+  "SH074ee131a5": {
+   "set": 7,
+   "tone": "ԴՁ"
+  },
+  "SH0dcc0a5797": {
+   "set": 4,
+   "tone": "ԲԿ"
+  },
+  "SH0e1c0be58a": {
+   "set": 6,
+   "tone": "ԳԿ"
+  },
+  "SH10453966f5": {
+   "set": 6,
+   "tone": "ԳԿ"
+  },
+  "SH15e819f347": {
+   "set": 3,
+   "tone": "ԲՁ"
+  },
+  "SH175abf24c2": {
+   "set": 1,
+   "tone": "ԱՁ"
+  },
+  "SH19c274976a": {
+   "set": 7,
+   "tone": "ԴՁ"
+  },
+  "SH1bb3cdfa6e": {
+   "set": 8,
+   "tone": "ԴԿ"
+  },
+  "SH1cf9301e3f": {
+   "set": 5,
+   "tone": "ԳՁ"
+  },
+  "SH2189549233": {
+   "set": 6,
+   "tone": "ԳԿ"
+  },
+  "SH24b4f7468c": {
+   "set": 7,
+   "tone": "ԴՁ"
+  },
+  "SH2500f51a3c": {
+   "set": 7,
+   "tone": "ԴՁ"
+  },
+  "SH2ee67d8b88": {
+   "set": 4,
+   "tone": "ԲԿ"
+  },
+  "SH2fd9fdd5d7": {
+   "set": 4,
+   "tone": "ԲԿ"
+  },
+  "SH328df9bc5f": {
+   "set": 3,
+   "tone": "ԲՁ"
+  },
+  "SH357e55fece": {
+   "set": 4,
+   "tone": "ԲԿ"
+  },
+  "SH386f1f38c1": {
+   "set": 5,
+   "tone": "ԳՁ"
+  },
+  "SH3e920c1513": {
+   "set": 3,
+   "tone": "ԲՁ"
+  },
+  "SH4296b17a25": {
+   "set": 5,
+   "tone": "ԳՁ"
+  },
+  "SH42a7183385": {
+   "set": 6,
+   "tone": "ԳԿ"
+  },
+  "SH42e6290e13": {
+   "set": 6,
+   "tone": "ԳԿ"
+  },
+  "SH441a4813fd": {
+   "set": 5,
+   "tone": "ԳՁ"
+  },
+  "SH4505899521": {
+   "set": 2,
+   "tone": "ԱԿ"
+  },
+  "SH45c85814a4": {
+   "set": 4,
+   "tone": "ԲԿ"
+  },
+  "SH46bce752de": {
+   "set": 8,
+   "tone": "ԴԿ"
+  },
+  "SH46ffd5d642": {
+   "set": 4,
+   "tone": "ԲԿ"
+  },
+  "SH4af62dab68": {
+   "set": 6,
+   "tone": "ԳԿ"
+  },
+  "SH54e1e96d10": {
+   "set": 6,
+   "tone": "ԳԿ"
+  },
+  "SH5bb0dcf775": {
+   "set": 3,
+   "tone": "ԲՁ"
+  },
+  "SH5ec4ec8bd7": {
+   "set": 1,
+   "tone": "ԱՁ"
+  },
+  "SH615f94d3bd": {
+   "set": 7,
+   "tone": "ԴՁ"
+  },
+  "SH6192327667": {
+   "set": 7,
+   "tone": "ԴՁ"
+  },
+  "SH67050297e7": {
+   "set": 5,
+   "tone": "ԳՁ"
+  },
+  "SH6761304a20": {
+   "set": 3,
+   "tone": "ԲՁ"
+  },
+  "SH67db96531e": {
+   "set": 7,
+   "tone": "ԴՁ"
+  },
+  "SH694473d66d": {
+   "set": 4,
+   "tone": "ԲԿ"
+  },
+  "SH6f2608caad": {
+   "set": 1,
+   "tone": "ԱՁ"
+  },
+  "SH7457918da3": {
+   "set": 1,
+   "tone": "ԱՁ"
+  },
+  "SH7b346ce134": {
+   "set": 7,
+   "tone": "ԴՁ"
+  },
+  "SH80b0b80e95": {
+   "set": 8,
+   "tone": "ԴԿ"
+  },
+  "SH81b6b944ea": {
+   "set": 5,
+   "tone": "ԳՁ"
+  },
+  "SH84a9b05009": {
+   "set": 8,
+   "tone": "ԴԿ"
+  },
+  "SH859ef6eda6": {
+   "set": 5,
+   "tone": "ԳՁ"
+  },
+  "SH8860249fa6": {
+   "set": 8,
+   "tone": "ԴԿ"
+  },
+  "SH8a279b07fb": {
+   "set": 1,
+   "tone": "ԱՁ"
+  },
+  "SH8a2b82cbd0": {
+   "set": 3,
+   "tone": "ԲՁ"
+  },
+  "SH8bdabc88ae": {
+   "set": 5,
+   "tone": "ԳՁ"
+  },
+  "SH91b92fe0d4": {
+   "set": 1,
+   "tone": "ԱՁ"
+  },
+  "SH94dbbf64f9": {
+   "set": 8,
+   "tone": "ԴԿ"
+  },
+  "SH963982f541": {
+   "set": 5,
+   "tone": "ԳՁ"
+  },
+  "SH9d92b053b5": {
+   "set": 1,
+   "tone": "ԱՁ"
+  },
+  "SHa2de3c9732": {
+   "set": 4,
+   "tone": "ԲԿ"
+  },
+  "SHa620e7048c": {
+   "set": 1,
+   "tone": "ԱՁ"
+  },
+  "SHa791991b2e": {
+   "set": 8,
+   "tone": "ԴԿ"
+  },
+  "SHabdbf03e28": {
+   "set": 3,
+   "tone": "ԲՁ"
+  },
+  "SHae9e93bc6a": {
+   "set": 7,
+   "tone": "ԴՁ"
+  },
+  "SHaf8de17588": {
+   "set": 1,
+   "tone": "ԱՁ"
+  },
+  "SHb1bec07308": {
+   "set": 2,
+   "tone": "ԱԿ"
+  },
+  "SHb2cae976d6": {
+   "set": 6,
+   "tone": "ԳԿ"
+  },
+  "SHb34dc8fb6b": {
+   "set": 5,
+   "tone": "ԳՁ"
+  },
+  "SHb4495a1bc9": {
+   "set": 2,
+   "tone": "ԱԿ"
+  },
+  "SHbc1d8b1bb5": {
+   "set": 8,
+   "tone": "ԴԿ"
+  },
+  "SHbd8fc0a892": {
+   "set": 3,
+   "tone": "ԲՁ"
+  },
+  "SHbdf7dd70e4": {
+   "set": 5,
+   "tone": "ԳՁ"
+  },
+  "SHbee48627b4": {
+   "set": 6,
+   "tone": "ԳԿ"
+  },
+  "SHc35e71a2e0": {
+   "set": 7,
+   "tone": "ԴՁ"
+  },
+  "SHc81149381c": {
+   "set": 2,
+   "tone": "ԱԿ"
+  },
+  "SHcce9201bb2": {
+   "set": 3,
+   "tone": "ԲՁ"
+  },
+  "SHd131c68edb": {
+   "set": 6,
+   "tone": "ԳԿ"
+  },
+  "SHd820ad57e9": {
+   "set": 2,
+   "tone": "ԱԿ"
+  },
+  "SHdccd5a2d09": {
+   "set": 4,
+   "tone": "ԲԿ"
+  },
+  "SHe215f88dc6": {
+   "set": 2,
+   "tone": "ԱԿ"
+  },
+  "SHe2dcc0d8f1": {
+   "set": 2,
+   "tone": "ԱԿ"
+  },
+  "SHe7eea2dcc8": {
+   "set": 7,
+   "tone": "ԴՁ"
+  },
+  "SHea648fd1a6": {
+   "set": 8,
+   "tone": "ԴԿ"
+  },
+  "SHeb2333f756": {
+   "set": 5,
+   "tone": "ԳՁ"
+  },
+  "SHee970cabf0": {
+   "set": 4,
+   "tone": "ԲԿ"
+  },
+  "SHf02c655d83": {
+   "set": 2,
+   "tone": "ԱԿ"
+  },
+  "SHf1470484f6": {
+   "set": 7,
+   "tone": "ԴՁ"
+  },
+  "SHf3c1293517": {
+   "set": 5,
+   "tone": "ԳՁ"
+  },
+  "SHf4c50a5efe": {
+   "set": 2,
+   "tone": "ԱԿ"
+  },
+  "SHf500689a18": {
+   "set": 8,
+   "tone": "ԴԿ"
+  },
+  "SHf5247f677b": {
+   "set": 1,
+   "tone": "ԱՁ"
+  },
+  "SHf5c8c2843a": {
+   "set": 1,
+   "tone": "ԱՁ"
+  },
+  "SHf8b5b88472": {
+   "set": 1,
+   "tone": "ԱՁ"
+  },
+  "SHfc5ab07e0a": {
+   "set": 1,
+   "tone": "ԱՁ"
+  }
+ },
+ "source": "Findikyan LS323 pp.10-11, 22-25 + scan margin labels read by AI (H4), unreviewed"
+}

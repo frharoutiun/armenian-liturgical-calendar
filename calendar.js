@@ -271,7 +271,7 @@ function canonView(day) {
     const hymns = []; let cur = null;
     items.forEach((it) => {
       const sts = it.stanzaIds || it.stanzas || it.verses;   // H1 (day-canon/1.0): stanzaIds; older/other shapes: stanzas[]
-      if (Array.isArray(sts)) { hymns.push({ heading: it.heading || it.subpart || "", incipit: it.incipit || it.title || "", type: it.type || it.printedCategory, mode: it.mode, page: firstPage(it), pagesAll: it.pagesAll || it.pages, hymnId: it.hymnId, cues: it.cues || null, stanzas: sts.map((x) => normSt(x, it)) }); cur = null; }
+      if (Array.isArray(sts)) { hymns.push({ heading: it.heading || it.subpart || "", incipit: it.incipit || it.title || "", type: it.type || it.printedCategory, mode: it.mode, page: firstPage(it), pagesAll: it.pagesAll || it.pages, hymnId: it.hymnId, cues: it.cues || null, ode: it.ode || null, stanzas: sts.map((x) => normSt(x, it)) }); cur = null; }
       else if (!it.id && !it.stanzaId && !it.a && !it.text && (it.heading || it.title)) { cur = { heading: it.heading || it.title, page: firstPage(it), stanzas: [] }; hymns.push(cur); }
       else { if (!cur) { cur = { heading: "", stanzas: [] }; hymns.push(cur); } cur.stanzas.push(normSt(it)); }
     });
@@ -300,6 +300,13 @@ function canonRail(cv, active) {
     return `<button type="button" class="rail-item${n === active ? " on" : ""}${c ? "" : " rail-off"}" data-part="${n}" aria-pressed="${n === active}"><span class="rail-name">${esc(p.label)}</span><span class="rail-sub">${esc(sub)}</span></button>`;
   }).join("") + `</nav>`;
 }
+// Y2: ode sub-heading of a generic Orhnutyun set (Findikyan, Armenian Hymnography LS323, pp.10-11, 22-25): the ten odes are sung on the ten canticles;
+// the book prints the ode label (օրհ նայ զիհ ծան հաս գիշ եսա օրհ նեղ տրլ) in the margin only in the sets of pp.210-226.
+function odeHead(o) {
+  if (!o) return "";
+  const how = o.basis === "printed" ? `label printed in the margin of p.${o.page} (read from the scan by AI, unreviewed)` : o.basis === "inferred_by_stanza_counts" ? "ode inferred from the order of the odes and the stanza counts" : "ode inferred from the printed labels around it";
+  return `<div class="ode-head" title="${esc(how)}"><span class="ode-n">Ode ${esc(o.n)}</span> <span class="script-original" lang="hy">${esc(o.label)}</span> <span class="ode-ref">${esc(o.canticle)} &middot; ${esc(o.ref)}</span>${o.basis === "printed" ? "" : ` <span class="ode-inf">(inferred)</span>`}</div>`;
+}
 function renderCanonPart(p, n, active) {
   const settled = partSettled(p);
   let h = `<section class="canon-part" id="canon-part-${n}"${n === active ? "" : " hidden"}><header class="cp-head"><h4 class="cp-name">${esc(p.label)}${p.labelHy ? ` <span class="script-original cp-hy" lang="hy">${esc(p.labelHy)}</span>` : ""}</h4><div class="cp-meta">${svcTag(p)}${p.page != null && settled ? `<button type="button" class="cal-link cal-scan" data-page="${esc(p.page)}">View scan &middot; p.${esc(p.page)}</button>` : ""}${partFlag(p)}</div></header>`;
@@ -309,7 +316,7 @@ function renderCanonPart(p, n, active) {
   p.hymns.forEach((hy) => {
     const pg = hy.page != null ? hy.page : (hy.stanzas.find((x) => x.page != null) || {}).page;
     const title = hy.heading || hy.incipit;
-    h += `<div class="canon-hymn">${title ? `<h5 class="canon-sub script-original" lang="hy">${esc(cleanTitle(title))}</h5>` : ""}<div class="hy-acts">${pg != null && pg !== p.page ? `<button type="button" class="cal-link cal-scan" data-page="${esc(pg)}"${hy.pagesAll && hy.pagesAll.length > 1 ? ` title="continues to p.${esc(hy.pagesAll[hy.pagesAll.length - 1])}"` : ""}>scan p.${esc(pg)}</button>` : ""}${hy.type ? chip(hy.type) : ""}${hy.mode ? chip("Mode " + hy.mode + (TONE_NO[hy.mode] ? " (Tone " + TONE_NO[hy.mode] + ")" : "")) : ""}</div>`;
+    h += `<div class="canon-hymn">${odeHead(hy.ode)}${title ? `<h5 class="canon-sub script-original" lang="hy">${esc(cleanTitle(title))}</h5>` : ""}<div class="hy-acts">${pg != null && pg !== p.page ? `<button type="button" class="cal-link cal-scan" data-page="${esc(pg)}"${hy.pagesAll && hy.pagesAll.length > 1 ? ` title="continues to p.${esc(hy.pagesAll[hy.pagesAll.length - 1])}"` : ""}>scan p.${esc(pg)}</button>` : ""}${hy.type ? chip(hy.type) : ""}${hy.mode ? chip("Mode " + hy.mode + (TONE_NO[hy.mode] ? " (Tone " + TONE_NO[hy.mode] + ")" : "")) : ""}</div>`;
     (hy.cues || []).forEach((c) => { h += `<p class="cal-note canon-cue">Printed cue at the end of the canon (p.${esc(c.page)}): <span class="script-original" lang="hy">${esc(c.labelHy)} ${esc(c.printed)}</span> ${chip("read from the scan by AI, unreviewed")}</p>`; });
     hy.stanzas.forEach((st) => { h += `<div class="canon-st" data-sid="${esc(st.id || "")}"><div class="canon-hy script-original" lang="hy">${esc(st.text || "")}</div><div class="canon-en"></div></div>`; });
     h += `</div>`;
