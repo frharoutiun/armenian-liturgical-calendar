@@ -1,0 +1,31 @@
+// C2: the English route of the chants (data/calendar/chants_english.json) and the Tonatsoyts citation-tail fix behind "Isaiah null".
+import fs from 'fs';
+import { createCalendar } from '../engine/calendar.mjs';
+const root = decodeURIComponent(new URL('../', import.meta.url).pathname);
+let fails = 0; const ok = (c, m) => { if (!c) { fails++; console.log('FAIL', m); } else console.log('ok  -', m); };
+const d = JSON.parse(fs.readFileSync(root + 'data/calendar/chants_english.json', 'utf8'));
+const layer = JSON.parse(fs.readFileSync(root + 'data/calendar/chants_layer.json', 'utf8'));
+const REF = /^(?:[123] )?[A-Z][A-Za-z ]+ \d+:\d+(?:-\d+(?::\d+)?)?$/;
+const NOESV = /^(Wisdom|Baruch|Judith|Tobit|Sirach|[123] Maccabees|Azariah)/;
+const es = Object.entries(d.entries);
+ok(es.length > 500, 'chants_english has entries (' + es.length + ')');
+ok(es.every(([k, e]) => !e.esv_lookup || (REF.test(e.esv_lookup) && !/null|undefined/.test(e.esv_lookup) && !NOESV.test(e.esv_lookup))), 'every ESV lookup is a clean reference and never an Apocrypha book');
+ok(es.every(([k, e]) => { const [ck, si] = k.split('|'); const c = layer.chants[ck]; return c && c.segments[+si]; }), 'every entry points at a segment of the layer');
+ok(es.every(([k, e]) => { const [ck, si] = k.split('|'); const s = layer.chants[ck].segments[+si]; return !e.incipit || e.incipit === s.incipit; }), 'entry incipit equals the layer segment incipit (a rebuilt layer is detected)');
+const ai = es.filter(([k, e]) => e.ai_translation);
+ok(ai.length > 50 && ai.every(([k, e]) => !/[Ա-֏]/.test(e.ai_translation)), 'AI translations exist, no Armenian script left in them (' + ai.length + ')');
+ok(d.ai_label === 'AI translation (Claude)', 'AI label is the agreed one');
+ok(es.filter(([k, e]) => e.pieces).every(([k, e]) => e.pieces.every((p) => !p.esv_lookup || REF.test(p.esv_lookup))), 'piece lookups are clean');
+const g = d.generic['alleluia/martyrs|ԳՁ|0'];
+ok(g && (g.esv_lookup || g.kjv_text), 'generic martyrs alleluia in mode ԳՁ has an English route');
+const gt = JSON.parse(fs.readFileSync(root + 'data/calendar/generic_chants.json', 'utf8'));
+const miss = []; for (const [fam, f] of Object.entries(gt.families)) for (const [m, es2] of Object.entries(f.modes || {})) es2.forEach((e, i) => { if (!e.english_ref_esv_lookup && !e.english_full && !(d.generic[fam + '|' + m + '|' + i])) miss.push(fam + '|' + m + '|' + i); });
+ok(miss.length <= 2, 'at most 2 generic entries without any English route (' + miss.length + ')');
+// the reading citation tail «ԿԱ. 10. incipit - ԿԲ. 3. end words» (Isaiah 61:10-62:3) is parsed, so the page never asks the ESV service for "Isaiah null"
+globalThis.fetch = async (u) => { const p = String(u).replace('file://', ''); const b = fs.readFileSync(decodeURIComponent(p)); return { ok: true, json: async () => JSON.parse(b), text: async () => b.toString() }; };
+const cal = await createCalendar({ baseUrl: 'file://' + root + 'engine/', dataUrl: 'file://' + root + 'data/calendar/' });
+const r = await cal.resolveDay('2027-05-24');
+const keys = r.readings.map((x) => x.citationKey);
+ok(keys.includes('Isaiah 61:10-62:3') && keys.includes('Romans 15:30-16:2') && !keys.some((k) => /null/.test(k)), '2027-05-24 readings parse: ' + keys.join('; '));
+console.log(fails ? 'FAILED ' + fails : 'chants english tests ok');
+process.exit(fails ? 1 : 0);

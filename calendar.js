@@ -134,8 +134,9 @@ function chantsBefore(chants, i, reading, placed) {
   return out.sort((x, y) => (x.service_order || 0) - (y.service_order || 0));
 }
 // Generic chants ("մարտիրոսաց ՚ի ձայնէն"): the verse is the Zhamagirk's generic entry for the category in the mode of the day (generic-chants.mjs).
-let genericTable = null, genericMod = null, genericCtx = {};
+let genericTable = null, genericMod = null, genericCtx = {}, CE = null;
 async function ensureGeneric() {
+  if (!CE) { try { CE = await import("./chants-english.mjs"); await CE.loadChantsEnglish(); } catch (e) { CE = null; /* the chants then show only what the layer carries */ } }
   if (genericTable) return;
   try { genericMod = await import("./generic-chants.mjs"); const r = await fetch("data/calendar/generic_chants.json"); genericTable = r.ok ? await r.json() : null; } catch (e) { /* the page then says the table could not be loaded */ }
 }
@@ -159,7 +160,9 @@ function renderGenericSeg(sg, c) {
   let h = `<div class="chant-seg">${printed}`;
   res.entries.forEach((e) => {
     h += `<div class="chant-gen-entry">${ROLE[e.role] ? `<div class="cal-note">${ROLE[e.role]}</div>` : ""}<div class="hy-en"><div class="hy-col"><div class="chant-hy script-original" lang="hy">${esc(e.armenian_full)}</div></div>`;
-    h += e.english_full ? `<div class="en-col"><div class="chant-en">${esc(e.english_full)} <span class="cal-note">(KJV)</span></div></div></div>` : `<div class="en-col"><div class="cal-note">No sourced English for this verse yet.</div></div></div>`;
+    const ge = CE ? Object.assign({}, CE.genericFor(e.gkey) || {}, e.english_ref_esv_lookup ? { esv_lookup: e.english_ref_esv_lookup } : {}) : null;
+    if (ge && (ge.esv_lookup || ge.ai_translation || ge.kjv_text)) h += `<div class="en-col">${CE.englishHtml(ge, e)}</div></div>`;
+    else h += e.english_full ? `<div class="en-col"><div class="chant-en">${esc(e.english_full)} <span class="cal-note">(KJV)</span></div></div></div>` : `<div class="en-col"><div class="cal-note">No sourced English for this verse yet.</div></div></div>`;
     const refs = [e.arak29_ref && "Armenian numbering: " + e.arak29_ref, e.english_ref_kjv && "English numbering: " + e.english_ref_kjv].filter(Boolean);
     if (refs.length) h += `<div class="cal-note">${esc(refs.join(" · "))}</div>`;
     if (e.pointer_to) h += `<div class="cal-note">The Zhamagirk prints only the opening here and refers to the verse above (mode ${esc(e.pointer_to.mode)}).</div>`;
@@ -168,8 +171,25 @@ function renderGenericSeg(sg, c) {
   h += `<div class="cal-note">${esc(res.provenance)} ${res.review_status === "needs_review" ? chip("check: category inferred", "warn") : ""}</div>${why}</div>`;
   return h;
 }
+// A chant segment whose incipit the layer could not settle but the wider Bible search (pipeline/s131) found: shown with a "check" badge, never as certain.
+function renderBridgeSeg(sg, c, ent) {
+  const role = SEG_ROLE[sg.role] ? `<div class="cal-note">${esc(SEG_ROLE[sg.role])}</div>` : "";
+  const one = (pe, label) => {
+    const hy = pe.armenian_bridge_full || pe.incipit || "";
+    const refs = [pe.armenian_ref && String(pe.armenian_ref).replace(/ \(Arak29[^)]*\)/, ""), pe.kjv_ref && "English numbering: " + pe.kjv_ref].filter(Boolean);
+    return `<div class="chant-piece"><div class="hy-en"><div class="hy-col"><div class="chant-hy script-original" lang="hy">${esc(hy)}</div></div><div class="en-col">${CE.englishHtml(pe, null)}</div></div><div class="cal-note">${esc((label ? label + " · " : "") + (pe.armenian_bridge_full ? "1895 Bible text (Arak29)" : "printed opening") + (refs.length ? " · " + refs.join(" · ") : ""))} ${chip("check: found by the wider search", "warn")}</div></div>`;
+  };
+  if (ent.pieces) return `<div class="chant-seg">${role}<div class="cal-note">The Tonatsoyts lists several openings here; each was searched in the Bible.</div>${ent.pieces.map((pe) => one(pe, pe.incipit)).join("")}</div>`;
+  return `<div class="chant-seg">${role}${one(ent, "")}${ent.note ? `<div class="cal-note">${esc(ent.note)}</div>` : ""}</div>`;
+}
 function renderChantSeg(sg, c) {
   if (sg.status === "generic") return renderGenericSeg(sg, c);
+  const si = c && c.segments ? c.segments.indexOf(sg) : -1;
+  const ent = CE && c && si >= 0 ? CE.entryFor(c.layerKey, si, sg) : null;
+  if (ent && ent.noise) return "";
+  if (ent && sg.status !== "matched" && (ent.pieces || ent.armenian_bridge_full || ent.ai_translation)) {
+    if (ent.pieces || ent.armenian_bridge_full) return renderBridgeSeg(sg, c, ent);
+  }
   const role = SEG_ROLE[sg.role] ? `<div class="cal-note">${esc(SEG_ROLE[sg.role])}</div>` : "";
   const opening = `<div class="chant-hy chant-opening script-original" lang="hy">${esc(sg.incipit || sg.armenian_full || "")}</div>`;
   if (sg.status === "ambiguous") {
@@ -183,7 +203,8 @@ function renderChantSeg(sg, c) {
   const rv = sg.review_status === "needs_review" ? chip("check: " + (sg.note ? "numbering differs" : "pairing not confirmed"), "warn") : "";
   let h = `<div class="chant-seg">${role}`;
   h += `<div class="hy-en"><div class="hy-col"><div class="chant-hy script-original" lang="hy">${esc(sg.armenian_full).replace(/\n/g, "<br>")}</div></div>`;
-  if (sg.english_full) h += `<div class="en-col"><div class="chant-en">${esc(sg.english_full)} <span class="cal-note">(${esc(String(sg.english_source || "KJV").replace(/ as printed in Arak29.*$/, ""))})</span></div></div></div>`;
+  if (ent && (ent.esv_lookup || ent.ai_translation || ent.kjv_text)) h += `<div class="en-col">${CE.englishHtml(ent, sg)}</div></div>`;
+  else if (sg.english_full) h += `<div class="en-col"><div class="chant-en">${esc(sg.english_full)} <span class="cal-note">(${esc(String(sg.english_source || "KJV").replace(/ as printed in Arak29.*$/, ""))})</span></div></div></div>`;
   else h += `<div class="en-col"><div class="cal-note">No sourced English for this verse yet.</div></div></div>`;
   const lab = chantSourceLabel(sg);
   h += `<div class="cal-note">${esc([lab].concat(refs).filter(Boolean).join(" · "))} ${rv}</div>`;
@@ -208,7 +229,9 @@ function renderChant(c) {
   const segs = (c.segments || []).filter((x) => x.status && x.status !== "empty");
   let h = `<div class="cal-chant"><div class="chant-head"><span class="chant-kind">${esc(CHANT_KIND[kindKey] || c.kind || "Chant")}</span>${c.psalm ? " " + chip("Psalm " + c.psalm + " (Armenian numbering)") : ""}${c.service ? ` <span class="cal-note">${esc(c.service_label || c.service)}</span>` : ""} ${review}</div>`;
   h += renderOpening(c.opening);
-  if (segs.length) h += segs.slice(0, 4).map((x) => renderChantSeg(x, c)).join("");
+  const segHtml = segs.length ? segs.slice(0, 4).map((x) => renderChantSeg(x, c)).join("") : "";
+  if (segHtml) h += segHtml;
+  else if (segs.length) h += `<div class="chant-hy script-original" lang="hy">${esc(c.verbatim || c.incipit || "")}</div><div class="cal-note">Full verse not matched yet; only the printed opening is shown.</div>`;
   else if (c.armenian_full) h += renderChantSeg({ armenian_full: c.armenian_full, english_full: c.english_full, english_source: c.english_source, armenian_ref: (c.refs || [])[0] });
   else h += `<div class="chant-hy script-original" lang="hy">${esc(c.verbatim || c.incipit || "")}</div><div class="cal-note">Full verse not matched yet; only the printed opening is shown.</div>`;
   return h + `</div>`;
@@ -499,6 +522,7 @@ async function showDay(input, push) {
     });
   }
   fillCanon(out);
+  if (CE) CE.hydrate(out);
   out.querySelectorAll(".day-tabs .dt").forEach((b) => b.addEventListener("click", () => { setView(b.getAttribute("data-view")); window.scrollTo({ top: Math.max(0, out.getBoundingClientRect().top + window.scrollY - 70) }); }));
   out.querySelectorAll(".rail-item").forEach((b) => b.addEventListener("click", () => {
     const n = b.getAttribute("data-part");

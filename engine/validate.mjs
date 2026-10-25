@@ -43,6 +43,18 @@ export function repairSegment(CV, book, s) {
   if (cands.length === 1) return { seg: cands[0].seg, status: 'repaired', change: { field: cands[0].field, from: cands[0].from, to: cands[0].to } };
   return { seg: s, status: cands.length ? 'ambiguous' : 'invalid', candidates: cands.map((c) => ({ field: c.field, from: c.from, to: c.to })) };
 }
+// Printed typos that are not look-alike letters (found by auditing every reading of 2026-2030 for impossible references): each is an explicit, reviewable
+// correction with its reason; applied only to exactly this printed value, recorded as `printed_typo_corrected` with the original.
+const TYPOS = [
+  { book: '2 Corinthians', from: { ch1: 4, v1: 18, ch2: 4, v2: 6 }, to: { ch2: 5 }, why: 'printed «Դ. 18 - Դ. 6»: the reading continues into chapter 5 (2 Corinthians 4:18 is the last verse of chapter 4)' },
+  { book: 'Joshua', from: { ch1: 24, v1: 29, ch2: 24, v2: 23 }, to: { v2: 33 }, why: 'printed «29 - 23»: the end verse is before the start; Joshua 24 ends at verse 33 (the death of Joshua, 24:29-33)' },
+  { book: 'Mark', from: { ch1: 4, v1: 26, ch2: 4, v2: 24 }, to: { v2: 34 }, why: 'printed «26 - 24 (34)»: the printed brackets give the correction 34' },
+  { book: 'Hebrews', from: { ch1: 10, v1: 32, ch2: 10, v2: 30 }, to: { v2: 39 }, why: 'printed «32-30»: the end verse is before the start; Hebrews 10:32-39 is the reading (chapter 10 ends at 39)' },
+];
+function typoFix(bookName, top) {
+  const t = TYPOS.find((x) => String(bookName).startsWith(x.book) && FIELDS.every((f) => x.from[f] === top[f]));
+  return t ? { seg: { ...top, ...t.to }, change: { from: t.from, to: t.to, why: t.why } } : null;
+}
 // r: engine parse record. Returns a clone with repaired numerals (flags + repair note) or r itself when nothing changed.
 export function repairReading(CV, bookName, r) {
   if (!r || r.ch1 == null) return r;
@@ -55,9 +67,13 @@ export function repairReading(CV, bookName, r) {
     if (res.status === 'ambiguous' || res.status === 'invalid') { flags.push('invalid_reference'); changed = true; }
     return s;
   };
-  const top = fix({ ch1: r.ch1, v1: r.v1, ch2: r.ch2, v2: r.v2 });
+  let top = fix({ ch1: r.ch1, v1: r.v1, ch2: r.ch2, v2: r.v2 });
+  const ty = !valid(CV, bookName, top) ? typoFix(bookName, top) : null;
+  if (ty && valid(CV, bookName, ty.seg)) { top = ty.seg; changed = true; notes.push(ty.change); flags.push('printed_typo_corrected'); const ix = flags.indexOf('invalid_reference'); if (ix >= 0) flags.splice(ix, 1); const j = flags.indexOf('end_before_start'); if (j >= 0) flags.splice(j, 1); }
   const out = { ...r, ch1: top.ch1, v1: top.v1, ch2: top.ch2, v2: top.v2 };
   if (segs) out.segments = segs.map((s) => ({ ...s, ...fix({ ch1: s.ch1, v1: s.v1, ch2: s.ch2, v2: s.v2 }) }));
+  // a single printed segment is the passage itself: a repaired chapter/verse must reach it too (the page asks the ESV service for the segments)
+  else if (changed && r.segments && r.segments.length === 1) out.segments = [{ ...r.segments[0], ch1: top.ch1, v1: top.v1, ch2: top.ch2, v2: top.v2 }];
   if (!changed) return r;
   out.flags = [...new Set(flags)];
   if (notes.length) out.numeralRepair = notes;

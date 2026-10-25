@@ -28,7 +28,7 @@ export function resolveGeneric(desc, ctx, table) {
   if (!fam || fam.missing) return fail('the Zhamagirk has no generic ' + (KIND_LABEL[desc.kind] || desc.kind) + ' for the ' + (CAT_LABEL[cat.category] || cat.category) + ' category');
   const es = fam.modes && fam.modes[mode];
   if (!es || !es.length) return fail('the Zhamagirk section for ' + (CAT_LABEL[cat.category] || cat.category) + ' has no entry for mode ' + mode);
-  const entries = es.map((e) => ({ role: e.role, armenian_full: e.text, page: e.page, arak29_ref: e.arak29_ref || null, english_ref_kjv: e.english_ref_kjv || null, english_full: e.english_full || null, english_ref_esv_lookup: e.english_ref_esv_lookup || null, pointer_to: e.pointer_to || null, armenian_bible_full: e.armenian_bible_full || null }));
+  const entries = es.map((e, gi) => ({ gkey: desc.kind + '/' + cat.category + '|' + mode + '|' + gi, role: e.role, armenian_full: e.text, page: e.page, arak29_ref: e.arak29_ref || null, english_ref_kjv: e.english_ref_kjv || null, english_full: e.english_full || null, english_ref_esv_lookup: e.english_ref_esv_lookup || null, pointer_to: e.pointer_to || null, armenian_bible_full: e.armenian_bible_full || null }));
   const pages = [...new Set(entries.map((e) => e.page))];
   const provenance = 'from the Zhamagirk, generic ' + (CAT_LABEL[cat.category] || cat.category) + ' ' + (KIND_LABEL[desc.kind] || desc.kind) + ' verse in mode ' + mode + ', p.' + pages.join('/');
   const inferred = cat.method !== 'rubric_word' || (cat.alternatives || []).length > 0;

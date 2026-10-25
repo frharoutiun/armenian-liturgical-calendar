@@ -4,6 +4,7 @@
 //   church's own licence; never stored in this repository). Apocrypha/deuterocanon: cached RSVCE shards (the ESV has none).
 //   data/scripture/index.json + shards/<book>.json   (W3)     audio: <audio repo>/audio/index.json (W5)     data/ai-en.json (W2)
 import { buildLookup, findCitations, segmentsOf, bibleGatewayUrl, normBook } from "./scripture-match.mjs";
+import { fetchEsvRef } from "./chants-english.mjs";
 import { GAP_TEXTS_MS, GAP_PASSAGE_MS, GAP_READINGS_MS, STALL_MS, RATE_EL, SPEECH_RATE, SPEECH_TIMEOUT_MS, PASSAGE_TIMEOUT_MS, LABELS, pickVoice, readingPlan, clipUrl } from "./listen.mjs";
 
 const ACHR_API = window.LC_ESV_API || "https://www.achrct.org/api/scripture";
@@ -122,17 +123,8 @@ function cleanHtml(html) {
   walk(doc.body);
   return doc.body.innerHTML;
 }
-const liveCache = new Map();
-function fetchEsv(ref) {
-  const k = "lc-esv:" + ref;
-  try { const t = sessionStorage.getItem(k); if (t) return Promise.resolve(JSON.parse(t)); } catch (e) { /* storage unavailable */ }
-  if (liveCache.has(ref)) return liveCache.get(ref);
-  const p = fetch(ACHR_API + "?reference=" + encodeURIComponent(ref)).then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-    .then((d) => { if (!d || !d.ok || !d.html) throw new Error("no text"); try { sessionStorage.setItem(k, JSON.stringify(d)); } catch (e) { /* quota */ } return d; })
-    .catch((e) => { liveCache.delete(ref); throw e; });
-  liveCache.set(ref, p);
-  return p;
-}
+// One shared, polite queue for every ESV request of the page (readings and chants): cached in sessionStorage, spaced out, retried once when the service says "busy".
+function fetchEsv(ref) { return fetchEsvRef(ref); }
 const bgLink = (seg) => `https://www.biblegateway.com/passage/?search=${encodeURIComponent(esvQuery(seg))}&version=ESV`;
 const isApoc = (seg) => APOCRYPHA.has(normBook(seg.book));
 
@@ -401,6 +393,11 @@ async function readingBody(reading) {
   else if (eref && parsed && apocBook) {
     const rrecs = await gather({ passage: { ...parsed, book: recs[0].segment.book } });
     colEn.appendChild(englishBlock(rrecs.length ? rrecs : recs, null, audioBox));
+  } else if (recs.length && (reading.flags || []).includes("invalid_reference") && !apocBook) {
+    // the printed citation is impossible (a verse beyond the end of the chapter, an end before the start): never ask the ESV service for it
+    const box = document.createElement("div"); box.className = "cal-en";
+    box.innerHTML = `<div class="cal-en-part"><div class="cal-sub">English (ESV)</div><p class="cal-pending">The citation as printed (${esc(reading.citationKey || "")}) does not exist with these numbers in the Bible, so no English is requested; the Tonatsoyts entry needs a page check.</p></div>`;
+    colEn.appendChild(box);
   } else if (recs.length) colEn.appendChild(englishBlock(recs, null, audioBox));
   colHy.insertAdjacentHTML("beforeend", armenianHtml(recs, reading, !!prim));
   grid.append(colHy, colEn);
