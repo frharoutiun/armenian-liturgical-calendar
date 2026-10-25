@@ -129,8 +129,41 @@ export function assembleCanon(refined, hr, ctx = {}) {
   const hasLiturgy = ctx.weekday === 'Sun' || ctx.fastStatus === 'feast';
   const dayCanons = ranked.map((x) => ({ canonId: x.section, title: canons[x.section].title, startPage: (canons[x.section].pages || [])[0] || null, kind: canons[x.section].kind, role: primary && x.section === primary.section ? 'primary' : 'also',
     basis: `holds ${x.cover} of the openings the Tonatsoyts names for this day${x.title >= 0.3 ? ', and the feast name is in its title' : ''}` }));
+  // Y3: a canon printed BY TONE (the eight tones' blocks one after the other: «Հարց յասուկ. Երրորդ ձայն», then each next tone) holds one block of every part per tone.
+  // A day takes the block of ITS tone only (never the whole series, never silently another tone); a tone may print several sets (alternatives), kept as set 1..n.
+  const effCache = new Map();
+  const effMode = (cid) => { if (!effCache.has(cid)) { let last = null; const m = new Map(); for (const h of (canons[cid] || {}).hymns || []) { const mm = normMode(h.mode) || last; if (mm) last = mm; m.set(h.id, mm); } effCache.set(cid, m); } return effCache.get(cid); };
+  const toneSetOf = new Map();
+  const toneGaps = [];
+  // sets of one tone: a new set starts when this part's hymn follows a hymn of another part
+  const annotateSets = (cid, part, tone, hs) => {
+    const chosen = new Set(hs.map((h) => h.id)); let set = 0, prevWasPart = false; const bySet = new Map();
+    for (const h of (canons[cid] || {}).hymns || []) {
+      const isPart = chosen.has(h.id);
+      if (isPart) { if (!prevWasPart) set++; bySet.set(h.id, set); }
+      prevWasPart = isPart ? true : (h.part === part || (h.also || []).includes(part)) ? prevWasPart : false;
+    }
+    for (const [id, n] of bySet) toneSetOf.set(id, { tone, set: n, of: set });
+  };
+  // a canon is "printed by tone" when at least three tones each hold six or more of its hymns (the Sunday canon of pp.235-248, the generic by-mode canons);
+  // a feast canon whose hymns merely carry different tones (Ascension: one or two hymns per tone) is not: its hymns are all sung whatever the day's tone is
+  const seriesCache = new Map();
+  const isToneSeries = (cid) => {
+    if (!seriesCache.has(cid)) { const c = new Map(); for (const v of effMode(cid).values()) if (v) c.set(v, (c.get(v) || 0) + 1); seriesCache.set(cid, [...c.values()].filter((n) => n >= 6).length >= 3); }
+    return seriesCache.get(cid);
+  };
+  // the hymns of `hs` (all of one part of canon cid) that belong to the day's tone when the canon is printed by tone; [] (and a recorded gap) when it has no block for this tone
+  const toneBlock = (cid, part, hs) => {
+    if (globalThis.__Y3_OFF || !dayMode || !hs.length || (part === 'orhnutyun' && hs.some((h) => h.ode_set))) return hs;
+    const em = effMode(cid); const tones = new Set(hs.map((h) => em.get(h.id)).filter(Boolean));
+    if (hs.length < 3 || tones.size < 2 || !isToneSeries(cid)) return hs;
+    const m = hs.filter((h) => em.get(h.id) === dayMode);
+    if (m.length) { annotateSets(cid, part, dayMode, m); return m; }
+    toneGaps.push({ canonId: cid, title: (canons[cid] || {}).title || null, tones: [...tones] });
+    return [];
+  };
   const hymnView = (h, canonId, extra = {}) => ({ hymnId: h.id, canonId, sectionId: h.block, incipit: h.incipit, mode: h.mode || null, page: h.page, pagesAll: h.pages || [h.page], stanzaIds: h.stanza_ids || [],
-    heading: h.heading || null, printedCategory: h.cat_printed || null, subpart: h.subpart || null, partBasis: h.part_basis, namedByRubric: named.has(h.id), cues: h.cues || null, ode: h.ode || null, odeSet: h.ode_set || null, ...extra });
+    heading: h.heading || null, printedCategory: h.cat_printed || null, subpart: h.subpart || null, partBasis: h.part_basis, namedByRubric: named.has(h.id), cues: h.cues || null, ode: h.ode || null, odeSet: h.ode_set || null, toneSet: toneSetOf.get(h.id) || null, ...extra });
   const rubricView = (h) => ({ hymnId: h.resolved.hymnId, canonId: h.resolved.sectionId, sectionId: h.resolved.sectionId, incipit: h.resolved.incipit, mode: h.resolved.mode, page: h.resolved.page, pagesAll: h.resolved.pagesAll, stanzaIds: ((canons[h.resolved.sectionId] || {}).hymns || []).find((x) => x.id === h.resolved.hymnId)?.stanza_ids || [],
     heading: null, printedCategory: null, subpart: null, partBasis: 'named by the Tonatsoyts rubric', namedByRubric: true, basis: h.basis, confidence: h.confidence });
   // Y2: a day whose Orhnutyun is taken from the generic sets of pp.210-226 (the Easter order and the generic Orhnutyun hold the eight tones' sets one after the
@@ -152,6 +185,7 @@ export function assembleCanon(refined, hr, ctx = {}) {
   const parts = [];
   let lastCanon = null;   // section that supplied the previous part (a generic section also carries the parts that follow)
   for (const part of PART_ORDER) {
+    toneGaps.length = 0;
     const svc = PART_SERVICE[part];
     const entry = { part, label: PART_LABEL[part], labelHy: PART_HY[part], status: 'missing', source: 'none', complete: false, hymns: [], from: [], note: '', candidates: [], needsReview: true,
       service: { ...svc, dayHasService: part === 'jashoo' ? hasLiturgy : part === 'mankunk' ? !hasLiturgy : null } };
@@ -164,7 +198,7 @@ export function assembleCanon(refined, hr, ctx = {}) {
         const m = hs.filter((h) => h.ode_set && want.has(normMode(h.ode_set.tone)));
         if (m.length) hs = m;
       }
-      return hs;
+      return toneBlock(cid, part, hs);
     };
     let src = null;
     if (primary) { const hs = take(primary.section, primaryGeneric ? wantModes : null); if (hs.length) src = { cid: primary.section, hs, basis: 'the day\'s canon', conf: primaryGeneric ? 0.55 : 0.85, review: primaryGeneric }; }
@@ -223,13 +257,23 @@ export function assembleCanon(refined, hr, ctx = {}) {
     }
     if (part === 'jashoo' && !hasLiturgy && entry.hymns.length) entry.note = (entry.note ? entry.note + ' ' : '') + 'Appointed for the day; the Divine Liturgy itself is celebrated on Sundays and feasts only (whether it is sung on this weekday is unconfirmed).';
     restrictToDaySet(entry);
+    // Y3: say so when a by-tone canon had no block for the day's tone, and when the tone's block exists in several alternative sets
+    if (toneGaps.length) {
+      const g = toneGaps[0]; entry.toneSeriesGap = { canonId: g.canonId, title: g.title, tonesPrinted: g.tones, dayTone: dayMode };
+      entry.note = (entry.note ? entry.note + ' ' : '') + `The canon «${String(g.title).replace(/\s+/g, ' ').trim()}» is printed by tone (${g.tones.join(', ')}) and has no ${labelOf0(part)} for this day's tone ${dayMode}; no other tone's hymns are shown in its place.`;
+    }
+    const setInfo = entry.hymns.map((h) => h.toneSet).filter(Boolean);
+    if (setInfo.length && Math.max(...setInfo.map((t) => t.of)) > 1) {
+      entry.toneSets = Math.max(...setInfo.map((t) => t.of)); entry.needsReview = true;
+      entry.note = (entry.note ? entry.note + ' ' : '') + `This canon prints ${entry.toneSets} sets of ${labelOf0(part)} for the day's tone ${dayMode}; all are shown in book order (set 1..${entry.toneSets}); which set is sung on a given day is not stated in our sources.`;
+    }
     parts.push(entry);
   }
   // ---- second pass (H2): what the first pass left missing
   const season = seasonOf(ctx);
   const labelOf = (part) => PART_LABEL[part].replace(/ \(.*\)/, '');
   const clean = (t) => String(t).replace(/\s+/g, ' ').trim();
-  const hymnsOf = (cid, part) => ((canons[cid] || {}).hymns || []).filter((h) => h.part === part || (h.also || []).includes(part));
+  const hymnsOf = (cid, part) => toneBlock(cid, part, ((canons[cid] || {}).hymns || []).filter((h) => h.part === part || (h.also || []).includes(part)));
   const fillFrom = (entry, cid, hs, source, basis, conf, note) => {
     entry.status = 'present'; entry.source = source; entry.complete = true; entry.needsReview = true; entry.note = note;
     entry.hymns = hs.map((h) => hymnView(h, cid, { basis, confidence: conf }));

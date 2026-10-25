@@ -23,6 +23,7 @@ python3 tools/build_status.py || exit 1
 python3 tools/display_clean.py || exit 1   # A1: idempotent display-artifact pass over data other builders regenerate (AI English, chants, Jashots second layer)
 echo "== tests"; node tests/test_calendar.mjs >/dev/null || { echo "calendar tests FAILED"; exit 1; }
 node tests/test_hymns.mjs >/dev/null || { echo "hymn tests FAILED"; exit 1; }
+node tests/test_tone_blocks.mjs >/dev/null || { echo "tone block tests FAILED"; exit 1; }
 node tests/test_listen.mjs >/dev/null || { echo "listen (reading audio) tests FAILED"; exit 1; }
 node tests/test_cues.mjs >/dev/null || { echo "cue-line tests FAILED"; exit 1; }
 node tests/test_chants_english.mjs >/dev/null || { echo "chants english tests FAILED"; exit 1; }
