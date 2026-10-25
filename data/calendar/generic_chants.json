@@ -1,0 +1,593 @@
+{
+ "schema": "c1-generic-chants/1.0",
+ "source": "Ժամագիրք (Typed).pdf: the owner's typed Zhamagirk (text from Armenian Apostolic Church Library Online); pages are PDF pages",
+ "families": {
+  "alleluia/fast_days": {
+   "kind": "alleluia",
+   "category": "fast_days",
+   "category_label": "fast days (պահոց)",
+   "heading": "Ալէլուիայք ճաշու աւուրց պահոց, որք ասին ըստ ձայնից",
+   "page": 249,
+   "modes": {
+    "ԱՁ": [
+     {
+      "role": "primary",
+      "text": "Հոգի քո բարի առաջնորդեսցէ ինձ ի յերկիր ուղիղ:",
+      "page": 249,
+      "arak29_ref": "Ps 142:10",
+      "english_ref_kjv": "Ps 143:10",
+      "english_full": "Teach me to do thy will; for thou art my God: thy spirit is good; lead me into the land of uprightness:",
+      "armenian_bible_full": "Ուսո ինձ առնել զկամս քո, զի դու ես Աստուած իմ. Հոգի քո բարի առաջնորդեսցէ ինձ յերկիր ուղիղ:",
+      "pairing_coverage": 0.88,
+      "english_ref_esv_lookup": "Psalm 143:10"
+     },
+     {
+      "role": "alt",
+      "text": "Վասն անուան քո, Տէր, կեցուսցես զիս, արդարութեամբ քով հանցես ի նեղութենէ զանձն իմ:",
+      "page": 249,
+      "arak29_ref": "Ps 142:11",
+      "english_ref_kjv": "Ps 143:11",
+      "english_full": "Quicken me, O LORD, for thy name' s sake: for thy righteousness' sake bring my soul out of trouble:",
+      "armenian_bible_full": "Վասն անուան քո, Տէր, կեցուսցես զիս. արդարութեամբ քով հանցես ի նեղութենէ զանձն իմ:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 143:11"
+     }
+    ],
+    "ԱԿ": [
+     {
+      "role": "primary",
+      "text": "Տէր, մի սրտմտութեամբ քով յանդիմաներ զիս եւ մի բարկութեամբ քո խրատեր զիս:",
+      "page": 249,
+      "arak29_ref": "Ps 6:2",
+      "english_ref_kjv": "Ps 6:1",
+      "english_full": "O LORD, rebuke me not in thine anger, neither chasten me in thy hot displeasure:",
+      "armenian_bible_full": "Տէր, մի՛ սրտմտութեամբ քով յանդիմաներ զիս, եւ մի՛ բարկութեամբ քով խրատեր զիս:",
+      "pairing_coverage": 0.92,
+      "english_ref_esv_lookup": "Psalm 6:1"
+     },
+     {
+      "role": "alt",
+      "text": "Զգնացս իմ ուղիղ արա ինձ ըստ բանի քում, եւ մի տիրեսցեն ինձ ամենայն մեղք:",
+      "page": 249,
+      "arak29_ref": "Ps 118:133",
+      "english_ref_kjv": "Ps 119:133",
+      "english_full": "Order my steps in thy word: and let not any iniquity have dominion over me:",
+      "armenian_bible_full": "Զճանապարհս իմ ուղիղ արա ինձ ըստ բանի քում, եւ մի՛ տիրեսցեն ինձ ամենայն մեղք:",
+      "pairing_coverage": 0.93,
+      "english_ref_esv_lookup": "Psalm 119:133"
+     }
+    ],
+    "ԲՁ": [
+     {
+      "role": "primary",
+      "text": "Սիրտ իմ խռովեցաւ յիս, եւ երկիւղ մահու անկաւ ի վերայ իմ:",
+      "page": 249,
+      "arak29_ref": "Ps 54:5",
+      "english_ref_kjv": "Ps 55:4",
+      "english_full": "My heart is sore pained within me: and the terrors of death are fallen upon me:",
+      "armenian_bible_full": "Սիրտ իմ խռովեցաւ յիս, եւ երկեւղ մահու անկաւ ի վերայ իմ:",
+      "pairing_coverage": 0.91,
+      "english_ref_esv_lookup": "Psalm 55:4"
+     }
+    ],
+    "ԲԿ": [
+     {
+      "role": "primary",
+      "text": "Դարձ, Տէր, եւ փրկեա զանձն իմ. կեցո զիս, Տէր, ըստ ողորմութեան քում:",
+      "page": 249,
+      "arak29_ref": "Ps 6:5",
+      "english_ref_kjv": "Ps 6:4",
+      "english_full": "Return, O LORD, deliver my soul: oh save me for thy mercies' sake:",
+      "armenian_bible_full": "Դարձ, Տէր, եւ փրկեա զանձն իմ, կեցո զիս, Տէր, ըստ ողորմութեան քում:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 6:4"
+     }
+    ],
+    "ԳՁ": [
+     {
+      "role": "primary",
+      "text": "Վասն անուան քոյ, Տէր, քաւեա զմեղս իմ, զի բազում եղեն յոյժ:",
+      "page": 249,
+      "arak29_ref": "Ps 24:11",
+      "english_ref_kjv": "Ps 25:11",
+      "english_full": "For thy name' s sake, O LORD, pardon mine iniquity; for it is great:",
+      "armenian_bible_full": "Վասն անուան քո, Տէր, քաւեա զմեղս իմ, զի բազում եղեն:",
+      "pairing_coverage": 0.82,
+      "english_ref_esv_lookup": "Psalm 25:11"
+     }
+    ],
+    "ԳԿ": [
+     {
+      "role": "primary",
+      "text": "Ողորմեա ինձ, Տէր, զի հիւանդ եմ ես, բժշկեա զանձն իմ, զի խռովեցան ոսկերք իմ:",
+      "page": 249,
+      "arak29_ref": "Ps 6:3",
+      "english_ref_kjv": "Ps 6:2",
+      "english_full": "Have mercy upon me, O LORD; for I am weak: O LORD, heal me; for my bones are vexed:",
+      "armenian_bible_full": "Ողորմեա ինձ, Տէր, զի հիւանդ եմ ես. բժշկեա զանձն իմ, զի խռովեցան ոսկերք իմ:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 6:2"
+     }
+    ],
+    "ԴՁ": [
+     {
+      "role": "primary",
+      "text": "Յիշեա, Տէր, զգթութիւնս քո, եւ զողորմութիւնս քո, որք են յաւիտենից:",
+      "page": 249,
+      "arak29_ref": "Ps 24:6",
+      "english_ref_kjv": "Ps 25:6",
+      "english_full": "Remember, O LORD, thy tender mercies and thy lovingkindnesses; for they have been ever of old:",
+      "armenian_bible_full": "Յիշեա, Տէր, զգթութիւնս քո եւ զողորմութիւնս որ ենն յաւիտենից:",
+      "pairing_coverage": 0.7,
+      "english_ref_esv_lookup": "Psalm 25:6"
+     },
+     {
+      "role": "alt",
+      "text": "Զմեղս մանկութեան իմոյ եւ զանգիտութեան իմոյ մի յիշեր, այլ յիշեա զիս, Տէր, ըստ ողորմութեան քում վասն քաղցրութեան քոյ, զի քաղցր եւ ուղիղ ես:",
+      "page": 249,
+      "arak29_ref": "Ps 24:7",
+      "english_ref_kjv": "Ps 25:7",
+      "english_full": "Remember not the sins of my youth, nor my transgressions: according to thy mercy remember thou me for thy goodness' sake, O LORD:",
+      "armenian_bible_full": "Զմեղս մանկութեան իմոյ եւ զանգիտութեան իմոյ մի՛ յիշեր, այլ յիշեա զիս, Տէր, ըստ ողորմութեան քում` վասն քաղցրութեան քո:",
+      "pairing_coverage": 0.74,
+      "english_ref_esv_lookup": "Psalm 25:7"
+     }
+    ],
+    "ԴԿ": [
+     {
+      "role": "primary",
+      "text": "Տէր, ողորմութիւն քո յաւիտեան, զգործս ձեռաց քոց մի անտես առներ:",
+      "page": 249,
+      "arak29_ref": "Ps 137:8",
+      "english_ref_kjv": "Ps 138:8",
+      "english_full": "The LORD will perfect that which concerneth me: thy mercy, O LORD, endureth for ever: forsake not the works of thine own hands:",
+      "armenian_bible_full": "Եւ Տէր հատուսցէ ընդ իմ. Տէր, ողորմութիւն քո յաւիտեան. զգործս ձեռաց քոց մի՛ անտես առներ:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 138:8"
+     },
+     {
+      "role": "alt",
+      "text": "Զմեղս մանկութեան իմոյ եւ զանգիտութեան իմոյ մի յիշեր, այլ յիշեա զիս, Տէր, ըստ ողորմութեան քում վասն քաղցրութեան քոյ, զի քաղցր եւ ուղիղ ես:",
+      "page": 249,
+      "arak29_ref": "Ps 24:7",
+      "english_ref_kjv": "Ps 25:7",
+      "english_full": "Remember not the sins of my youth, nor my transgressions: according to thy mercy remember thou me for thy goodness' sake, O LORD:",
+      "armenian_bible_full": "Զմեղս մանկութեան իմոյ եւ զանգիտութեան իմոյ մի՛ յիշեր, այլ յիշեա զիս, Տէր, ըստ ողորմութեան քում` վասն քաղցրութեան քո:",
+      "pairing_coverage": 0.74,
+      "english_ref_esv_lookup": "Psalm 25:7"
+     },
+     {
+      "role": "alt",
+      "text": "Աղաղակեցի առ քեզ, Տէր, եւ ասացի` դու ես յոյս եւ բաժին իմ յերկրին կենդանեաց:",
+      "page": 250,
+      "arak29_ref": "Ps 141:6",
+      "english_ref_kjv": "Ps 142:5",
+      "english_full": "I cried unto thee, O LORD: I said, Thou art my refuge and my portion in the land of the living:",
+      "armenian_bible_full": "Աղաղակեցի առ քեզ, Տէր, եւ ասացի. Դու ես յոյս եւ բաժին իմ յերկրին կենդանեաց:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 142:5"
+     }
+    ]
+   },
+   "source": "Ժամագիրք (typed edition, owner's), PDF page 249"
+  },
+  "alleluia/resurrection": {
+   "kind": "alleluia",
+   "category": "resurrection",
+   "category_label": "Resurrection (Յարութեան)",
+   "heading": "Ալելուիայք ճաշու Յարութեան ըստ ձայնին",
+   "page": 250,
+   "modes": {
+    "ԱՁ": [
+     {
+      "role": "primary",
+      "text": "Դու յարուցեալ գթասցիս ի վերայ Սիոնի. ժամանակ գթալոյ նորա հասեալ է ժամ:",
+      "page": 250,
+      "arak29_ref": "Ps 101:14",
+      "english_ref_kjv": "Ps 102:13",
+      "english_full": "Thou shalt arise, and have mercy upon Zion: for the time to favour her, yea, the set time, is come:",
+      "armenian_bible_full": "Դու յարուցեալ գթասցիս ի վերայ Սիոնի, ժամանակ գթալոյ նորա, հասեալ է ժամ:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 102:13"
+     },
+     {
+      "role": "alt",
+      "text": "Թագաւոր մեծ ի վերայ ամենայն երկրի Աստուած է. սաղմոս ասացէք նմա իմաստութեամբ:",
+      "page": 250,
+      "arak29_ref": "Ps 46:8",
+      "english_ref_kjv": "Ps 47:7",
+      "english_full": "For God is the King of all the earth: sing ye praises with understanding:",
+      "armenian_bible_full": "Թագաւոր մեծ ի վերայ ամենայն երկրի Աստուած է, սաղմոս ասացէք նմա իմաստութեամբ:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 47:7"
+     }
+    ],
+    "ԱԿ": [
+     {
+      "role": "primary",
+      "text": "Օրհնեցէք զՏէր յօրհնութիւն ի նոր, օրհնութիւն նմա յեկեղեցիս սրբոց:",
+      "page": 250,
+      "arak29_ref": "Ps 149:1",
+      "english_ref_kjv": "Ps 149:1",
+      "english_full": "Sing unto the LORD a new song, and his praise in the congregation of saints:",
+      "armenian_bible_full": "Օրհնեցէք զՏէր յօրհնութիւն նոր, օրհնութիւն նմա յեկեղեցիս սրբոց:",
+      "pairing_coverage": 0.89,
+      "english_ref_esv_lookup": "Psalm 149:1"
+     }
+    ],
+    "ԲՁ": [
+     {
+      "role": "primary",
+      "text": "Ծափս հարէք ամենայն հեթանոսք, աղաղակեցէք առ Աստուած ի ձայն ցնծութեան:",
+      "page": 251,
+      "arak29_ref": "Ps 46:2",
+      "english_ref_kjv": "Ps 47:1",
+      "english_full": "O clap your hands, all ye people; shout unto God with the voice of triumph:",
+      "armenian_bible_full": "Ծափս հարէք, ամենայն հեթանոսք, աղաղակեցէք առ Աստուած ի ձայն ցնծութեան:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 47:1"
+     },
+     {
+      "role": "alt",
+      "text": "Աստուած, դու դարձեալ կեցուսցես զմեզ, եւ ժողովուրդ քո ուրախ եղիցի ի քեզ:",
+      "page": 251,
+      "arak29_ref": "Ps 84:7",
+      "english_ref_kjv": "Ps 85:6",
+      "english_full": "Wilt thou not revive us again: that thy people may rejoice in thee:",
+      "armenian_bible_full": "Աստուած, դու դարձեալ կեցուսցես զմեզ, ժողովուրդ քո ուրախ եղիցի ի քեզ:",
+      "pairing_coverage": 0.92,
+      "english_ref_esv_lookup": "Psalm 85:6"
+     }
+    ],
+    "ԲԿ": [
+     {
+      "role": "primary",
+      "text": "Արի, Տէր Աստուած իմ, ի հրամանս քո, զոր պատուիրեցեր. եւ ժողովք ժողովրդոց շուրջ եղիցին զքեւ, վասն այսորիկ ի բարձունս դարձ, Տէր, եւ Տէր դատի զժողովուրդս իւր:",
+      "page": 251
+     }
+    ],
+    "ԳՁ": [
+     {
+      "role": "primary",
+      "text": "Ուրախ եղեւ Իսրայէլ յԱրարիչ իւր, որդիք Սիոնի ցնծասցեն ի թագաւորն իւրեանց:",
+      "page": 251,
+      "arak29_ref": "Ps 149:2",
+      "english_ref_kjv": "Ps 149:2",
+      "english_full": "Let Israel rejoice in him that made him: let the children of Zion be joyful in their King:",
+      "armenian_bible_full": "Ուրախ եղեւ Իսրայէլ յԱրարիչ իւր, որդիք Սիոնի ցնծասցեն ի Թագաւորն իւրեանց:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 149:2"
+     }
+    ],
+    "ԳԿ": [
+     {
+      "role": "primary",
+      "text": "Եկայք եւ տեսէք զգործս Աստուծոյ, որպէս զի ահեղ են խորհրդով, քան զամենայն որդւոց մարդկան:",
+      "page": 251,
+      "arak29_ref": "Ps 65:5",
+      "english_ref_kjv": "Ps 66:5",
+      "english_full": "Come and see the works of God: he is terrible in his doing toward the children of men:",
+      "armenian_bible_full": "Եկայք եւ տեսէք զգործս Աստուծոյ, որպէս զի՛ ահեղ են խորհրդովք քան զամենայն որդւոց մարդկան:",
+      "pairing_coverage": 0.93,
+      "english_ref_esv_lookup": "Psalm 66:5"
+     }
+    ],
+    "ԴՁ": [
+     {
+      "role": "primary",
+      "text": "Հաճեցար, Տէր, ընդ երկիր քո, եւ դարձուցեր զգերութիւն Յակոբայ:",
+      "page": 251,
+      "arak29_ref": "Ps 84:2",
+      "english_ref_kjv": "Ps 85:1",
+      "english_full": "LORD, thou hast been favourable unto thy land: thou hast brought back the captivity of Jacob:",
+      "armenian_bible_full": "Հաճեցար, Տէր, ընդ երկիր քո, եւ դարձուցեր զգերութիւն Յակոբայ:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 85:1"
+     }
+    ],
+    "ԴԿ": [
+     {
+      "role": "primary",
+      "text": "Յարեաւ Աստուած, եւ ցրուեցան ամենայն թշնամիք նորա, փախեան ատելիք նորա յերեսաց նորա:",
+      "page": 251,
+      "arak29_ref": "Ps 67:2",
+      "english_ref_kjv": "Ps 68:1",
+      "english_full": "Let God arise, let his enemies be scattered: let them also that hate him flee before him:",
+      "armenian_bible_full": "Յարիցէ Աստուած եւ ցրուեսցին ամենայն թշնամիք նորա, փախիցեն ատելիք նորա յերեսաց նորա:",
+      "pairing_coverage": 0.75,
+      "english_ref_esv_lookup": "Psalm 68:1"
+     }
+    ]
+   },
+   "source": "Ժամագիրք (typed edition, owner's), PDF page 250"
+  },
+  "alleluia/martyrs": {
+   "kind": "alleluia",
+   "category": "martyrs",
+   "category_label": "martyrs (մարտիրոսաց)",
+   "heading": "Ալէլուիայք ճաշու մարտիրոսաց",
+   "page": 258,
+   "modes": {
+    "ԱՁ": [
+     {
+      "role": "primary",
+      "text": "Տէր սիրէ զիրաւունս եւ ոչ ընդ վայր հարկանէ զսուրբս իւր, այլ յաւիտեան պահէ զնոսա:",
+      "page": 259,
+      "arak29_ref": "Ps 36:28",
+      "english_ref_kjv": "Ps 37:28",
+      "english_full": "For the LORD loveth judgment, and forsaketh not his saints; they are preserved for ever: but the seed of the wicked shall be cut off:",
+      "armenian_bible_full": "Տէր սիրէ զիրաւունս, եւ ոչ ընդ վայր հարկանէ զսուրբս իւր, այլ յաւիտեան պահէ զնոսա. անօրէնք հալածեսցին ի միասին,`` եւ զաւակ ամպարշտաց սատակեսցի:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 37:28"
+     },
+     {
+      "role": "alt",
+      "text": "Փրկութիւն արդարոց ի Տեառնէ է, վերակացու է նոցա ի ժամանակս նեղութեան:",
+      "page": 259,
+      "arak29_ref": "Ps 36:39",
+      "english_ref_kjv": "Ps 37:39",
+      "english_full": "But the salvation of the righteous is of the LORD: he is their strength in the time of trouble:",
+      "armenian_bible_full": "Փրկութիւն արդարոց ի Տեառնէ է, վերակացու է նոցա ի ժամանակս նեղութեան:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 37:39"
+     }
+    ],
+    "ԱԿ": [
+     {
+      "role": "primary",
+      "text": "Պարծեսցին սուրբքն փառօք եւ ցնծասցեն ի հանգիստ իւրեանց եւ բարձր արասցեն զԱստուած բերանովք իւրեանց:",
+      "page": 259
+     },
+     {
+      "role": "alt",
+      "text": "Լոյս ծագեաց արդարոց, ուղղոց սրտից եղեւ ուրախութիւն:",
+      "page": 259,
+      "arak29_ref": "Ps 96:11",
+      "english_ref_kjv": "Ps 97:11",
+      "english_full": "Light is sown for the righteous, and gladness for the upright in heart:",
+      "armenian_bible_full": "Լոյս ծագեաց արդարոց, ուղղոց սրտիւք եղեւ ուրախութիւն:",
+      "pairing_coverage": 0.86,
+      "english_ref_esv_lookup": "Psalm 97:11"
+     }
+    ],
+    "ԲՁ": [
+     {
+      "role": "primary",
+      "text": "Պարծեսցին սուրբքն փառօք եւ ցնծասցեն ի հանգիստ իւրեանց եւ բարձր արասցեն զԱստուած բերանովք իւրեանց:",
+      "page": 259,
+      "pointer_to": {
+       "mode": "ԱԿ",
+       "text": "Պարծեսցին սուրբքն փառօք եւ ցնծասցեն ի հանգիստ իւրեանց եւ բարձր արասցեն զԱստուած բերանովք իւրեանց:"
+      },
+      "text_as_printed": "Պարծեսցին սուրբքն փա. (որպէս ի վերոյ):"
+     }
+    ],
+    "ԲԿ": [
+     {
+      "role": "primary",
+      "text": "Կարդացին արդարքն առ Տէր, եւ Տէր լուաւ նոցա. յամենայն նեղութենէ նոցա փրկեաց զնոսա:",
+      "page": 259,
+      "arak29_ref": "Ps 33:18",
+      "english_ref_kjv": "Ps 34:17",
+      "english_full": "The righteous cry, and the LORD heareth, and delivereth them out of all their troubles:",
+      "armenian_bible_full": "Կարդացին արդարք առ Տէր` եւ Տէր լուաւ նոցա, յամենայն նեղութենէ նոցա փրկեաց զնոսա:",
+      "pairing_coverage": 0.92,
+      "english_ref_esv_lookup": "Psalm 34:17"
+     }
+    ],
+    "ԳՁ": [
+     {
+      "role": "primary",
+      "text": "Վասն քո մեռանիմք զօրհանապազ, համարեցաք որպէս զոչխար ի զենումն:",
+      "page": 259,
+      "arak29_ref": "Ps 43:23",
+      "english_ref_kjv": "Ps 44:22",
+      "english_full": "Yea, for thy sake are we killed all the day long; we are counted as sheep for the slaughter:",
+      "armenian_bible_full": "Վասն քո մեռանիմք զօրհանապազ, համարեցաք որպէս զոչխար ի զենումն:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 44:22"
+     }
+    ],
+    "ԳԿ": [
+     {
+      "role": "primary",
+      "text": "Ուրախ լիցին ամենեքեան, ոյք յուսացեալ են ի քեզ. յաւիտեան ցնծասցեն, եւ բնակեսցիս դու ի նոսա: Արդարքն որպէս զարմաւենիս ծաղկեսցին, որպէս զմայրսն Լիբանանու բազումք եղիցին:",
+      "page": 259
+     }
+    ],
+    "ԴԿ": [
+     {
+      "role": "primary",
+      "text": "Բազում նեղութիւնք են արդարոց, յամենայնէ փրկէ զնոսա Տէր եւ պահէ զամենայն ոսկերս նոցա, եւ մի ի նոցանէ ոչ կորիցէ:",
+      "page": 259
+     }
+    ]
+   },
+   "source": "Ժամագիրք (typed edition, owner's), PDF page 258"
+  },
+  "mesedi/resurrection": {
+   "kind": "mesedi",
+   "category": "resurrection",
+   "category_label": "Resurrection (Յարութեան)",
+   "heading": "Մեսեդիք ճաշու Յարութեան",
+   "page": 245,
+   "modes": {
+    "ԱՁ": [
+     {
+      "role": "primary",
+      "text": "Ամենայն երկիր երկիրպագցեն քեզ եւ սաղմոս ասասցեն քեզ:",
+      "page": 246,
+      "arak29_ref": "Ps 65:4",
+      "english_ref_kjv": "Ps 66:4",
+      "english_full": "All the earth shall worship thee, and shall sing unto thee; they shall sing to thy name. Selah:",
+      "armenian_bible_full": "Ամենայն երկիր երկիր պագցեն քեզ, սաղմոս ասասցեն քեզ, եւ սաղմոս ասասցեն անուան քում::",
+      "pairing_coverage": 0.75,
+      "english_ref_esv_lookup": "Psalm 66:4"
+     },
+     {
+      "role": "pokh",
+      "text": "Աղաղակեցէք առ Աստուած, ամենայն երկիր, սաղմոս ասացէք անուան նորա եւ տուք զփառս օրհնութեան նորա:",
+      "page": 246,
+      "arak29_ref": "Ps 65:2",
+      "english_ref_kjv": "Ps 66:1",
+      "english_full": "Make a joyful noise unto God, all ye lands: 2 Sing forth the honour of his name: make his praise glorious:",
+      "armenian_bible_full": "Աղաղակեցէք առ Աստուած ամենայն երկիր. սաղմոս ասացէք անուան նորա, եւ տուք զփառս օրհնութեան նորա:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 66:1"
+     }
+    ],
+    "ԱԿ": [
+     {
+      "role": "primary",
+      "text": "Մեծ արարէք զՏէր Աստուած մեր եւ բարձր արասցուք զանուն նորա ի միասին:",
+      "page": 246,
+      "arak29_ref": "Ps 33:4",
+      "english_ref_kjv": "Ps 34:3",
+      "english_full": "O magnify the LORD with me, and let us exalt his name together:",
+      "armenian_bible_full": "Մեծ արարէք զՏէր ինեւ, եւ բարձր արասցուք զանուն նորա ի միասին:",
+      "pairing_coverage": 0.83,
+      "english_ref_esv_lookup": "Psalm 34:3"
+     },
+     {
+      "role": "pokh",
+      "text": "Օրհնեցից զՏէր յամենայն ժամ, յամենայն ժամ օրհնութիւն նորա ի բերան իմ:",
+      "page": 246,
+      "arak29_ref": "Ps 33:2",
+      "english_ref_kjv": "Ps 34:1",
+      "english_full": "I will bless the LORD at all times: his praise shall continually be in my mouth:",
+      "armenian_bible_full": "Օրհնեցից զՏէր յամենայն ժամ, յամենայն ժամ օրհնութիւն նորա ի բերան իմ:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 34:1"
+     }
+    ],
+    "ԲՁ": [
+     {
+      "role": "primary",
+      "text": "Օրհնեցէք զՏէր յօրհնութիւն նոր, օրհնեցէք զՏէր, ամենայն երկիր:",
+      "page": 246,
+      "arak29_ref": "Ps 95:1",
+      "english_ref_kjv": "Ps 96:1",
+      "english_full": "O sing unto the LORD a new song: sing unto the LORD, all the earth:",
+      "armenian_bible_full": "Օրհնեցէք զՏէր յօրհնութիւն նոր. օրհնեցէք զՏէր ամենայն երկիր:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 96:1"
+     },
+     {
+      "role": "pokh",
+      "text": "Օրհնեցէք զՏէր, ամենայն երկիր, օրհնեցէք զՏէր եւ օրհնեցէք զանուն նորա:",
+      "page": 246
+     }
+    ],
+    "ԲԿ": [
+     {
+      "role": "primary",
+      "text": "Օրհնեցէք զԱստուած մեր, օրհնեցէք եւ սաղմոս ասացէք Տեառն Աստուծոյ:",
+      "page": 246
+     },
+     {
+      "role": "pokh",
+      "text": "Տէր Աստուած օրհնեալ, օրհնեալ է Տէր զօրհանապազ:",
+      "page": 246
+     }
+    ],
+    "ԳՁ": [
+     {
+      "role": "primary",
+      "text": "Մեծ է Տէր, եւ մեծ է զօրութիւն նորա. իմաստութեան նորա ոչ գոյ բաւ:",
+      "page": 246,
+      "arak29_ref": "Ps 146:5",
+      "english_ref_kjv": "Ps 147:5",
+      "english_full": "Great is our Lord, and of great power: his understanding is infinite:",
+      "armenian_bible_full": "Մեծ է Տէր մեր եւ մեծ է զօրութիւն նորա, իմաստութեան նորա ոչ գոյ բաւ:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 147:5"
+     },
+     {
+      "role": "pokh",
+      "text": "Օրհնեցէք զՏէր, զի բարի է սաղմոս, Աստուծոյ մերում քաղցր եղիցի օրհնութիւն:",
+      "page": 246,
+      "arak29_ref": "Ps 146:1",
+      "english_ref_kjv": "Ps 147:1",
+      "english_full": "Praise ye the LORD: for it is good to sing praises unto our God; for it is pleasant; and praise is comely:",
+      "armenian_bible_full": "Օրհնեցէք զՏէր, զի բարի են սաղմոսք Աստուծոյ մերում. քաղցր եղիցի`` օրհնութիւն:",
+      "pairing_coverage": 0.82,
+      "english_ref_esv_lookup": "Psalm 147:1"
+     }
+    ],
+    "ԳԿ": [
+     {
+      "role": "primary",
+      "text": "Սաղմոս ասացէք Աստուծոյ մերում, սաղմոս ասացէք թագաւորին մերում, սաղմոս ասացէք:",
+      "page": 246,
+      "arak29_ref": "Ps 46:7",
+      "english_ref_kjv": "Ps 47:6",
+      "english_full": "Sing praises to God, sing praises: sing praises unto our King, sing praises:",
+      "armenian_bible_full": "Սաղմոս ասացէք Աստուծոյ մերում``, սաղմոս ասացէք Թագաւորին մերում, սաղմոս ասացէք:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 47:6"
+     },
+     {
+      "role": "pokh",
+      "text": "Ծափս հարէք, ամենայն հեթանոսք, աղաղակեցէք առ Աստուած ի ձայն ցնծութեան:",
+      "page": 246,
+      "arak29_ref": "Ps 46:2",
+      "english_ref_kjv": "Ps 47:1",
+      "english_full": "O clap your hands, all ye people; shout unto God with the voice of triumph:",
+      "armenian_bible_full": "Ծափս հարէք, ամենայն հեթանոսք, աղաղակեցէք առ Աստուած ի ձայն ցնծութեան:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 47:1"
+     }
+    ],
+    "ԴՁ": [
+     {
+      "role": "primary",
+      "text": "Սուրբ է տաճար քո սքանչելի արդարութեամբ:",
+      "page": 246,
+      "arak29_ref": "Ps 64:5",
+      "english_ref_kjv": "Ps 65:4",
+      "english_full": "Blessed is the man whom thou choosest, and causest to approach unto thee, that he may dwell in thy courts: we shall be satisfied with the goodness of thy house, even of thy holy temple:",
+      "armenian_bible_full": "Երանի՛ զոր ընտրեցեր եւ ընկալար, եւ բնակեսցէ ի գաւիթս քո. լցցուք մեք ի բարութենէ տան քո, սուրբ է տաճար քո:",
+      "pairing_coverage": 0.67,
+      "english_ref_esv_lookup": "Psalm 65:4"
+     },
+     {
+      "role": "pokh",
+      "text": "Քեզ վայել է օրհնութիւն, Աստուած, ի Սիոն, եւ քեզ տացին աղօթք յԵրուսաղէմ:",
+      "page": 246,
+      "arak29_ref": "Ps 64:2",
+      "english_ref_kjv": "Ps 65:1",
+      "english_full": "Praise waiteth for thee, O God, in Sion: and unto thee shall the vow be performed:",
+      "armenian_bible_full": "Քեզ վայելէ օրհնութիւն, Աստուած, ի Սիոն, եւ քեզ տացին աղօթք յԵրուսաղէմ:",
+      "pairing_coverage": 0.83,
+      "english_ref_esv_lookup": "Psalm 65:1"
+     }
+    ],
+    "ԴԿ": [
+     {
+      "role": "primary",
+      "text": "Այսօր է, զոր արար Տէր, եկայք ցնծասցուք եւ ուրախ եղիցուք ի սմա:",
+      "page": 246,
+      "arak29_ref": "Ps 117:24",
+      "english_ref_kjv": "Ps 118:24",
+      "english_full": "This is the day which the LORD hath made; we will rejoice and be glad in it:",
+      "armenian_bible_full": "Այսօր է զոր արար Տէր, եկայք ցնծասցուք եւ ուրախ եղիցուք ի սմա:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 118:24"
+     },
+     {
+      "role": "pokh",
+      "text": "Խոստովան եղերուք Տեառն, զի բարի է, զի յաւիտեան է ողորմութիւն նորա:",
+      "page": 246,
+      "arak29_ref": "Ps 117:1",
+      "english_ref_kjv": "Ps 118:1",
+      "english_full": "O give thanks unto the LORD; for he is good: because his mercy endureth for ever:",
+      "armenian_bible_full": "Խոստովան եղերուք Տեառն, զի բարի է. զի յաւիտեան է ողորմութիւն նորա:",
+      "pairing_coverage": 1.0,
+      "english_ref_esv_lookup": "Psalm 118:1"
+     }
+    ]
+   },
+   "source": "Ժամագիրք (typed edition, owner's), PDF page 245"
+  }
+ }
+}

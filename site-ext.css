@@ -181,6 +181,42 @@ details.canon-part > summary { cursor: pointer; padding: 9px 12px; background: r
 .chant-seg + .chant-seg { margin-top: 8px; padding-top: 6px; border-top: 1px dotted var(--paper-line, #d8cfb8); }
 .chant-en { font-style: italic; margin-top: 2px; }
 
+/* Two distinct top-level sections on the day page: Readings (Jashots) and Sharagnots (the day's canon) */
+:root { --sec-readings: var(--wine); --sec-readings-rgb: var(--wine-rgb); --sec-sharagnots: #2f6b66; --sec-sharagnots-rgb: 47, 107, 102; }
+:root[data-effective-theme="dark"] { --sec-readings: #d98a98; --sec-readings-rgb: 217, 138, 152; --sec-sharagnots: #78bdb6; --sec-sharagnots-rgb: 120, 189, 182; }
+.day-sec.sec-readings, .day-sec.sec-sharagnots { margin-top: 18px; padding: 4px 0 14px 14px; border-top: 0; border-left: 5px solid var(--sec-readings); }
+.day-sec.sec-sharagnots { border-left-color: var(--sec-sharagnots); }
+.sec-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin: 6px 0 10px; padding: 6px 10px; border-radius: 6px; font-size: 1.35rem; color: var(--sec-readings); background: rgba(var(--sec-readings-rgb), .10); }
+.sec-sharagnots .sec-h { color: var(--sec-sharagnots); background: rgba(var(--sec-sharagnots-rgb), .12); }
+.sec-name { font-weight: 700; letter-spacing: .02em; }
+.sec-src { font-size: .8rem; font-weight: 400; text-transform: uppercase; letter-spacing: .08em; opacity: .85; }
+.sec-count { margin-left: auto; font-size: .85rem; font-weight: 400; color: var(--ink); opacity: .85; }
+.jumpbar .jb-readings { border-color: var(--sec-readings); }
+.jumpbar .jb-sharagnots { border-color: var(--sec-sharagnots); }
+.jumpbar .jb-sharagnots span { background: rgba(var(--sec-sharagnots-rgb), .22); }
+.jumpbar .jb-readings span { background: rgba(var(--sec-readings-rgb), .22); }
+.sec-sharagnots details.canon-part { border-color: rgba(var(--sec-sharagnots-rgb), .45); }
+.sec-sharagnots details.canon-part > summary { background: rgba(var(--sec-sharagnots-rgb), .09); }
+.sec-sharagnots .canon-sub { color: var(--sec-sharagnots); }
+.sec-sharagnots .canon-index .cal-link { border-color: rgba(var(--sec-sharagnots-rgb), .5); }
+.svc-tag { display: inline-block; margin-left: 4px; padding: 0 8px; border-radius: 999px; font-size: .7rem; font-weight: 400; text-transform: uppercase; letter-spacing: .06em; vertical-align: middle; border: 1px solid rgba(var(--sec-sharagnots-rgb), .55); color: var(--sec-sharagnots); background: transparent; }
+.sec-readings .cal-chant { border-left-color: var(--sec-readings); }
+.chant-unsettled .chant-opening { opacity: .9; }
+@media (max-width: 760px) { .day-sec.sec-readings, .day-sec.sec-sharagnots { padding-left: 8px; border-left-width: 4px; } .sec-h { font-size: 1.15rem; } .sec-count { margin-left: 0; flex-basis: 100%; } }
+
 /* D1: cue completion (the print gives only a cue; the rest of the refrain is completed from the same hymn) */
 .cue-completed { margin: 4px 0 2px; font-size: .88rem; opacity: .85; }
 .cue-added, .canon-exp { opacity: .72; border-bottom: 1px dotted currentColor; }
+.chant-gen-entry + .chant-gen-entry { margin-top: 8px; padding-top: 6px; border-top: 1px dotted var(--paper-line, #d8cfb8); }
+
+/* phones and tablets: the top bar scrolls away (it wraps to three rows), the jump bar stays reachable, tap targets reach ~40 px */
+@media (max-width: 760px) {
+  .topbar { position: static; }
+  .jumpbar { position: sticky; top: 0; z-index: 50; padding: 6px 4px; }
+  .day-sec { scroll-margin-top: 56px; }
+  .jumpbar button, .cal-link, .nav-btn, .cal-form button, .topbar nav a, .topbar nav button { min-height: 40px; }
+  .canon-index .cal-link { min-height: 36px; }
+  .day-title { font-size: 1.5rem; }
+  .cal-reading > summary, details.canon-part > summary { padding-top: 11px; padding-bottom: 11px; }
+}
+@media (pointer: coarse) { .jumpbar button, .cal-link, .nav-btn { min-height: 40px; } }

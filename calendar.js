@@ -126,6 +126,12 @@ function chantsBefore(chants, i, reading, placed) {
   const out = chants.filter((c) => { const p = pre(c); if (p == null || placed.has(c)) return false; const hit = typeof p === "number" ? p === i : typeof p === "object" ? (p.index === i || keys.includes(String(p.key))) : (String(p) === String(i) && /^\d+$/.test(String(p))) || keys.includes(String(p)); if (hit) placed.add(c); return hit; });
   return out.sort((x, y) => (x.service_order || 0) - (y.service_order || 0));
 }
+// Generic chants ("մարտիրոսաց ՚ի ձայնէն"): the verse is the Zhamagirk's generic entry for the category in the mode of the day (generic-chants.mjs).
+let genericTable = null, genericMod = null, genericCtx = {};
+async function ensureGeneric() {
+  if (genericTable) return;
+  try { genericMod = await import("./generic-chants.mjs"); const r = await fetch("data/calendar/generic_chants.json"); genericTable = r.ok ? await r.json() : null; } catch (e) { /* the page then says the table could not be loaded */ }
+}
 const SEG_ROLE = { incipit: "", kc: "Connecting verse (կց.)", pokh: "Alternate (փոխ.)" };
 // A verse is shown only when the incipit names ONE verse. Several candidates or none: the printed opening only, never a guessed verse.
 function chantSourceLabel(sg) {
@@ -135,7 +141,28 @@ function chantSourceLabel(sg) {
   if (/Arak29/i.test(src)) return "1895 Bible text (Arak29)";
   return "";
 }
-function renderChantSeg(sg) {
+function renderGenericSeg(sg, c) {
+  const printed = `<div class="chant-hy chant-opening script-original" lang="hy">${esc(sg.incipit || (c && c.verbatim) || "")}</div>`;
+  const res = genericMod && genericTable ? genericMod.resolveGeneric(sg.generic, Object.assign({}, genericCtx, { recordOrdinal: c && c.recordOrdinal }), genericTable) : null;
+  if (!res) return `<div class="chant-seg chant-unsettled">${printed}<div class="cal-note">${chip("generic verse", "warn")} The verse is the Zhamagirk's generic entry for the category in the mode of the day; the table could not be loaded.</div></div>`;
+  const inp = res.inputs;
+  const why = `<details class="cal-other"><summary>Why this verse</summary><ul><li>Category: ${esc(inp.category || "not determined")}${inp.category ? " (" + esc(inp.category_basis) + (inp.category_confidence != null ? ", confidence " + esc(inp.category_confidence) : "") + ")" : ""}${(inp.category_alternatives || []).length ? "; alternatives: " + esc(inp.category_alternatives.join(", ")) : ""}</li><li>Commemoration carrying the chant: ${esc(inp.commemoration || "not identified")}</li><li>Mode of the day: ${esc(inp.mode || "not determined")}${inp.mode_basis ? " (" + esc(inp.mode_basis) + ")" : ""}</li></ul></details>`;
+  if (res.status !== "resolved") return `<div class="chant-seg chant-unsettled">${printed}<div class="cal-note">${chip("generic verse (Zhamagirk)", "warn")} ${esc(res.why)}.</div>${why}</div>`;
+  const ROLE = { alt: "Alternative verse (կամ.)", pokh: "Alternate (փոխ.)" };
+  let h = `<div class="chant-seg">${printed}`;
+  res.entries.forEach((e) => {
+    h += `<div class="chant-gen-entry">${ROLE[e.role] ? `<div class="cal-note">${ROLE[e.role]}</div>` : ""}<div class="chant-hy script-original" lang="hy">${esc(e.armenian_full)}</div>`;
+    h += e.english_full ? `<div class="chant-en">${esc(e.english_full)} <span class="cal-note">(KJV, public domain)</span></div>` : `<div class="cal-note">No sourced English for this verse yet.</div>`;
+    const refs = [e.arak29_ref && "Armenian numbering: " + e.arak29_ref, e.english_ref_kjv && "English numbering: " + e.english_ref_kjv].filter(Boolean);
+    if (refs.length) h += `<div class="cal-note">${esc(refs.join(" · "))}</div>`;
+    if (e.pointer_to) h += `<div class="cal-note">The Zhamagirk prints only the opening here and refers to the verse above (mode ${esc(e.pointer_to.mode)}).</div>`;
+    h += `</div>`;
+  });
+  h += `<div class="cal-note">${esc(res.provenance)} ${res.review_status === "needs_review" ? chip("check: category inferred", "warn") : ""}</div>${why}</div>`;
+  return h;
+}
+function renderChantSeg(sg, c) {
+  if (sg.status === "generic") return renderGenericSeg(sg, c);
   const role = SEG_ROLE[sg.role] ? `<div class="cal-note">${esc(SEG_ROLE[sg.role])}</div>` : "";
   const opening = `<div class="chant-hy chant-opening script-original" lang="hy">${esc(sg.incipit || sg.armenian_full || "")}</div>`;
   if (sg.status === "ambiguous") {
@@ -163,7 +190,7 @@ function renderChant(c) {
   const review = c.review_status === "needs_review" ? chip("review: position or verse not confirmed", "warn") : "";
   const segs = (c.segments || []).filter((x) => x.status && x.status !== "empty");
   let h = `<div class="cal-chant"><div class="chant-head"><span class="chant-kind">${esc(CHANT_KIND[kindKey] || c.kind || "Chant")}</span>${c.psalm ? " " + chip("Psalm " + c.psalm + " (Armenian numbering)") : ""}${c.service ? ` <span class="cal-note">${esc(c.service_label || c.service)}</span>` : ""} ${review}</div>`;
-  if (segs.length) h += segs.slice(0, 4).map(renderChantSeg).join("");
+  if (segs.length) h += segs.slice(0, 4).map((x) => renderChantSeg(x, c)).join("");
   else if (c.armenian_full) h += renderChantSeg({ armenian_full: c.armenian_full, english_full: c.english_full, english_source: c.english_source, armenian_ref: (c.refs || [])[0] });
   else h += `<div class="chant-hy script-original" lang="hy">${esc(c.verbatim || c.incipit || "")}</div><div class="cal-note">Full verse not matched yet; only the printed opening is shown.</div>`;
   return h + `</div>`;
@@ -271,6 +298,7 @@ function renderDay(day) {
   (day.commemorations || []).forEach((c) => { const k = [c.armenian || c.bookHeadingArmenian, c.english, c.role].join("|"); if (!seen.has(k)) { seen.add(k); comms.push(c); } });
   const readings = day.readings || [];
   const hymns = day.hymns || [];
+  genericCtx = { mode: day.mode && day.mode.armenian, weekday: day.weekday, fasting: day.fasting, commemorations: comms.map((c) => c.armenian || c.bookHeadingArmenian).filter(Boolean) };
   let h = `<article class="cal-day" data-date="${esc(day.date)}">`;
   h += `<header class="day-head"><div class="day-date">${esc(day.weekday || "")} &middot; ${esc(day.date)}${day.provisional ? " " + chip("some rules provisional", "warn") : ""}
     <button type="button" class="cal-link" id="calShare">Copy link to this day</button></div>`;
@@ -364,6 +392,7 @@ async function showDay(input, push) {
   }
   const day = eng.resolveDay(input);
   curDay = day;
+  await ensureGeneric();
   out.innerHTML = renderDay(day);
   if (day.civil && day.date) {
     $("calDate").value = day.date; $("calDateText").value = day.date;

@@ -71,9 +71,11 @@ ok('chant ordering: psalm before the first reading, alleluia before the first go
   assert.ok(psalms > 200 && alle > 100, `psalms ${psalms}, alleluias ${alle}`);
 });
 ok('chants on the day carry the reading position and the full verse where matched', () => {
-  let withPos = 0, full = 0, tot = 0;
-  for (const d of days) for (const c of d.chants) { tot++; if (c.precedes_reading != null) withPos++; if (c.armenian_full) { full++; assert.ok(c.english_full && c.english_source, d.date); } }
+  let withPos = 0, full = 0, tot = 0, withEn = 0;
+  for (const d of days) for (const c of d.chants) { tot++; if (c.precedes_reading != null) withPos++; if (c.armenian_full) { full++; if (c.english_full) { withEn++; assert.ok(c.english_source, d.date); } } }
   assert.ok(withPos / tot > 0.95, `positions ${withPos}/${tot}`);
   assert.ok(full / tot > 0.4, `full verses ${full}/${tot}`);
+  // English is only ever the KJV verse Arak29 pairs with the matched verse; a matched verse without a sure pairing shows no English (the page says so)
+  assert.ok(withEn / full > 0.6, `english ${withEn}/${full}`);
 });
 console.log(`${n} tests ok`);
